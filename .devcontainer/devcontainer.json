@@ -6,6 +6,7 @@
 				"eamodio.gitlens",
 				"rust-lang.rust-analyzer",
 				"tamasfe.even-better-toml",
+				"jinxdash.prettier-rust",
 			]
 		}
 	},

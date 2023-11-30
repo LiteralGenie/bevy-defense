@@ -1,0 +1,12 @@
+# first steps
+map
+    resource (?)
+    camera
+    procgen placeholder tiles
+units
+    entity
+    load model
+    animate movement
+towers
+    entity
+    load model

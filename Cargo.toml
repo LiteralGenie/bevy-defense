@@ -7,8 +7,10 @@ edition = "2021"
 
 [dependencies]
 ### REMOVE THIS FOR RELEASE BUILDS ###
-bevy = { version = "0.12.0", features = ["dynamic_linking"] }
-# bevy = "0.12"
+# wasm builds dont work with dynamic linking https://www.reddit.com/r/bevy/comments/16zuzfn/bevy_wasm_build_problems_i_had_and_their_solutions/
+# bevy = { version = "0.12.0", features = ["dynamic_linking"] }
+bevy = "0.12"
+wasm-server-runner = "0.5.1"
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]

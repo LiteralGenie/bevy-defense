@@ -1,11 +1,13 @@
 use bevy::prelude::*;
+mod map;
+mod camera;
 
-fn hello_world() {
-    println!("hello world!");
-}
+fn debug(map: Res<map::Map>) {}
 
 fn main() {
     App::new()
-        .add_systems(Update, hello_world)
+        .add_plugins((DefaultPlugins,))
+        .add_systems(Startup, (map::load_map, camera::load_camera))
+        .add_systems(Update, debug)
         .run();
 }
