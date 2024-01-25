@@ -4,6 +4,7 @@
 
     "[rust]": {
         "editor.defaultFormatter": "jinxdash.prettier-rust",
-        "editor.inlayHints.enabled": "offUnlessPressed"
+        "editor.inlayHints.enabled": "offUnlessPressed",
+        "editor.wordBasedSuggestions": false
     }
 }
