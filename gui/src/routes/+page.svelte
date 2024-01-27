@@ -1,16 +1,17 @@
 <script lang="ts">
 	import { Game } from '$lib/game'
-	import { onMount } from 'svelte'
+	import { onDestroy, onMount } from 'svelte'
 	import { type Readable } from 'svelte/store'
 
 	let game: Game
 	let gold: Readable<number>
 	let health: Readable<number>
 
+	let pollId: number
+
 	function poll() {
-		setTimeout(async () => {
-			await game.requestGold()
-			await game.requestHealth()
+		pollId = setTimeout(async () => {
+			await Promise.all([game.requestGold(), game.requestHealth()])
 			poll()
 		}, 500)
 	}
@@ -21,6 +22,10 @@
 		health = game.player.health
 
 		poll()
+	})
+
+	onDestroy(() => {
+		clearTimeout(pollId)
 	})
 </script>
 

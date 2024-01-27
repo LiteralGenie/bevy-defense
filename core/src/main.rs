@@ -5,6 +5,7 @@ mod camera;
 mod units;
 mod path;
 mod player;
+mod timer;
 
 fn main() {
     App::new()
@@ -23,7 +24,9 @@ fn main() {
             camera::load_camera,
             path::load_paths,
             player::load_players,
+            timer::load_timer,
         ))
+        .add_systems(Update, timer::update_timer)
         .add_systems(Update, gui::rx::handle_gui_requests)
         .run();
 }
