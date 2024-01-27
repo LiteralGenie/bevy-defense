@@ -14,10 +14,13 @@ RUN apt install -y g++ pkg-config libx11-dev libasound2-dev libudev-dev
 
 # wasm deps
 RUN rustup target install wasm32-unknown-unknown
-RUN cargo install wasm-server-runner
+RUN cargo install wasm-server-runner wasm-bindgen-cli
 
 # linux-only optimizaiton: https://bevyengine.org/learn/book/getting-started/setup/
 RUN apt install mold clang  -y
+
+# node
+RUN curl -fsSL https://deb.nodesource.com/setup_21.x | bash - && apt-get install -y nodejs
 
 ### DEV
 

@@ -15,6 +15,11 @@
 			"args": [
 				"--target", "wasm32-unknown-unknown"
 			]
+		},
+		{
+			"type": "shell",
+			"label": "build",
+			"command": "./build.sh",
 		}
 	]
 }

@@ -3,14 +3,16 @@ name = "bevy-defense"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-### REMOVE THIS FOR RELEASE BUILDS ###
+### UNCOMMENT THIS FOR RELEASE BUILDS ###
 # wasm builds dont work with dynamic linking https://www.reddit.com/r/bevy/comments/16zuzfn/bevy_wasm_build_problems_i_had_and_their_solutions/
 # bevy = { version = "0.12.0", features = ["dynamic_linking"] }
 bevy = "0.12"
-wasm-server-runner = "0.5.1"
+js-sys = "0.3.67"
+serde = { version = "1.0", features = ["derive"] }
+serde-wasm-bindgen = "0.4"
+wasm-bindgen = "0.2.90"
+wasm-bindgen-cli = "0.2.90"
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]
