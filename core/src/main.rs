@@ -10,6 +10,7 @@ mod towers;
 
 fn main() {
     App::new()
+        // Load game into canvas#game-canvas
         .add_plugins(
             DefaultPlugins.set(WindowPlugin {
                 primary_window: Some(Window {
@@ -19,6 +20,7 @@ fn main() {
                 ..default()
             })
         )
+        // Init game state
         .add_systems(Startup, (
             map::spawn_map,
             camera::spawn_camera,
@@ -26,7 +28,9 @@ fn main() {
             player::spawn_players,
             timer::spawn_timer,
         ))
+        // Update our custom timer's state
         .add_systems(Update, timer::update_timer)
+        // Update GUI
         .add_systems(Update, gui::rx::handle_gui_requests)
         .run();
 }

@@ -1,7 +1,7 @@
 import loadWasm from '$lib/assets/wasm/bevy-defense'
 import { writable } from 'svelte/store'
 
-export const EVENT_TYPES = ['gold', 'health'] as const
+export const EVENT_TYPES = ['gold', 'health', 'spawn_tower'] as const
 
 export type EventType = (typeof EVENT_TYPES)[number]
 
@@ -60,5 +60,9 @@ export class Game {
 	async requestHealth() {
 		const health = await this.pushRequest<number>('health', null)
 		this.player.health.set(health)
+	}
+
+	async spawnTower() {
+		await this.pushRequest<null>('spawn_tower', null)
 	}
 }

@@ -1,4 +1,4 @@
-use bevy::ecs::system::{ Commands, Res, ResMut, Resource };
+use bevy::ecs::system::{ Commands, ResMut, Resource };
 
 #[derive(Resource)]
 pub struct TickTimer {

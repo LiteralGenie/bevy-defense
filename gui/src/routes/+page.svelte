@@ -20,6 +20,10 @@
 		game = Game.initSingleton()
 		gold = game.player.gold
 		health = game.player.health
+		
+		setTimeout(() => {
+			game.spawnTower()
+		}, 3000)
 
 		poll()
 	})

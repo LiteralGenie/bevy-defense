@@ -1,9 +1,13 @@
-use bevy::ecs::system::{ Query, SystemState };
+use bevy::asset::Assets;
+use bevy::prelude::Commands;
+use bevy::ecs::system::{ Query, ResMut, SystemState };
 use bevy::ecs::world::World;
+use bevy::pbr::StandardMaterial;
+use bevy::render::mesh::Mesh;
 use js_sys::Function;
-use js_sys::Math::random;
 use wasm_bindgen::{ prelude::wasm_bindgen, JsValue };
 use crate::player::{ PlayerGold, PlayerHealth };
+use crate::towers;
 
 use super::console;
 use super::utils::get_prop;
@@ -48,6 +52,17 @@ pub fn handle_gui_requests(mut world: &mut World) {
                 let health = query.single();
 
                 result = Some(resolve.call1(&JsValue::null(), &health.0.into()));
+            }
+            "spawn_tower" => {
+                let mut state: SystemState<
+                    (Commands, ResMut<Assets<Mesh>>, ResMut<Assets<StandardMaterial>>)
+                > = SystemState::new(&mut world);
+
+                let (commands, meshes, materials) = state.get_mut(&mut world);
+                towers::basic_tower::spawn_model(commands, meshes, materials);
+                state.apply(world);
+
+                result = Some(Ok(JsValue::null()));
             }
             _ => {
                 console::warn2("Unknown event type", event_type.as_str());
