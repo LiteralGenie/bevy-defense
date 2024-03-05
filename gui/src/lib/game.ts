@@ -1,24 +1,28 @@
 import loadWasm from '$lib/assets/wasm/bevy-defense'
-import { writable } from 'svelte/store'
+import { writable, type Writable } from 'svelte/store'
 
-export const EVENT_TYPES = ['gold', 'health', 'spawn_tower'] as const
+export const REQUEST_TYPES = ['spawn_tower'] as const
+export type RequestType = (typeof REQUEST_TYPES)[number]
 
-export type EventType = (typeof EVENT_TYPES)[number]
-
-export interface Event<T = any> {
-	type: EventType
+export interface Request<T = any> {
+	type: RequestType
 	resolve: (text: unknown) => void
 	reject: (text: unknown) => void
 	data: T
 }
 
+export interface GameState {
+	gold: Writable<number>
+	health: Writable<number>
+}
+
 export class Game {
-	player = {
+	state: GameState = {
 		gold: writable(0),
 		health: writable(0)
 	}
 
-	fromGui = [] as Event[]
+	guiRequests = [] as Request[]
 
 	static initSingleton() {
 		const game = new Game()
@@ -37,13 +41,26 @@ export class Game {
 		return game
 	}
 
-	private async pushRequest<TOut, TIn = any>(type: EventType, data: TIn) {
+	updateState(key: keyof GameState, value: any) {
+		switch (key) {
+			case 'gold':
+				this.state.gold.set(value)
+				break
+			case 'health':
+				this.state.health.set(value)
+				break
+			default:
+				console.error('invalid updateState key', key, value)
+		}
+	}
+
+	private async pushRequest<TOut, TIn = any>(type: RequestType, data: TIn) {
 		let resolve, reject
 		const p = new Promise((rs, rj) => {
 			resolve = rs
 			reject = rj
 		})
-		this.fromGui.push({
+		this.guiRequests.push({
 			type,
 			resolve: resolve as any,
 			reject: reject as any,
@@ -52,17 +69,7 @@ export class Game {
 		return (await p) as TOut
 	}
 
-	async requestGold() {
-		const gold = await this.pushRequest<number>('gold', null)
-		this.player.gold.set(gold)
-	}
-
-	async requestHealth() {
-		const health = await this.pushRequest<number>('health', null)
-		this.player.health.set(health)
-	}
-
 	async spawnTower() {
-		await this.pushRequest<null>('spawn_tower', null)
+		await this.pushRequest('spawn_tower', null)
 	}
 }

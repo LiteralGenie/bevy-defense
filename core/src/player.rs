@@ -1,5 +1,9 @@
-use bevy::ecs::{ bundle::Bundle, component::Component, system::Commands };
-use serde::{ Serialize };
+use bevy::ecs::{
+    bundle::Bundle, component::Component, system::Commands,
+};
+use serde::Serialize;
+
+use crate::gui::console;
 
 #[derive(Component, Serialize)]
 pub struct PlayerGold(pub u16);

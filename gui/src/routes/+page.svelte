@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Game } from '$lib/game'
-	import { onDestroy, onMount } from 'svelte'
+	import { onMount } from 'svelte'
 	import { type Readable } from 'svelte/store'
 
 	let game: Game
@@ -9,27 +9,17 @@
 
 	let pollId: number
 
-	function poll() {
-		pollId = setTimeout(async () => {
-			await Promise.all([game.requestGold(), game.requestHealth()])
-			poll()
-		}, 500)
-	}
-
 	onMount(() => {
+		// @fixme: This breaks hot-reloading for some reason
+		//   	   The wasm probably isn't reloading despite the canvas being destroyed / recreated
+		// 		   Probably need to move the canvas + Game's init logic to app.html
 		game = Game.initSingleton()
-		gold = game.player.gold
-		health = game.player.health
+		gold = game.state.gold
+		health = game.state.health
 		
 		setTimeout(() => {
 			game.spawnTower()
 		}, 3000)
-
-		poll()
-	})
-
-	onDestroy(() => {
-		clearTimeout(pollId)
 	})
 </script>
 
@@ -47,5 +37,10 @@
 	.game-canvas-container {
 		width: 90vw;
 		height: 90vh;
+	}
+
+	#game-canvas {
+		width: 100% !important;
+		height: 100% !important;
 	}
 </style>

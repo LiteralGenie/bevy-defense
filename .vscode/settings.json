@@ -6,7 +6,7 @@
   },
 
   "[rust]": {
-    "editor.defaultFormatter": "jinxdash.prettier-rust",
+    "editor.defaultFormatter": "rust-lang.rust-analyzer",
     "editor.inlayHints.enabled": "offUnlessPressed",
     "editor.wordBasedSuggestions": "off"
   },
