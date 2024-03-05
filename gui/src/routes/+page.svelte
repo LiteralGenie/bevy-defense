@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Sidebar from '$lib/components/sidebar.svelte'
 	import { Game } from '$lib/game'
 	import { onMount } from 'svelte'
 	import { type Readable } from 'svelte/store'
@@ -7,40 +8,72 @@
 	let gold: Readable<number>
 	let health: Readable<number>
 
-	let pollId: number
-
 	onMount(() => {
-		// @fixme: This breaks hot-reloading for some reason
-		//   	   The wasm probably isn't reloading despite the canvas being destroyed / recreated
-		// 		   Probably need to move the canvas + Game's init logic to app.html
-		game = Game.initSingleton()
+		game = (window as any).game ?? Game.initSingleton()
 		gold = game.state.gold
 		health = game.state.health
-		
+
 		setTimeout(() => {
 			game.spawnTower()
 		}, 3000)
 	})
 </script>
 
-{#if game}
-	Gold: {$gold}
-	<br />
-	Health: {$health}
-{/if}
+<div id="gui">
+	{#if game}
+		<div class="container">
+			<div class="info">
+				<span>Gold: {$gold}</span>
+				<span>Health: {$health}</span>
+			</div>
 
-<div class="game-canvas-container">
-	<canvas id="game-canvas"></canvas>
+			<Sidebar />
+		</div>
+	{/if}
 </div>
 
 <style lang="scss">
-	.game-canvas-container {
-		width: 90vw;
-		height: 90vh;
+	// Full-screen the game canvas
+	:global(body) {
+		margin: 0;
+		overflow: hidden;
+	}
+	:global(.game-canvas-container) {
+		height: 100vh;
+		width: 100vw;
+
+		:global(#game-canvas) {
+			height: 100% !important;
+			width: 100% !important;
+		}
 	}
 
-	#game-canvas {
-		width: 100% !important;
-		height: 100% !important;
+	// Make the gui an overlay
+	#gui {
+		height: 100%;
+		width: 100%;
+
+		position: absolute;
+	}
+
+	.container {
+		height: 100%;
+
+		display: grid;
+		grid-template-columns: 1fr max(200px, 20vw);
+
+		color: white;
+
+		.info {
+			height: max-content;
+			width: max-content;
+			justify-self: flex-end;
+			padding: 1rem;
+
+			display: flex;
+			flex-flow: column;
+			align-items: flex-end;
+			gap: 0.25rem;
+		}
 	}
 </style>
