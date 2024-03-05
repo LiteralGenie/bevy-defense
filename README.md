@@ -47,12 +47,6 @@ Avoid batch update optimizations, added too much complexity in panda3d impl
 
 # TODO
 
-## units
-    init paths
-    unit entity
-    unit moves each tick
-    unit disappears at end of path
-
 ## targeting
 
 ## rounds

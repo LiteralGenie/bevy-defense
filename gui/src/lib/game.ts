@@ -44,7 +44,7 @@ export class Game {
 			reject = rj
 		})
 		this.fromGui.push({
-			type: 'gold',
+			type,
 			resolve: resolve as any,
 			reject: reject as any,
 			data

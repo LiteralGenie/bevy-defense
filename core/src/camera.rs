@@ -3,7 +3,7 @@ use bevy::prelude::*;
 #[derive(Component)]
 pub struct Camera;
 
-pub fn load_camera(mut commands: Commands) {
+pub fn spawn_camera(mut commands: Commands) {
     commands.spawn(PointLightBundle {
         point_light: PointLight {
             intensity: 40000.0,
@@ -18,10 +18,7 @@ pub fn load_camera(mut commands: Commands) {
 
     commands.spawn((
         Camera3dBundle {
-            transform: Transform::from_translation(Vec3::new(-0.25, 20.0, 0.0)).looking_at(
-                Vec3::ZERO,
-                Vec3::Y
-            ),
+            transform: Transform::from_xyz(0.0, 20.0, 0.0).looking_at(Vec3::ZERO, Vec3::NEG_Z),
             ..Default::default()
         },
         Camera,

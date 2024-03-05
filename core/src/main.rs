@@ -6,6 +6,7 @@ mod units;
 mod path;
 mod player;
 mod timer;
+mod towers;
 
 fn main() {
     App::new()
@@ -13,18 +14,17 @@ fn main() {
             DefaultPlugins.set(WindowPlugin {
                 primary_window: Some(Window {
                     canvas: Some("#game-canvas".into()),
-                    fit_canvas_to_parent: true,
                     ..default()
                 }),
                 ..default()
             })
         )
         .add_systems(Startup, (
-            map::load_map,
-            camera::load_camera,
-            path::load_paths,
-            player::load_players,
-            timer::load_timer,
+            map::spawn_map,
+            camera::spawn_camera,
+            path::spawn_paths,
+            player::spawn_players,
+            timer::spawn_timer,
         ))
         .add_systems(Update, timer::update_timer)
         .add_systems(Update, gui::rx::handle_gui_requests)

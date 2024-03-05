@@ -66,7 +66,7 @@ fn points_from_segments(start: Point2, segments: &[Segment]) -> Vec<PathPos> {
     return points;
 }
 
-pub fn load_paths() {
+pub fn spawn_paths() {
     let paths = vec![
         Path::new(
             1,

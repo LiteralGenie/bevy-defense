@@ -7,12 +7,12 @@ edition = "2021"
 ### UNCOMMENT THIS FOR RELEASE BUILDS ###
 # wasm builds dont work with dynamic linking https://www.reddit.com/r/bevy/comments/16zuzfn/bevy_wasm_build_problems_i_had_and_their_solutions/
 # bevy = { version = "0.12.0", features = ["dynamic_linking"] }
-bevy = "0.12"
+bevy = "0.13"
 js-sys = "0.3.67"
 serde = { version = "1.0", features = ["derive"] }
 serde-wasm-bindgen = "0.4"
-wasm-bindgen = "0.2.90"
-wasm-bindgen-cli = "0.2.90"
+wasm-bindgen = "0.2.92"
+wasm-bindgen-cli = "0.2.92"
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]

@@ -1,7 +1,5 @@
 use bevy::ecs::system::{ Commands, Res, ResMut, Resource };
 
-use crate::gui::console;
-
 #[derive(Resource)]
 pub struct TickTimer {
     pub tick: u32,
@@ -21,7 +19,7 @@ impl Default for TickTimer {
     }
 }
 
-pub fn load_timer(mut commands: Commands) {
+pub fn spawn_timer(mut commands: Commands) {
     commands.insert_resource(TickTimer { ..Default::default() });
 }
 
