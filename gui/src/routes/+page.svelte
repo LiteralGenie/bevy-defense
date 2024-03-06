@@ -15,18 +15,18 @@
 	})
 </script>
 
-<div id="gui">
-	{#if game}
-		<div class="container">
-			<div class="info">
-				<span>Gold: {$gold}</span>
-				<span>Health: {$health}</span>
-			</div>
+{#if game}
+	<div class="container">
+		<div class="info">
+			<span>Gold: {$gold}</span>
+			<span>Health: {$health}</span>
+		</div>
 
+		<div class="sidebar">
 			<Sidebar />
 		</div>
-	{/if}
-</div>
+	</div>
+{/if}
 
 <style lang="scss">
 	// Full-screen the game canvas
@@ -45,16 +45,23 @@
 	}
 
 	// Make the gui an overlay
-	#gui {
+	.container {
+		position: absolute;
 		height: 100%;
 		width: 100%;
+	}
 
-		position: absolute;
+	// For drag-and-drop purposes, ignore most of the gui overlay
+	// when calculating the drop target (document.elementFromPoint())
+	.container {
+		pointer-events: none;
+
+		.sidebar {
+			pointer-events: all;
+		}
 	}
 
 	.container {
-		height: 100%;
-
 		display: grid;
 		grid-template-columns: 1fr max(200px, 20vw);
 
@@ -70,6 +77,10 @@
 			flex-flow: column;
 			align-items: flex-end;
 			gap: 0.25rem;
+		}
+
+		.sidebar {
+			height: 100%;
 		}
 	}
 </style>

@@ -60,7 +60,11 @@
 		if (isValidDropPos) {
 			const { clientX: x, clientY: y } = ev
 
-			await spawnTower({ x, y })
+			// Only spawn tower if the drop target is the canvas and not the GUI
+			const target = document.elementFromPoint(x, y)
+			if (target?.id === 'game-canvas') {
+				await spawnTower({ x, y })
+			}
 
 			// To prevent flickering, don't despawn cursor until after tower is created
 			await drawCursor(null)
@@ -87,6 +91,8 @@
 
 <style lang="scss">
 	.container {
+		height: 100%;
+
 		background: black;
 	}
 
