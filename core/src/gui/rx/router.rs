@@ -26,7 +26,7 @@ fn extract_request(
 
     let data = get_prop(&request, "data");
 
-    return (event_type, resolve, reject, data);
+    (event_type, resolve, reject, data)
 }
 
 fn extract_xy(data: JsValue) -> Vec2 {
@@ -55,11 +55,12 @@ pub fn handle_gui_requests(world: &mut World) {
                     pos = Some(extract_xy(position));
                 }
 
-                handle_draw_cursor(world, pos);
+                let did_draw = handle_draw_cursor(world, pos);
 
-                result = Some(
-                    resolve.call1(&JsValue::null(), &JsValue::TRUE),
-                );
+                result = Some(resolve.call1(
+                    &JsValue::null(),
+                    &JsValue::from_bool(did_draw),
+                ));
             }
             "spawn_tower" => {
                 handle_spawn_tower(world, extract_xy(data));

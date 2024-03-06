@@ -1,6 +1,11 @@
 use bevy::{ecs::system::SystemState, prelude::*};
 
-use crate::gui::{console, utils::window_to_world_coords};
+use crate::{
+    gui::utils::{
+        can_place_tower, snap_coords, window_to_world_coords,
+    },
+    towers::basic_tower::spawn_model,
+};
 
 #[derive(Resource)]
 struct Cursor {
@@ -10,7 +15,7 @@ struct Cursor {
 pub fn handle_draw_cursor(
     world: &mut World,
     maybe_pos: Option<Vec2>,
-) {
+) -> bool {
     // Init cursor resource
     world.get_resource_or_insert_with(|| Cursor { model: None });
 
@@ -18,14 +23,23 @@ pub fn handle_draw_cursor(
     despawn_cursor(world);
 
     // If position is non-null, spawn a new cursor
-    if let Some(pos) = maybe_pos {
-        let update = spawn_model(world, pos);
+    if let Some(cursor_pos) = maybe_pos {
+        let pos =
+            snap_coords(window_to_world_coords(world, cursor_pos));
+
+        if !can_place_tower(world, pos) {
+            return false;
+        }
+
+        let update = spawn_model(world, pos, 127);
 
         let mut cursor = world
             .get_resource_or_insert_with(|| Cursor { model: None });
 
         cursor.model = Some(update);
     }
+
+    return true;
 }
 
 fn despawn_cursor(world: &mut World) {
@@ -39,38 +53,4 @@ fn despawn_cursor(world: &mut World) {
         cursor.model = None;
         state.apply(world);
     }
-}
-
-fn spawn_model(world: &mut World, cursor_pos: Vec2) -> Entity {
-    let mut state: SystemState<(
-        Commands,
-        ResMut<Assets<Mesh>>,
-        ResMut<Assets<StandardMaterial>>,
-        Query<(&Camera, &GlobalTransform)>,
-    )> = SystemState::new(world);
-
-    let (mut commands, mut meshes, mut materials, camera_query) =
-        state.get_mut(world);
-
-    let (camera, camera_transform) = camera_query.single();
-
-    let world_pos =
-        window_to_world_coords(camera, camera_transform, cursor_pos);
-
-    let model = PbrBundle {
-        mesh: meshes.add(Cuboid::default()),
-        material: materials.add(Color::rgb_u8(255, 0, 0)),
-        transform: Transform::from_xyz(
-            world_pos.x.round(),
-            0.0,
-            world_pos.z.round(),
-        ),
-        ..default()
-    };
-
-    let entity = commands.spawn(model).id();
-
-    state.apply(world);
-
-    entity
 }

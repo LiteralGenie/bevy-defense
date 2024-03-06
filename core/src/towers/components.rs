@@ -1,7 +1,13 @@
 use bevy::prelude::*;
 
 #[derive(Component)]
+pub struct TowerMarker;
+
+#[derive(Component)]
+pub struct TowerModel(pub Entity);
+
+#[derive(Component)]
 pub struct TowerPosition {
-    pub x: u32,
-    pub y: u32,
+    pub x: i16,
+    pub z: i16,
 }

@@ -57,7 +57,7 @@
 	async function handleDragEnd(ev: DragEvent) {
 		isDragging.set(false)
 
-		if (isValidDropPos) {
+		if ($isValidDropPos) {
 			const { clientX: x, clientY: y } = ev
 
 			// Only spawn tower if the drop target is the canvas and not the GUI
@@ -65,10 +65,10 @@
 			if (target?.id === 'game-canvas') {
 				await spawnTower({ x, y })
 			}
-
-			// To prevent flickering, don't despawn cursor until after tower is created
-			await drawCursor(null)
 		}
+
+		// To prevent flickering, don't despawn cursor until after tower is created
+		await drawCursor(null)
 	}
 </script>
 
