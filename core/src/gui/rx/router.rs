@@ -55,6 +55,8 @@ pub fn handle_gui_requests(world: &mut World) {
                     pos = Some(extract_xy(position));
                 }
 
+                // @todo: Is it necessary to optimize this by only processing the latest draw_cursor event?
+                //        Even if the JS is firing events fast enough to pile up multiple in a single frame, is the performance impact significant?
                 let did_draw = handle_draw_cursor(world, pos);
 
                 result = Some(resolve.call1(
