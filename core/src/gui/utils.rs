@@ -7,7 +7,7 @@ use super::console;
 
 pub fn get_prop(val: &JsValue, key: &str) -> JsValue {
     let key_val = JsValue::from_str(key);
-    return js_sys::Reflect::get(val, &key_val).unwrap();
+    js_sys::Reflect::get(val, &key_val).unwrap()
 }
 
 /**
