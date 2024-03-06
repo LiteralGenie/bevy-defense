@@ -13,4 +13,10 @@ extern "C" {
 
     #[wasm_bindgen(js_namespace = console, js_name = warn)]
     pub fn warn2(a: &str, b: &str);
+
+    #[wasm_bindgen(js_namespace = console)]
+    pub fn error(s: &str);
+
+    #[wasm_bindgen(js_namespace = console, js_name = error)]
+    pub fn error2(a: &str, b: &str);
 }

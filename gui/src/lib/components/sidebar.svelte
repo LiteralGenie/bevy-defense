@@ -5,6 +5,11 @@
 </script>
 
 <script lang="ts">
+	import { drawCursor } from '$lib/game/handlers/draw-cursor'
+	import { spawnTower } from '$lib/game/handlers/spawn-tower'
+
+	import { writable } from 'svelte/store'
+
 	const towers: Tower[] = [
 		{
 			name: '1'
@@ -19,12 +24,62 @@
 			name: '4'
 		}
 	]
+
+	let isDragging = writable(false)
+	let isValidDropPos = writable(false)
+
+	async function handleDragStart(ev: DragEvent) {
+		isDragging.set(true)
+		isValidDropPos.set(false)
+
+		// Delete default cursor ghost, wasm will handle this
+		ev.dataTransfer?.setDragImage(document.createElement('image'), 0, 0)
+	}
+
+	async function handleDrag(ev: DragEvent) {
+		const { clientX: x, clientY: y } = ev
+
+		// Ignore final drag event which because it's always at (0,0) for some reason
+		if (x === 0 && y === 0) {
+			return
+		}
+
+		isValidDropPos.set(
+			await drawCursor({
+				type: 'tower',
+				position: { x, y }
+			})
+		)
+	}
+
+	async function handleDragEnd(ev: DragEvent) {
+		isDragging.set(false)
+
+		if (isValidDropPos) {
+			const { clientX: x, clientY: y } = ev
+
+			await spawnTower({ x, y })
+
+			// To prevent flickering, don't despawn cursor until after tower is created
+			await drawCursor(null)
+		}
+	}
 </script>
 
 <div class="container">
 	<div class="grid">
 		{#each towers as tower}
-			<button class="cell">{tower.name}</button>
+			<button
+				class="cell"
+				disabled={$isDragging}
+				draggable="true"
+				on:dragstart={handleDragStart}
+				on:drag={handleDrag}
+				on:dragend={handleDragEnd}
+			>
+				{tower.name}
+				{$isDragging}
+			</button>
 		{/each}
 	</div>
 </div>

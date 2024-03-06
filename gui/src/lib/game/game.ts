@@ -1,7 +1,13 @@
 import loadWasm from '$lib/assets/wasm/bevy-defense'
 import { writable, type Writable } from 'svelte/store'
 
-export const REQUEST_TYPES = ['spawn_tower'] as const
+declare global {
+	interface Window {
+		game: Game
+	}
+}
+
+export const REQUEST_TYPES = ['spawn_tower', 'draw_cursor'] as const
 export type RequestType = (typeof REQUEST_TYPES)[number]
 
 export interface Request<T = any> {
@@ -24,6 +30,9 @@ export class Game {
 
 	guiRequests = [] as Request[]
 
+	/**
+	 * Add Game instance to window
+	 */
 	static initSingleton() {
 		const game = new Game()
 		;(window as any).game = game
@@ -41,6 +50,9 @@ export class Game {
 		return game
 	}
 
+	/**
+	 * WASM-land calls this to update game state
+	 */
 	updateState(key: keyof GameState, value: any) {
 		switch (key) {
 			case 'gold':
@@ -54,7 +66,12 @@ export class Game {
 		}
 	}
 
-	private async pushRequest<TOut, TIn = any>(type: RequestType, data: TIn) {
+	/**
+	 * GUI calls this to send message to WASM-land
+	 */
+	async pushRequest<TOut, TIn = any>(type: RequestType, data: TIn) {
+		console.debug('Submitting wasm request', type, data)
+
 		let resolve, reject
 		const p = new Promise((rs, rj) => {
 			resolve = rs
@@ -67,9 +84,5 @@ export class Game {
 			data
 		})
 		return (await p) as TOut
-	}
-
-	async spawnTower() {
-		await this.pushRequest('spawn_tower', null)
 	}
 }

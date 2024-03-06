@@ -1,22 +1,29 @@
+use crate::gui::utils::window_to_world_coords;
 use crate::towers;
 use bevy::asset::Assets;
-use bevy::ecs::system::{ResMut, SystemState};
+use bevy::ecs::system::{Query, ResMut, SystemState};
 use bevy::ecs::world::World;
+use bevy::math::Vec2;
 use bevy::pbr::StandardMaterial;
 use bevy::prelude::Commands;
+use bevy::render::camera::Camera;
 use bevy::render::mesh::Mesh;
+use bevy::transform::components::GlobalTransform;
 use js_sys::Function;
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
-use super::console;
-use super::utils::get_prop;
+use super::super::console;
+use super::super::utils::get_prop;
+use super::handle_draw_cursor::handle_draw_cursor;
 
 #[wasm_bindgen(js_namespace = game)]
 extern "C" {
     pub static guiRequests: js_sys::Array;
 }
 
-fn extract_request(request: JsValue) -> (String, Function, Function) {
+fn extract_request(
+    request: &JsValue,
+) -> (String, Function, Function, JsValue) {
     let event_type = get_prop(&request, "type").as_string().unwrap();
 
     let temp = get_prop(&request, "resolve");
@@ -25,7 +32,15 @@ fn extract_request(request: JsValue) -> (String, Function, Function) {
     let temp = get_prop(&request, "reject");
     let reject = js_sys::Function::from(temp);
 
-    return (event_type, resolve, reject);
+    let data = get_prop(&request, "data");
+
+    return (event_type, resolve, reject, data);
+}
+
+fn extract_xy(data: JsValue) -> Vec2 {
+    let x = get_prop(&data, "x").as_f64().unwrap();
+    let y = get_prop(&data, "y").as_f64().unwrap();
+    Vec2::new(x as f32, y as f32)
 }
 
 pub fn handle_gui_requests(world: &mut World) {
@@ -33,22 +48,51 @@ pub fn handle_gui_requests(world: &mut World) {
 
     for i in 0..len {
         let req = guiRequests.get(i);
-        let (event_type, resolve, reject) = extract_request(req);
+        let (event_type, resolve, reject, data) =
+            extract_request(&req);
 
         let mut result: Option<Result<JsValue, JsValue>> = None;
 
         match event_type.as_str() {
+            "draw_cursor" => {
+                let pos: Option<Vec2>;
+                if data.is_null() {
+                    pos = None
+                } else {
+                    let position = get_prop(&data, "position");
+                    pos = Some(extract_xy(position));
+                }
+
+                handle_draw_cursor(world, pos);
+
+                result = Some(
+                    resolve.call1(&JsValue::null(), &JsValue::TRUE),
+                );
+            }
             "spawn_tower" => {
                 let mut state: SystemState<(
                     Commands,
                     ResMut<Assets<Mesh>>,
                     ResMut<Assets<StandardMaterial>>,
+                    Query<(&Camera, &GlobalTransform)>,
                 )> = SystemState::new(world);
 
-                let (commands, meshes, materials) =
+                let (commands, meshes, materials, camera_query) =
                     state.get_mut(world);
+
+                let (camera, camera_transform) =
+                    camera_query.single();
+                let pos = window_to_world_coords(
+                    camera,
+                    camera_transform,
+                    extract_xy(data),
+                );
+
                 towers::basic_tower::spawn_model(
-                    commands, meshes, materials,
+                    commands,
+                    meshes,
+                    materials,
+                    Vec2::new(pos.x, pos.z),
                 );
                 state.apply(world);
 
@@ -57,7 +101,7 @@ pub fn handle_gui_requests(world: &mut World) {
                 );
             }
             _ => {
-                console::warn2(
+                console::error2(
                     "Unknown event type",
                     event_type.as_str(),
                 );

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Sidebar from '$lib/components/sidebar.svelte'
-	import { Game } from '$lib/game'
+	import { Game } from '$lib/game/game'
 	import { onMount } from 'svelte'
 	import { type Readable } from 'svelte/store'
 
@@ -9,13 +9,9 @@
 	let health: Readable<number>
 
 	onMount(() => {
-		game = (window as any).game ?? Game.initSingleton()
+		game = window.game ?? Game.initSingleton()
 		gold = game.state.gold
 		health = game.state.health
-
-		setTimeout(() => {
-			game.spawnTower()
-		}, 3000)
 	})
 </script>
 

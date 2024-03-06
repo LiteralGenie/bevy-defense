@@ -36,6 +36,6 @@ fn main() {
             Update,
             (gui::tx::update_gold, gui::tx::update_health),
         )
-        .add_systems(Update, gui::rx::handle_gui_requests)
+        .add_systems(Update, gui::rx::router::handle_gui_requests)
         .run();
 }
