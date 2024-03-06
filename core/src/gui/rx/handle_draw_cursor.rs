@@ -41,7 +41,7 @@ fn despawn_cursor(world: &mut World) {
     }
 }
 
-fn spawn_model(world: &mut World, pos: Vec2) -> Entity {
+fn spawn_model(world: &mut World, cursor_pos: Vec2) -> Entity {
     let mut state: SystemState<(
         Commands,
         ResMut<Assets<Mesh>>,
@@ -55,12 +55,16 @@ fn spawn_model(world: &mut World, pos: Vec2) -> Entity {
     let (camera, camera_transform) = camera_query.single();
 
     let world_pos =
-        window_to_world_coords(camera, camera_transform, pos);
+        window_to_world_coords(camera, camera_transform, cursor_pos);
 
     let model = PbrBundle {
         mesh: meshes.add(Cuboid::default()),
         material: materials.add(Color::rgb_u8(255, 0, 0)),
-        transform: Transform::from_xyz(world_pos.x, 0.0, world_pos.z),
+        transform: Transform::from_xyz(
+            world_pos.x.round(),
+            0.0,
+            world_pos.z.round(),
+        ),
         ..default()
     };
 

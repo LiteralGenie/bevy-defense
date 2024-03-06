@@ -1,20 +1,12 @@
-use crate::gui::utils::window_to_world_coords;
-use crate::towers;
-use bevy::asset::Assets;
-use bevy::ecs::system::{Query, ResMut, SystemState};
 use bevy::ecs::world::World;
 use bevy::math::Vec2;
-use bevy::pbr::StandardMaterial;
-use bevy::prelude::Commands;
-use bevy::render::camera::Camera;
-use bevy::render::mesh::Mesh;
-use bevy::transform::components::GlobalTransform;
 use js_sys::Function;
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 use super::super::console;
 use super::super::utils::get_prop;
 use super::handle_draw_cursor::handle_draw_cursor;
+use super::handle_spawn_tower::handle_spawn_tower;
 
 #[wasm_bindgen(js_namespace = game)]
 extern "C" {
@@ -70,31 +62,7 @@ pub fn handle_gui_requests(world: &mut World) {
                 );
             }
             "spawn_tower" => {
-                let mut state: SystemState<(
-                    Commands,
-                    ResMut<Assets<Mesh>>,
-                    ResMut<Assets<StandardMaterial>>,
-                    Query<(&Camera, &GlobalTransform)>,
-                )> = SystemState::new(world);
-
-                let (commands, meshes, materials, camera_query) =
-                    state.get_mut(world);
-
-                let (camera, camera_transform) =
-                    camera_query.single();
-                let pos = window_to_world_coords(
-                    camera,
-                    camera_transform,
-                    extract_xy(data),
-                );
-
-                towers::basic_tower::spawn_model(
-                    commands,
-                    meshes,
-                    materials,
-                    Vec2::new(pos.x, pos.z),
-                );
-                state.apply(world);
+                handle_spawn_tower(world, extract_xy(data));
 
                 result = Some(
                     resolve.call1(&JsValue::null(), &JsValue::null()),

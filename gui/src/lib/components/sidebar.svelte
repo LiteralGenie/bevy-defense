@@ -45,6 +45,8 @@
 		}
 
 		isValidDropPos.set(
+			// Note: Cursor coordinates need to be provided by the JS-side
+			//       because Bevy can't read cursor position while an HTML element is mid-drag
 			await drawCursor({
 				type: 'tower',
 				position: { x, y }
@@ -78,7 +80,6 @@
 				on:dragend={handleDragEnd}
 			>
 				{tower.name}
-				{$isDragging}
 			</button>
 		{/each}
 	</div>

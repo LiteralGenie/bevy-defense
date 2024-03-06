@@ -4,7 +4,10 @@ use bevy::{
         mesh::Indices,
         render_asset::RenderAssetUsages,
         render_resource::PrimitiveTopology,
-        texture::{ ImageAddressMode, ImageLoaderSettings, ImageSampler, ImageSamplerDescriptor },
+        texture::{
+            ImageAddressMode, ImageLoaderSettings, ImageSampler,
+            ImageSamplerDescriptor,
+        },
     },
 };
 
@@ -17,25 +20,29 @@ pub fn spawn_map(
     asset_server: ResMut<AssetServer>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>
+    mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let plane = commands
         .spawn(PbrBundle {
             mesh: meshes.add(create_mesh(29.99)),
             material: materials.add(StandardMaterial {
-                base_color_texture: Some(create_texture(asset_server)),
+                base_color_texture: Some(create_texture(
+                    asset_server,
+                )),
                 ..default()
             }),
+            // Offset model so that the center of each tile has integer coordinates
+            transform: Transform::from_xyz(0.5, 0.0, 0.5),
             ..default()
         })
         .id();
 
-    commands.insert_resource(Map {
-        model: plane,
-    });
+    commands.insert_resource(Map { model: plane });
 }
 
-fn create_texture(asset_server: ResMut<AssetServer>) -> Handle<Image> {
+fn create_texture(
+    asset_server: ResMut<AssetServer>,
+) -> Handle<Image> {
     let sampler_desc = ImageSamplerDescriptor {
         address_mode_u: ImageAddressMode::Repeat,
         address_mode_v: ImageAddressMode::Repeat,
@@ -46,7 +53,8 @@ fn create_texture(asset_server: ResMut<AssetServer>) -> Handle<Image> {
         s.sampler = ImageSampler::Descriptor(sampler_desc.clone());
     };
 
-    return asset_server.load_with_settings("debug/map_texture.png", settings);
+    return asset_server
+        .load_with_settings("debug/map_texture.png", settings);
 }
 
 #[rustfmt::skip]
