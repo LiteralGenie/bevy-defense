@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Info from '$lib/components/info.svelte'
 	import Sidebar from '$lib/components/sidebar.svelte'
 	import { Game } from '$lib/game/game'
 	import { onMount } from 'svelte'
@@ -18,8 +19,7 @@
 {#if game}
 	<div class="container">
 		<div class="info">
-			<span>Gold: {$gold}</span>
-			<span>Health: {$health}</span>
+			<Info />
 		</div>
 
 		<div class="sidebar">
@@ -71,12 +71,6 @@
 			height: max-content;
 			width: max-content;
 			justify-self: flex-end;
-			padding: 1rem;
-
-			display: flex;
-			flex-flow: column;
-			align-items: flex-end;
-			gap: 0.25rem;
 		}
 
 		.sidebar {
