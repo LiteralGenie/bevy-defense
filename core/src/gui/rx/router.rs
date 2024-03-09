@@ -1,12 +1,11 @@
-use bevy::ecs::world::World;
-use bevy::math::Vec2;
-use js_sys::Function;
-use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
-
 use super::super::console;
 use super::super::utils::get_prop;
 use super::handle_draw_cursor::handle_draw_cursor;
 use super::handle_spawn_tower::handle_spawn_tower;
+use bevy::ecs::world::World;
+use bevy::math::Vec2;
+use js_sys::Function;
+use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 #[wasm_bindgen(js_namespace = game)]
 extern "C" {

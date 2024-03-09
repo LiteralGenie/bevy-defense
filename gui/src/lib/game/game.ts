@@ -31,7 +31,7 @@ export class Game {
 	guiRequests = [] as Request[]
 
 	/**
-	 * Add Game instance to window
+	 * Add Game instance to window, for WASM <-> JS communication
 	 */
 	static initSingleton() {
 		const game = new Game()

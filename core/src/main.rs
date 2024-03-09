@@ -31,8 +31,9 @@ fn main() {
         )
         // Update our custom timer's state
         .add_systems(Update, timer::update_timer)
-        // Update GUI
+        // Send state updates to gui
         .add_plugins(gui::tx::plugin::TxPlugin)
+        // Read requests from gui
         .add_plugins(gui::rx::plugin::RxPlugin)
         .run();
 }

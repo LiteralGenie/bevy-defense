@@ -1,3 +1,8 @@
-export async function spawnTower(pos: { x: number; y: number }) {
+interface Position {
+	x: number
+	y: number
+}
+
+export async function spawnTower(pos: Position) {
 	await window.game.pushRequest('spawn_tower', pos)
 }
