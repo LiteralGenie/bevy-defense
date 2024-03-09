@@ -32,10 +32,7 @@ fn main() {
         // Update our custom timer's state
         .add_systems(Update, timer::update_timer)
         // Update GUI
-        .add_systems(
-            Update,
-            (gui::tx::update_gold, gui::tx::update_health),
-        )
-        .add_systems(Update, gui::rx::router::handle_gui_requests)
+        .add_plugins(gui::tx::plugin::TxPlugin)
+        .add_plugins(gui::rx::plugin::RxPlugin)
         .run();
 }
