@@ -1,7 +1,10 @@
-use bevy::prelude::*;
+use bevy::{ecs::system::SystemState, prelude::*};
 use wasm_bindgen::JsValue;
 
-use crate::towers::components::{TowerMarker, TowerPosition};
+use crate::{
+    path::Path,
+    towers::components::{TowerMarker, TowerPosition},
+};
 
 use super::console;
 
@@ -38,12 +41,24 @@ pub fn snap_coords(pos: Vec3) -> Vec3 {
 }
 
 pub fn can_place_tower(world: &mut World, pos: Vec3) -> bool {
-    let mut towers =
-        world.query_filtered::<&TowerPosition, With<TowerMarker>>();
+    let mut state: SystemState<(
+        Query<&TowerPosition, With<TowerMarker>>,
+        Query<&Path>,
+    )> = SystemState::new(world);
 
-    for tower in towers.iter(world) {
+    let (tower_query, path_query) = state.get_mut(world);
+
+    for tower in tower_query.iter() {
         if pos.x as i16 == tower.x && pos.z as i16 == tower.z {
             return false;
+        }
+    }
+
+    for path in path_query.iter() {
+        for pt in path.points.clone() {
+            if pos.x as i16 == pt.pos.0 && pos.z as i16 == pt.pos.1 {
+                return false;
+            }
         }
     }
 
