@@ -1,15 +1,21 @@
 use bevy::{ecs::system::SystemState, prelude::*};
 
-use crate::{
-    gui::utils::{
-        can_place_tower, snap_coords, window_to_world_coords,
-    },
-    towers::basic_tower::spawn_model,
+use crate::gui::{
+    console,
+    utils::{can_place_tower, snap_coords, window_to_world_coords},
 };
+
+#[derive(Component)]
+pub struct Marker;
+
+#[derive(Bundle)]
+struct ModelBundle {
+    marker: Marker,
+}
 
 #[derive(Resource)]
 struct Cursor {
-    model: Option<Entity>,
+    model: Entity,
 }
 
 pub fn handle_draw_cursor(
@@ -17,10 +23,21 @@ pub fn handle_draw_cursor(
     maybe_pos: Option<Vec2>,
 ) -> bool {
     // Init cursor resource
-    world.get_resource_or_insert_with(|| Cursor { model: None });
+    match world.get_resource::<Cursor>() {
+        None => {
+            let model =
+                crate::towers::basic_tower::spawn_model_with_marker(
+                    world,
+                    Vec3::new(0.0, 0.0, 0.0),
+                    // This should be <1.0, otherwise later opacity changes will have no effect
+                    0.0,
+                    Marker,
+                );
 
-    // Despawn old cursor
-    despawn_cursor(world);
+            world.get_resource_or_insert_with(|| Cursor { model });
+        }
+        Some(_) => {}
+    }
 
     // If position is non-null, spawn a new cursor
     if let Some(cursor_pos) = maybe_pos {
@@ -31,26 +48,34 @@ pub fn handle_draw_cursor(
             return false;
         }
 
-        let update = spawn_model(world, pos, 127);
-
-        let mut cursor = world
-            .get_resource_or_insert_with(|| Cursor { model: None });
-
-        cursor.model = Some(update);
+        update_cursor_position(world, pos);
+        update_cursor_color(world, 0.5);
+    } else {
+        update_cursor_color(world, 0.0);
     }
 
-    return true;
+    true
 }
 
-fn despawn_cursor(world: &mut World) {
-    let mut state: SystemState<(Commands, ResMut<Cursor>)> =
-        SystemState::new(world);
+fn update_cursor_position(world: &mut World, pos: Vec3) {
+    let cursor = world.resource::<Cursor>();
+    let mut entity = world.entity_mut(cursor.model);
 
-    let (mut commands, mut cursor) = state.get_mut(world);
+    let mut transform = entity.get_mut::<Transform>().unwrap();
+    transform.translation.x = pos.x;
+    transform.translation.z = pos.z;
+}
 
-    if let Some(model) = cursor.model {
-        commands.entity(model).despawn();
-        cursor.model = None;
-        state.apply(world);
-    }
+fn update_cursor_color(world: &mut World, opacity: f32) {
+    let mut state: SystemState<(
+        ResMut<Assets<StandardMaterial>>,
+        Query<&Handle<StandardMaterial>, With<Marker>>,
+    )> = SystemState::new(world);
+    let (mut materials, color_query) = state.get_mut(world);
+
+    let handle = color_query.single();
+    let color = materials.get_mut(handle).unwrap();
+    color.base_color.set_a(opacity);
+
+    state.apply(world);
 }
