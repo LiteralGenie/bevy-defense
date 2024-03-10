@@ -47,30 +47,6 @@ Avoid batch update optimizations, added too much complexity in panda3d impl
 
 # TODO
 
-## display gold / hp
-    render map
-    webpage with both rust map and html gui
-    gold / hp entity
-    gui -> ecs system for polling state
-    display gold / hp
-
-## tower
-    time system
-    tower entity
-    render tower at position X
-    gui, purchase tower
-    gui, drag and drop
-    gui -> ecs system for state update
-    render mid-drag cursor
-    render post-drop placeholder
-    render real tower
-
-## units
-    init paths
-    unit entity
-    unit moves each tick
-    unit disappears at end of path
-
 ## targeting
 
 ## rounds

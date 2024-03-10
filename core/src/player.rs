@@ -1,6 +1,7 @@
-use bevy::ecs::{ bundle::Bundle, component::Component, system::Commands };
-use serde::{ Serialize };
-use wasm_bindgen::{ prelude::wasm_bindgen, JsValue };
+use bevy::ecs::{
+    bundle::Bundle, component::Component, system::Commands,
+};
+use serde::Serialize;
 
 #[derive(Component, Serialize)]
 pub struct PlayerGold(pub u16);
@@ -14,7 +15,7 @@ struct PlayerBundle {
     pub health: PlayerHealth,
 }
 
-pub fn load_players(mut commands: Commands) {
+pub fn spawn_players(mut commands: Commands) {
     commands.spawn(PlayerBundle {
         gold: PlayerGold(100),
         health: PlayerHealth(20),
