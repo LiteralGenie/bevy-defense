@@ -1,4 +1,4 @@
-use bevy::ecs::system::{ Commands, ResMut, Resource };
+use bevy::ecs::system::{Commands, ResMut, Resource};
 
 #[derive(Resource)]
 pub struct TickTimer {
@@ -13,14 +13,14 @@ impl TickTimer {
 
 impl Default for TickTimer {
     fn default() -> TickTimer {
-        return TickTimer {
-            tick: 0,
-        };
+        TickTimer { tick: 0 }
     }
 }
 
 pub fn spawn_timer(mut commands: Commands) {
-    commands.insert_resource(TickTimer { ..Default::default() });
+    commands.insert_resource(TickTimer {
+        ..Default::default()
+    });
 }
 
 pub fn update_timer(mut timer: ResMut<TickTimer>) {

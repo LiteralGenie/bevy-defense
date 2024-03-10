@@ -29,8 +29,9 @@ fn main() {
                 timer::spawn_timer,
             ),
         )
-        // Update our custom timer's state
-        .add_systems(Update, timer::update_timer)
+        // Run game logic on fixed timestep
+        .insert_resource(Time::<Fixed>::from_hz(5.0))
+        .add_systems(FixedUpdate, (timer::update_timer,))
         // Send state updates to gui
         .add_plugins(gui::tx::plugin::TxPlugin)
         // Read requests from gui
