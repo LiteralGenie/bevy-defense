@@ -3,11 +3,8 @@
     import Sidebar from '$lib/components/sidebar/sidebar.svelte'
     import { Game } from '$lib/game/game'
     import { onMount } from 'svelte'
-    import { type Readable } from 'svelte/store'
 
     let game: Game
-    let gold: Readable<number>
-    let health: Readable<number>
 
     onMount(() => {
         // @fixme: 	Getting the wasm / canvas to work with hot-reloading is tricky
@@ -15,8 +12,6 @@
         //       	which is why the canvas is outside any svelte components and this onMount skips re-initing Game
         // 	     	But this also means any changes to the Rust code / Game.ts requires manually refreshing the page
         game = window.game ?? Game.initSingleton()
-        gold = game.state.gold
-        health = game.state.health
     })
 </script>
 
