@@ -5,9 +5,6 @@ use crate::gui::{
     utils::{can_place_tower, snap_coords, window_to_world_coords},
 };
 
-#[derive(Component)]
-struct Marker;
-
 #[derive(Resource)]
 struct Cursor {
     model: Entity,
@@ -23,14 +20,12 @@ pub fn handle_draw_cursor(
     // Init cursor resource
     match world.get_resource::<Cursor>() {
         None => {
-            let model =
-                crate::towers::basic_tower::spawn_model_with_marker(
-                    world,
-                    Vec3::new(0.0, 0.0, 0.0),
-                    // This should be <1.0, otherwise later opacity changes will have no effect
-                    0.0,
-                    Marker,
-                );
+            let model = crate::towers::basic_tower::spawn_model(
+                world,
+                Vec3::new(0.0, 0.0, 0.0),
+                // This should be <1.0, otherwise later opacity changes will have no effect
+                0.0,
+            );
 
             world.insert_resource(Cursor { model });
         }
@@ -68,11 +63,14 @@ fn update_cursor_position(world: &mut World, pos: Vec3) {
 fn update_cursor_color(world: &mut World, opacity: f32) {
     let mut state: SystemState<(
         ResMut<Assets<StandardMaterial>>,
-        Query<&Handle<StandardMaterial>, With<Marker>>,
+        Res<Cursor>,
+        Query<&Handle<StandardMaterial>>,
     )> = SystemState::new(world);
-    let (mut materials, color_query) = state.get_mut(world);
 
-    let handle = color_query.single();
+    let (mut materials, cursor, mut color_query) =
+        state.get_mut(world);
+
+    let handle = color_query.get_mut(cursor.model).unwrap();
     let color = materials.get_mut(handle).unwrap();
     color.base_color.set_a(opacity);
 
