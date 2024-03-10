@@ -10,11 +10,11 @@ declare global {
 export const REQUEST_TYPES = ['spawn_tower', 'draw_cursor'] as const
 export type RequestType = (typeof REQUEST_TYPES)[number]
 
-export interface Request<T = any> {
+export interface Request<TIn = unknown, TOut = unknown, TErr = unknown> {
 	type: RequestType
-	resolve: (text: unknown) => void
-	reject: (text: unknown) => void
-	data: T
+	resolve: (x: TOut) => void
+	reject: (x: TErr) => void
+	data: TIn
 }
 
 export interface GameState {

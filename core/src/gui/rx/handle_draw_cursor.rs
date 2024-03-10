@@ -6,18 +6,16 @@ use crate::gui::{
 };
 
 #[derive(Component)]
-pub struct Marker;
-
-#[derive(Bundle)]
-struct ModelBundle {
-    marker: Marker,
-}
+struct Marker;
 
 #[derive(Resource)]
 struct Cursor {
     model: Entity,
 }
 
+/**
+ * Draw a ghost thing underneath the cursor
+ */
 pub fn handle_draw_cursor(
     world: &mut World,
     maybe_pos: Option<Vec2>,
@@ -34,12 +32,12 @@ pub fn handle_draw_cursor(
                     Marker,
                 );
 
-            world.get_resource_or_insert_with(|| Cursor { model });
+            world.insert_resource(Cursor { model });
         }
         Some(_) => {}
     }
 
-    // If position is non-null, spawn a new cursor
+    // If cursor pos is non-null, update position of cursor ghost
     if let Some(cursor_pos) = maybe_pos {
         let pos =
             snap_coords(window_to_world_coords(world, cursor_pos));
@@ -51,6 +49,7 @@ pub fn handle_draw_cursor(
         update_cursor_position(world, pos);
         update_cursor_color(world, 0.5);
     } else {
+        // Otherwise hide the ghost
         update_cursor_color(world, 0.0);
     }
 
