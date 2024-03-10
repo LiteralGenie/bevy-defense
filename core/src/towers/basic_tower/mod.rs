@@ -1,7 +1,5 @@
 mod components;
-mod model;
-pub mod utils;
+mod utils;
 
 pub use self::components::*;
-pub use self::model::*;
 pub use self::utils::*;

@@ -103,10 +103,6 @@ pub fn spawn_paths(
     for path in paths {
         // @fixme: How to write a nested for-loop without littering Clone traits everywhere?
         for pt in path.points.clone() {
-            console::log(
-                format!("spawning {} {}", pt.pos.0, pt.pos.1)
-                    .as_str(),
-            );
             commands.spawn(PbrBundle {
                 mesh: meshes.add(Cuboid::default()),
                 material: materials.add(Color::rgb(0.0, 0.5, 0.0)),
