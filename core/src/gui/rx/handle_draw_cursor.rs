@@ -19,16 +19,7 @@ pub fn handle_draw_cursor(
 ) -> bool {
     // Init cursor resource
     match world.get_resource::<Cursor>() {
-        None => {
-            let model = crate::towers::basic_tower::spawn_model(
-                world,
-                Vec3::new(0.0, 0.0, 0.0),
-                // This should be <1.0, otherwise later opacity changes will have no effect
-                0.0,
-            );
-
-            world.insert_resource(Cursor { model });
-        }
+        None => init_resource(world),
         Some(_) => {}
     }
 
@@ -49,6 +40,30 @@ pub fn handle_draw_cursor(
     }
 
     true
+}
+
+fn init_resource(world: &mut World) {
+    let mut state: SystemState<(
+        Commands,
+        ResMut<Assets<Mesh>>,
+        ResMut<Assets<StandardMaterial>>,
+    )> = SystemState::new(world);
+
+    let (mut commands, mut meshes, mut materials) =
+        state.get_mut(world);
+
+    let model = crate::towers::basic_tower::spawn_model(
+        &mut commands,
+        &mut meshes,
+        &mut materials,
+        Vec3::new(0.0, 0.0, 0.0),
+        // This should be <1.0, otherwise later opacity changes will have no effect
+        0.0,
+    );
+
+    world.insert_resource(Cursor { model });
+
+    state.apply(world);
 }
 
 fn update_cursor_position(world: &mut World, pos: Vec3) {

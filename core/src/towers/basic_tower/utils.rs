@@ -5,19 +5,12 @@ use crate::towers::components::{
 };
 
 pub fn spawn_model(
-    world: &mut World,
+    commands: &mut Commands,
+    meshes: &mut ResMut<Assets<Mesh>>,
+    materials: &mut ResMut<Assets<StandardMaterial>>,
     pos: Vec3,
     opacity: f32,
 ) -> Entity {
-    let mut state: SystemState<(
-        Commands,
-        ResMut<Assets<Mesh>>,
-        ResMut<Assets<StandardMaterial>>,
-    )> = SystemState::new(world);
-
-    let (mut commands, mut meshes, mut materials) =
-        state.get_mut(world);
-
     let model = PbrBundle {
         mesh: meshes.add(Cuboid::default()),
         material: materials.add(Color::rgba(1.0, 0.0, 0.0, opacity)),
@@ -26,14 +19,10 @@ pub fn spawn_model(
     };
     let entity = commands.spawn(model).id();
 
-    state.apply(world);
-
     entity
 }
 
 pub fn spawn(world: &mut World, pos: Vec3) {
-    let model = spawn_model(world, pos, 1.0);
-
     let mut state: SystemState<Commands> = SystemState::new(world);
     let mut commands = state.get_mut(world);
 
@@ -43,9 +32,30 @@ pub fn spawn(world: &mut World, pos: Vec3) {
             x: pos.x as i16,
             z: pos.z as i16,
         },
-        TowerModel(model),
         super::Marker,
     ));
 
     state.apply(world);
+}
+
+/**
+ * Render models for newly-created towers
+ */
+pub fn render(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    towers: Query<(Entity, &TowerPosition), Without<TowerModel>>,
+) {
+    for (entity, pos) in towers.iter() {
+        let model = spawn_model(
+            &mut commands,
+            &mut meshes,
+            &mut materials,
+            Vec3::new(pos.x as f32, 0.0, pos.z as f32),
+            1.0,
+        );
+
+        commands.entity(entity).insert(TowerModel(model));
+    }
 }
