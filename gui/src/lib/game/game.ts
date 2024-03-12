@@ -10,6 +10,7 @@ declare global {
 export const REQUEST_TYPES = [
     'spawn_tower',
     'draw_cursor',
+    'start_game',
     'start_round'
 ] as const
 export type RequestType = (typeof REQUEST_TYPES)[number]
@@ -24,14 +25,20 @@ export interface Request<TIn = unknown, TOut = unknown, TErr = unknown> {
 export interface GameState {
     gold: Writable<number>
     health: Writable<number>
+
+    round: Writable<number>
     tick: Writable<number>
+    phase: Writable<'INIT' | 'BUILD' | 'COMBAT'>
 }
 
 export class Game {
     state: GameState = {
         gold: writable(0),
         health: writable(0),
-        tick: writable(0)
+
+        round: writable(0),
+        tick: writable(0),
+        phase: writable('INIT')
     }
 
     guiRequests = [] as Request[]
@@ -43,15 +50,17 @@ export class Game {
         const game = new Game()
         ;(window as any).game = game
 
-        loadWasm().catch((error) => {
-            if (
-                !error.message.startsWith(
-                    "Using exceptions for control flow, don't mind me. This isn't actually an error!"
-                )
-            ) {
-                throw error
-            }
-        })
+        loadWasm()
+            .catch((error) => {
+                if (
+                    !error.message.startsWith(
+                        "Using exceptions for control flow, don't mind me. This isn't actually an error!"
+                    )
+                ) {
+                    throw error
+                }
+            })
+            .then(() => game.pushRequest('start_game', null))
 
         return game
     }
@@ -67,8 +76,14 @@ export class Game {
             case 'health':
                 this.state.health.set(value)
                 break
+            case 'round':
+                this.state.round.set(value)
+                break
             case 'tick':
                 this.state.tick.set(value)
+                break
+            case 'phase':
+                this.state.phase.set(value)
                 break
             default:
                 console.error('invalid updateState key', key, value)

@@ -3,6 +3,8 @@ use bevy::prelude::*;
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 use crate::player::{PlayerGold, PlayerHealth};
+use crate::states::GamePhase;
+use crate::timers::round_timer::RoundTimer;
 use crate::timers::tick_timer::TickTimer;
 
 #[wasm_bindgen(js_namespace = game)]
@@ -22,8 +24,23 @@ fn update_health(query: Query<&PlayerHealth, Changed<PlayerHealth>>) {
     }
 }
 
-fn update_time(timer: Res<TickTimer>) {
+fn update_round(timer: Res<RoundTimer>) {
+    updateState("round".into(), timer.round.into());
+}
+
+fn update_tick(timer: Res<TickTimer>) {
     updateState("tick".into(), timer.tick.into());
+}
+
+fn update_phase(phase: Res<State<GamePhase>>) {
+    updateState(
+        "phase".into(),
+        match phase.get() {
+            GamePhase::INIT => "INIT".into(),
+            GamePhase::BUILD => "BUILD".into(),
+            GamePhase::COMBAT => "COMBAT".into(),
+        },
+    );
 }
 
 pub struct TxPlugin;
@@ -32,7 +49,13 @@ impl Plugin for TxPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_gold, update_health, update_time),
+            (
+                update_gold,
+                update_health,
+                update_round,
+                update_tick,
+                update_phase,
+            ),
         );
     }
 }

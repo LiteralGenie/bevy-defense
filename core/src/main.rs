@@ -35,8 +35,6 @@ fn main() {
                 player::spawn_players,
                 timers::tick_timer::spawn_timer,
                 timers::round_timer::spawn_timer,
-                // @temp
-                units::systems::init_units_for_round,
             ),
         )
         // Build phase
