@@ -7,7 +7,11 @@ declare global {
     }
 }
 
-export const REQUEST_TYPES = ['spawn_tower', 'draw_cursor'] as const
+export const REQUEST_TYPES = [
+    'spawn_tower',
+    'draw_cursor',
+    'start_round'
+] as const
 export type RequestType = (typeof REQUEST_TYPES)[number]
 
 export interface Request<TIn = unknown, TOut = unknown, TErr = unknown> {

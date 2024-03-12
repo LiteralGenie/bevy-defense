@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 use crate::player::{PlayerGold, PlayerHealth};
-use crate::timer::TickTimer;
+use crate::timers::tick_timer::TickTimer;
 
 #[wasm_bindgen(js_namespace = game)]
 extern "C" {

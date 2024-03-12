@@ -2,6 +2,7 @@ use super::super::console;
 use super::super::utils::get_prop;
 use super::handle_draw_cursor::handle_draw_cursor;
 use super::handle_spawn_tower::handle_spawn_tower;
+use super::handle_start_round::handle_start_round;
 use bevy::ecs::world::World;
 use bevy::math::Vec2;
 use js_sys::Function;
@@ -65,6 +66,13 @@ pub fn handle_gui_requests(world: &mut World) {
             }
             "spawn_tower" => {
                 handle_spawn_tower(world, extract_xy(data));
+
+                result = Some(
+                    resolve.call1(&JsValue::null(), &JsValue::null()),
+                );
+            }
+            "start_round" => {
+                handle_start_round(world);
 
                 result = Some(
                     resolve.call1(&JsValue::null(), &JsValue::null()),

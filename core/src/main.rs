@@ -1,11 +1,13 @@
 use bevy::prelude::*;
+use states::GamePhase;
 mod camera;
 mod gui;
 mod map;
 mod path;
 mod player;
 mod render_plugin;
-mod timer;
+mod states;
+mod timers;
 mod towers;
 mod units;
 
@@ -17,11 +19,13 @@ fn main() {
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 canvas: Some("#game-canvas".into()),
+                prevent_default_event_handling: false,
                 ..default()
             }),
             ..default()
         }))
         // Init game state
+        .init_state::<GamePhase>()
         .add_systems(
             Startup,
             (
@@ -29,12 +33,27 @@ fn main() {
                 camera::spawn_camera,
                 path::spawn_paths,
                 player::spawn_players,
-                timer::spawn_timer,
+                timers::tick_timer::spawn_timer,
+                timers::round_timer::spawn_timer,
+                // @temp
+                units::systems::init_units_for_round,
             ),
         )
-        // Run game logic on fixed timestep
+        // Build phase
+        .add_systems(
+            OnEnter(GamePhase::BUILD),
+            (units::systems::init_units_for_round,),
+        )
+        // Combat phase
         .insert_resource(Time::<Fixed>::from_hz(5.0))
-        .add_systems(FixedUpdate, (timer::update_timer,));
+        .add_systems(
+            FixedUpdate,
+            (
+                timers::tick_timer::update_timer,
+                units::systems::move_units,
+            )
+                .run_if(in_state(GamePhase::COMBAT)),
+        );
 
     if cfg!(server) {
         // @todo
