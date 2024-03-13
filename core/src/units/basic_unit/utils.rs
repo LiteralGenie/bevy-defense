@@ -3,18 +3,19 @@ use bevy::prelude::*;
 use crate::{
     gui::console,
     units::components::{
-        UnitDist, UnitHealth, UnitMarker, UnitModel, UnitPathId,
-        UnitStatus, UnitStatusTypes,
+        UnitDist, UnitHealth, UnitMarker, UnitModel, UnitPath,
+        UnitSpawnTick, UnitStatus, UnitStatusTypes,
     },
 };
 
-pub fn spawn(mut commands: &mut Commands, path_id: u8) {
+pub fn spawn(commands: &mut Commands, path: Entity, tick: u32) {
     commands.spawn((
         UnitMarker,
         UnitStatus(UnitStatusTypes::PRESPAWN),
         UnitDist(0),
         UnitHealth(100),
-        UnitPathId(path_id),
+        UnitPath(path),
+        UnitSpawnTick(tick),
         super::Marker,
     ));
 }
@@ -31,19 +32,15 @@ pub fn render_models(
     for (entity, status, dist) in units.iter() {
         let is_alive = matches!(status.0, UnitStatusTypes::ALIVE);
         let opacity = if is_alive { 1.0 } else { 0.0 };
-        console::log(
-            format!(
-                "Rendering unit at {} with opacity {}",
-                dist.0, opacity
-            )
-            .as_str(),
-        );
 
         let model = commands
             .spawn(PbrBundle {
                 mesh: meshes.add(Sphere::default()),
-                material: materials
-                    .add(Color::rgba(0.0, 0.5, 0.0, opacity)),
+                material: materials.add(StandardMaterial {
+                    base_color: Color::rgba(0.0, 0.0, 0.5, opacity),
+                    alpha_mode: AlphaMode::Blend,
+                    ..default()
+                }),
                 transform: Transform::from_xyz(
                     dist.0 as f32,
                     0.5,

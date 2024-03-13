@@ -7,6 +7,7 @@ impl Plugin for RenderPlugin {
         app.add_systems(
             Update,
             (
+                super::systems::render_status_change,
                 super::basic_unit::render_models,
                 super::basic_unit::render_movement,
             ),

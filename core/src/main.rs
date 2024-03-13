@@ -49,6 +49,7 @@ fn main() {
             (
                 timers::tick_timer::update_timer,
                 units::systems::move_units,
+                units::systems::spawn_pending_units,
             )
                 .run_if(in_state(GamePhase::COMBAT)),
         );

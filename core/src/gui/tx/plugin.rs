@@ -25,11 +25,11 @@ fn update_health(query: Query<&PlayerHealth, Changed<PlayerHealth>>) {
 }
 
 fn update_round(timer: Res<RoundTimer>) {
-    updateState("round".into(), timer.round.into());
+    updateState("round".into(), timer.0.into());
 }
 
 fn update_tick(timer: Res<TickTimer>) {
-    updateState("tick".into(), timer.tick.into());
+    updateState("tick".into(), timer.0.into());
 }
 
 fn update_phase(phase: Res<State<GamePhase>>) {
