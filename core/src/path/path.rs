@@ -1,6 +1,5 @@
-use bevy::prelude::*;
-
 use crate::gui::console;
+use bevy::prelude::*;
 
 pub enum Direction {
     Up,
@@ -31,7 +30,11 @@ pub struct Path {
 }
 
 impl Path {
-    fn new(id: u8, start: Point2, segments: Vec<Segment>) -> Path {
+    pub fn new(
+        id: u8,
+        start: Point2,
+        segments: Vec<Segment>,
+    ) -> Path {
         Path {
             id,
             points: points_from_segments(start, &segments),
@@ -77,40 +80,5 @@ fn points_from_segments(
     points
 }
 
-pub fn spawn_paths(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    let mut paths = vec![Path::new(
-        1,
-        Point2(0, 5),
-        vec![
-            Segment {
-                dir: Direction::Down,
-                length: 5,
-            },
-            Segment {
-                dir: Direction::Right,
-                length: 5,
-            },
-        ],
-    )];
-
-    for path in paths {
-        for pt in path.points.iter() {
-            commands.spawn(PbrBundle {
-                mesh: meshes.add(Cuboid::default()),
-                material: materials.add(Color::rgb(0.0, 0.5, 0.0)),
-                transform: Transform::from_xyz(
-                    pt.pos.0 as f32,
-                    0.0,
-                    pt.pos.1 as f32,
-                ),
-                ..default()
-            });
-        }
-
-        commands.spawn(path);
-    }
-}
+#[derive(Component)]
+pub struct TileModelMarker;

@@ -24,6 +24,7 @@ fn main() {
                 }),
                 ..default()
             }),
+            path::plugin::PathPlugin,
             units::plugin::UnitsPlugin,
             towers::plugin::TowersPlugin,
         ))
@@ -34,7 +35,6 @@ fn main() {
             (
                 map::spawn_map,
                 camera::spawn_camera,
-                path::spawn_paths,
                 player::spawn_players,
                 timers::tick_timer::spawn_timer,
                 timers::round_timer::spawn_timer,
