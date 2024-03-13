@@ -57,8 +57,6 @@ fn init_resource(world: &mut World) {
         &mut meshes,
         &mut materials,
         Vec3::new(0.0, 0.0, 0.0),
-        // This should be <1.0, otherwise later opacity changes will have no effect
-        0.0,
     );
 
     world.insert_resource(Cursor { model });
@@ -86,8 +84,9 @@ fn update_cursor_color(world: &mut World, opacity: f32) {
         state.get_mut(world);
 
     let handle = color_query.get_mut(cursor.model).unwrap();
-    let color = materials.get_mut(handle).unwrap();
-    color.base_color.set_a(opacity);
+    let mat = materials.get_mut(handle).unwrap();
+    mat.alpha_mode = AlphaMode::Blend;
+    mat.base_color.set_a(opacity);
 
     state.apply(world);
 }

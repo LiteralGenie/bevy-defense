@@ -9,11 +9,10 @@ pub fn spawn_model(
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,
     pos: Vec3,
-    opacity: f32,
 ) -> Entity {
     let model = PbrBundle {
         mesh: meshes.add(Cuboid::default()),
-        material: materials.add(Color::rgba(1.0, 0.0, 0.0, opacity)),
+        material: materials.add(Color::rgb(1.0, 0.0, 0.0)),
         transform: Transform::from_xyz(pos.x, 0.0, pos.z),
         ..default()
     };
@@ -53,7 +52,6 @@ pub fn render(
             &mut meshes,
             &mut materials,
             Vec3::new(pos.x as f32, 0.0, pos.z as f32),
-            1.0,
         );
 
         commands.entity(entity).insert(TowerModel(model));
