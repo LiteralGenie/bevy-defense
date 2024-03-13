@@ -19,16 +19,7 @@ pub fn handle_draw_cursor(
 ) -> bool {
     // Init cursor resource
     match world.get_resource::<Cursor>() {
-        None => {
-            let model = crate::towers::basic_tower::spawn_model(
-                world,
-                Vec3::new(0.0, 0.0, 0.0),
-                // This should be <1.0, otherwise later opacity changes will have no effect
-                0.0,
-            );
-
-            world.insert_resource(Cursor { model });
-        }
+        None => init_resource(world),
         Some(_) => {}
     }
 
@@ -41,7 +32,7 @@ pub fn handle_draw_cursor(
             return false;
         }
 
-        update_cursor_position(world, pos);
+        update_cursor_position(world, (pos.0 as f32, pos.1 as f32));
         update_cursor_color(world, 0.5);
     } else {
         // Otherwise hide the ghost
@@ -51,13 +42,35 @@ pub fn handle_draw_cursor(
     true
 }
 
-fn update_cursor_position(world: &mut World, pos: Vec3) {
+fn init_resource(world: &mut World) {
+    let mut state: SystemState<(
+        Commands,
+        ResMut<Assets<Mesh>>,
+        ResMut<Assets<StandardMaterial>>,
+    )> = SystemState::new(world);
+
+    let (mut commands, mut meshes, mut materials) =
+        state.get_mut(world);
+
+    let model = crate::towers::basic_tower::spawn_model(
+        &mut commands,
+        &mut meshes,
+        &mut materials,
+        Vec3::new(0.0, 0.0, 0.0),
+    );
+
+    world.insert_resource(Cursor { model });
+
+    state.apply(world);
+}
+
+fn update_cursor_position(world: &mut World, pos: (f32, f32)) {
     let cursor = world.resource::<Cursor>();
     let mut entity = world.entity_mut(cursor.model);
 
     let mut transform = entity.get_mut::<Transform>().unwrap();
-    transform.translation.x = pos.x;
-    transform.translation.z = pos.z;
+    transform.translation.x = pos.0;
+    transform.translation.z = pos.1;
 }
 
 fn update_cursor_color(world: &mut World, opacity: f32) {
@@ -71,8 +84,9 @@ fn update_cursor_color(world: &mut World, opacity: f32) {
         state.get_mut(world);
 
     let handle = color_query.get_mut(cursor.model).unwrap();
-    let color = materials.get_mut(handle).unwrap();
-    color.base_color.set_a(opacity);
+    let mat = materials.get_mut(handle).unwrap();
+    mat.alpha_mode = AlphaMode::Blend;
+    mat.base_color.set_a(opacity);
 
     state.apply(world);
 }

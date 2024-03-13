@@ -5,6 +5,8 @@
 </script>
 
 <script lang="ts">
+    import { startRound } from '$lib/game/handlers/start-round'
+
     import { useTowerDrag } from './use-tower-drag'
 
     const towers: Tower[] = [
@@ -41,6 +43,10 @@
             </button>
         {/each}
     </div>
+
+    <div class="actions">
+        <button on:click={() => startRound()}>Start Round</button>
+    </div>
 </div>
 
 <style lang="scss">
@@ -72,5 +78,13 @@
             border-left: 0;
             border-bottom: 0;
         }
+    }
+
+    .actions {
+        padding-top: 1rem;
+        width: 100%;
+
+        display: flex;
+        justify-content: center;
     }
 </style>

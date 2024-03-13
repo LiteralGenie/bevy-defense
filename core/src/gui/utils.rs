@@ -1,7 +1,10 @@
-use bevy::prelude::*;
+use bevy::{ecs::system::SystemState, prelude::*};
 use wasm_bindgen::JsValue;
 
-use crate::towers::components::{TowerMarker, TowerPosition};
+use crate::{
+    scenario::{Path, Scenario},
+    towers::components::{TowerMarker, TowerPosition},
+};
 
 use super::console;
 
@@ -33,17 +36,29 @@ pub fn window_to_world_coords(world: &mut World, pos: Vec2) -> Vec3 {
     ray.get_point(distance)
 }
 
-pub fn snap_coords(pos: Vec3) -> Vec3 {
-    Vec3::new(pos.x.round(), 0.0, pos.z.round())
+pub fn snap_coords(pos: Vec3) -> (i16, i16) {
+    (pos.x.round() as i16, pos.z.round() as i16)
 }
 
-pub fn can_place_tower(world: &mut World, pos: Vec3) -> bool {
-    let mut towers =
-        world.query_filtered::<&TowerPosition, With<TowerMarker>>();
+pub fn can_place_tower(world: &mut World, pos: (i16, i16)) -> bool {
+    let mut state: SystemState<(
+        Query<&TowerPosition, With<TowerMarker>>,
+        Res<Scenario>,
+    )> = SystemState::new(world);
 
-    for tower in towers.iter(world) {
-        if pos.x as i16 == tower.x && pos.z as i16 == tower.z {
+    let (tower_query, scenario) = state.get_mut(world);
+
+    for tower in tower_query.iter() {
+        if pos.0 as i16 == tower.x && pos.1 as i16 == tower.z {
             return false;
+        }
+    }
+
+    for path in scenario.paths.values() {
+        for pt in path.points.iter() {
+            if pos.0 as i16 == pt.pos.0 && pos.1 as i16 == pt.pos.1 {
+                return false;
+            }
         }
     }
 

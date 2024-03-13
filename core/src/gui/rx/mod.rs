@@ -1,4 +1,3 @@
-mod handle_draw_cursor;
-mod handle_spawn_tower;
+mod handlers;
 pub mod plugin;
 mod router;

@@ -1,7 +1,5 @@
 use super::super::console;
 use super::super::utils::get_prop;
-use super::handle_draw_cursor::handle_draw_cursor;
-use super::handle_spawn_tower::handle_spawn_tower;
 use bevy::ecs::world::World;
 use bevy::math::Vec2;
 use js_sys::Function;
@@ -56,7 +54,8 @@ pub fn handle_gui_requests(world: &mut World) {
 
                 // @todo: Is it necessary to optimize this by only processing the latest draw_cursor event?
                 //        Even if the JS is firing events fast enough to pile up multiple in a single frame, is the performance impact significant?
-                let did_draw = handle_draw_cursor(world, pos);
+                let did_draw =
+                    super::handlers::handle_draw_cursor(world, pos);
 
                 result = Some(resolve.call1(
                     &JsValue::null(),
@@ -64,7 +63,24 @@ pub fn handle_gui_requests(world: &mut World) {
                 ));
             }
             "spawn_tower" => {
-                handle_spawn_tower(world, extract_xy(data));
+                super::handlers::handle_spawn_tower(
+                    world,
+                    extract_xy(data),
+                );
+
+                result = Some(
+                    resolve.call1(&JsValue::null(), &JsValue::null()),
+                );
+            }
+            "start_round" => {
+                super::handlers::handle_start_round(world);
+
+                result = Some(
+                    resolve.call1(&JsValue::null(), &JsValue::null()),
+                );
+            }
+            "start_game" => {
+                super::handlers::handle_start_game(world);
 
                 result = Some(
                     resolve.call1(&JsValue::null(), &JsValue::null()),
