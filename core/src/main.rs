@@ -5,7 +5,6 @@ mod gui;
 mod map;
 mod path;
 mod player;
-mod render_plugin;
 mod states;
 mod timers;
 mod towers;
@@ -16,14 +15,18 @@ fn main() {
 
     app
         // Load game into canvas#game-canvas
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                canvas: Some("#game-canvas".into()),
-                prevent_default_event_handling: false,
+        .add_plugins((
+            DefaultPlugins.set(WindowPlugin {
+                primary_window: Some(Window {
+                    canvas: Some("#game-canvas".into()),
+                    prevent_default_event_handling: false,
+                    ..default()
+                }),
                 ..default()
             }),
-            ..default()
-        }))
+            units::plugin::UnitsPlugin,
+            towers::plugin::TowersPlugin,
+        ))
         // Init game state
         .init_state::<GamePhase>()
         .add_systems(
@@ -38,19 +41,12 @@ fn main() {
             ),
         )
         // Build phase
-        .add_systems(
-            OnEnter(GamePhase::BUILD),
-            (units::systems::init_units_for_round,),
-        )
+        // .add_systems(OnEnter(GamePhase::BUILD), ())
         // Combat phase
         .insert_resource(Time::<Fixed>::from_hz(5.0))
         .add_systems(
             FixedUpdate,
-            (
-                timers::tick_timer::update_timer,
-                units::systems::move_units,
-                units::systems::spawn_pending_units,
-            )
+            (timers::tick_timer::update_timer,)
                 .run_if(in_state(GamePhase::COMBAT)),
         );
 
@@ -58,8 +54,6 @@ fn main() {
         // @todo
     } else {
         app
-            // Draw stuff to screen
-            .add_plugins(render_plugin::RenderPlugin)
             // Send state updates to gui
             .add_plugins(gui::tx::plugin::TxPlugin)
             // Read requests from gui

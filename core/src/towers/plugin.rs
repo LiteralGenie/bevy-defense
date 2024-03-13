@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
-pub struct RenderPlugin;
+pub struct TowersPlugin;
 
-impl Plugin for RenderPlugin {
+impl Plugin for TowersPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, (super::basic_tower::render,));
     }
