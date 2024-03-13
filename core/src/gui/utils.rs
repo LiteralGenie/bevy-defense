@@ -55,7 +55,7 @@ pub fn can_place_tower(world: &mut World, pos: Vec3) -> bool {
     }
 
     for path in path_query.iter() {
-        for pt in path.points.clone() {
+        for pt in path.points.iter() {
             if pos.x as i16 == pt.pos.0 && pos.z as i16 == pt.pos.1 {
                 return false;
             }

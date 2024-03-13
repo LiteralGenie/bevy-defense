@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 use crate::gui::console;
 
-#[derive(Clone)]
 pub enum Direction {
     Up,
     Down,
@@ -10,7 +9,6 @@ pub enum Direction {
     Left,
 }
 
-#[derive(Clone)]
 pub struct Segment {
     pub dir: Direction,
     pub length: u16,
@@ -19,13 +17,12 @@ pub struct Segment {
 #[derive(Copy, Clone)]
 pub struct Point2(pub i16, pub i16);
 
-#[derive(Clone)]
 pub struct PathPos {
     pub idx_segment: usize,
     pub pos: Point2,
 }
 
-#[derive(Component, Clone)]
+#[derive(Component)]
 pub struct Path {
     pub id: u8,
     pub points: Vec<PathPos>,
@@ -85,7 +82,7 @@ pub fn spawn_paths(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let paths = vec![Path::new(
+    let mut paths = vec![Path::new(
         1,
         Point2(0, 5),
         vec![
@@ -101,8 +98,7 @@ pub fn spawn_paths(
     )];
 
     for path in paths {
-        // @fixme: How to write a nested for-loop without littering Clone traits everywhere?
-        for pt in path.points.clone() {
+        for pt in path.points.iter() {
             commands.spawn(PbrBundle {
                 mesh: meshes.add(Cuboid::default()),
                 material: materials.add(Color::rgb(0.0, 0.5, 0.0)),
