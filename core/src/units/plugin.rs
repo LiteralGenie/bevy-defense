@@ -30,7 +30,7 @@ impl Plugin for UnitsPlugin {
             (
                 super::systems::render_status_change,
                 super::systems::render_movement,
-                super::basic_unit::render_models,
+                super::basic_unit::render,
             ),
         );
     }

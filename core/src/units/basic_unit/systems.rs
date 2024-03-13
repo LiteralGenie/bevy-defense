@@ -1,7 +1,7 @@
-use crate::units::components::UnitModel;
+use super::super::components::UnitModel;
 use bevy::prelude::*;
 
-pub fn render_models(
+pub fn render(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
