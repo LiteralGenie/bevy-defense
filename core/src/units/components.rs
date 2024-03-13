@@ -19,7 +19,7 @@ pub struct UnitDist(pub u16);
 pub struct UnitHealth(pub u16);
 
 #[derive(Component)]
-pub struct UnitPath(pub Entity);
+pub struct UnitPathId(pub u8);
 
 #[derive(Component)]
 pub struct UnitSpawnTick(pub u32);

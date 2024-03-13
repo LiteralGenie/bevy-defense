@@ -2,7 +2,7 @@ use bevy::{ecs::system::SystemState, prelude::*};
 use wasm_bindgen::JsValue;
 
 use crate::{
-    path::Path,
+    scenario::{Path, Scenario},
     towers::components::{TowerMarker, TowerPosition},
 };
 
@@ -43,10 +43,10 @@ pub fn snap_coords(pos: Vec3) -> Vec3 {
 pub fn can_place_tower(world: &mut World, pos: Vec3) -> bool {
     let mut state: SystemState<(
         Query<&TowerPosition, With<TowerMarker>>,
-        Query<&Path>,
+        Res<Scenario>,
     )> = SystemState::new(world);
 
-    let (tower_query, path_query) = state.get_mut(world);
+    let (tower_query, scenario) = state.get_mut(world);
 
     for tower in tower_query.iter() {
         if pos.x as i16 == tower.x && pos.z as i16 == tower.z {
@@ -54,7 +54,7 @@ pub fn can_place_tower(world: &mut World, pos: Vec3) -> bool {
         }
     }
 
-    for path in path_query.iter() {
+    for path in scenario.paths.values() {
         for pt in path.points.iter() {
             if pos.x as i16 == pt.pos.0 && pos.z as i16 == pt.pos.1 {
                 return false;

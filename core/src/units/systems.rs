@@ -1,20 +1,28 @@
 use bevy::prelude::*;
 
 use crate::{
-    gui::console, path::Path, timers::tick_timer::TickTimer,
+    gui::console,
+    scenario::{Path, Scenario, Wave},
+    timers::{round_timer::RoundTimer, tick_timer::TickTimer},
 };
 
 use super::components::{
-    UnitDist, UnitModel, UnitPath, UnitSpawnTick, UnitStatus,
+    UnitDist, UnitModel, UnitPathId, UnitSpawnTick, UnitStatus,
     UnitStatusTypes,
 };
 
 pub fn init_units_for_round(
     mut commands: Commands,
-    paths: Query<(Entity, &Path)>,
+    scenario: Res<Scenario>,
+    round_timer: Res<RoundTimer>,
 ) {
-    for (path, _) in paths.iter() {
-        super::basic_unit::spawn(&mut commands, path, 0);
+    let wave = &scenario.waves[round_timer.round as usize];
+    for enemy in wave.enemies.iter() {
+        super::basic_unit::spawn(
+            &mut commands,
+            enemy.id_path,
+            round_timer.start_tick + enemy.delay,
+        );
     }
 }
 
@@ -24,12 +32,12 @@ pub fn spawn_pending_units(
         Entity,
         &UnitStatus,
         &UnitSpawnTick,
-        &UnitPath,
+        &UnitPathId,
         &UnitDist,
         &UnitModel,
     )>,
     tick_timer: Res<TickTimer>,
-    paths: Query<&Path>,
+    scenario: Res<Scenario>,
     mut models: Query<&mut Transform>,
 ) {
     let to_spawn =
@@ -56,7 +64,7 @@ pub fn spawn_pending_units(
             .insert(UnitStatus(UnitStatusTypes::ALIVE));
 
         // Move unit to start of path
-        let path = paths.get(path_id.0).unwrap();
+        let path = &scenario.paths[&path_id.0];
         let point = path.points.get(dist.0 as usize).unwrap();
 
         let mut transform = models.get_mut(model.0).unwrap();
@@ -86,14 +94,14 @@ pub fn render_status_change(
 
 pub fn render_movement(
     units: Query<
-        (&UnitPath, &UnitDist, &UnitModel),
+        (&UnitPathId, &UnitDist, &UnitModel),
         (With<UnitModel>, Or<(Changed<UnitDist>, Added<UnitModel>)>),
     >,
     mut models: Query<&mut Transform>,
-    paths: Query<&Path>,
+    scenario: Res<Scenario>,
 ) {
     for (path_id, dist, model) in units.iter() {
-        let path = paths.get(path_id.0).unwrap();
+        let path = &scenario.paths[&path_id.0];
         let point = path.points.get(dist.0 as usize).unwrap();
 
         let mut transform = models.get_mut(model.0).unwrap();
@@ -104,8 +112,8 @@ pub fn render_movement(
 }
 
 pub fn move_units(
-    mut units: Query<(&UnitPath, &mut UnitDist, &mut UnitStatus)>,
-    paths: Query<&Path>,
+    mut units: Query<(&UnitPathId, &mut UnitDist, &mut UnitStatus)>,
+    scenario: Res<Scenario>,
 ) {
     let mut alive = units.iter_mut().filter(|(_, _, status)| {
         matches!(status.0, UnitStatusTypes::ALIVE)
@@ -116,7 +124,7 @@ pub fn move_units(
         dist.0 += 1;
 
         // If at end of path, kill unit
-        let path = paths.get(path_id.0).unwrap();
+        let path = &scenario.paths[&path_id.0];
         if dist.0 as usize == path.points.len() - 1 {
             status.0 = UnitStatusTypes::DEAD;
         }

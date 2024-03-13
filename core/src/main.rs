@@ -3,8 +3,8 @@ use states::GamePhase;
 mod camera;
 mod gui;
 mod map;
-mod path;
 mod player;
+mod scenario;
 mod states;
 mod timers;
 mod towers;
@@ -24,7 +24,7 @@ fn main() {
                 }),
                 ..default()
             }),
-            path::plugin::PathPlugin,
+            scenario::plugin::PathPlugin,
             units::plugin::UnitsPlugin,
             towers::plugin::TowersPlugin,
         ))

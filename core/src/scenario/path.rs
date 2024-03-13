@@ -21,7 +21,6 @@ pub struct PathPos {
     pub pos: Point2,
 }
 
-#[derive(Component)]
 pub struct Path {
     pub id: u8,
     pub points: Vec<PathPos>,

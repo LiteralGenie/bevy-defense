@@ -25,7 +25,7 @@ fn update_health(query: Query<&PlayerHealth, Changed<PlayerHealth>>) {
 }
 
 fn update_round(timer: Res<RoundTimer>) {
-    updateState("round".into(), timer.0.into());
+    updateState("round".into(), timer.round.into());
 }
 
 fn update_tick(timer: Res<TickTimer>) {
