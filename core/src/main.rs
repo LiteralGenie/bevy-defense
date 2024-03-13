@@ -24,7 +24,8 @@ fn main() {
                 }),
                 ..default()
             }),
-            scenario::plugin::PathPlugin,
+            scenario::plugin::ScenarioPlugin,
+            timers::plugin::TimersPlugin,
             units::plugin::UnitsPlugin,
             towers::plugin::TowersPlugin,
         ))
@@ -36,19 +37,9 @@ fn main() {
                 map::spawn_map,
                 camera::spawn_camera,
                 player::spawn_players,
-                timers::tick_timer::spawn_timer,
-                timers::round_timer::spawn_timer,
             ),
         )
-        // Build phase
-        // .add_systems(OnEnter(GamePhase::BUILD), ())
-        // Combat phase
-        .insert_resource(Time::<Fixed>::from_hz(5.0))
-        .add_systems(
-            FixedUpdate,
-            (timers::tick_timer::update_timer,)
-                .run_if(in_state(GamePhase::COMBAT)),
-        );
+        .insert_resource(Time::<Fixed>::from_hz(5.0));
 
     if cfg!(server) {
         // @todo
