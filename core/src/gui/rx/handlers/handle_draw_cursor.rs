@@ -32,7 +32,7 @@ pub fn handle_draw_cursor(
             return false;
         }
 
-        update_cursor_position(world, pos);
+        update_cursor_position(world, (pos.0 as f32, pos.1 as f32));
         update_cursor_color(world, 0.5);
     } else {
         // Otherwise hide the ghost
@@ -64,13 +64,13 @@ fn init_resource(world: &mut World) {
     state.apply(world);
 }
 
-fn update_cursor_position(world: &mut World, pos: Vec3) {
+fn update_cursor_position(world: &mut World, pos: (f32, f32)) {
     let cursor = world.resource::<Cursor>();
     let mut entity = world.entity_mut(cursor.model);
 
     let mut transform = entity.get_mut::<Transform>().unwrap();
-    transform.translation.x = pos.x;
-    transform.translation.z = pos.z;
+    transform.translation.x = pos.0;
+    transform.translation.z = pos.1;
 }
 
 fn update_cursor_color(world: &mut World, opacity: f32) {

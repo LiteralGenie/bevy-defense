@@ -26,3 +26,26 @@ pub struct UnitSpawnTick(pub u32);
 
 #[derive(Component)]
 pub struct UnitModel(pub Entity);
+
+#[derive(Bundle)]
+pub struct BaseUnitBundle {
+    marker: UnitMarker,
+    dist: UnitDist,
+    health: UnitHealth,
+    id_path: UnitPathId,
+    spawn_tick: UnitSpawnTick,
+    status: UnitStatus,
+}
+
+impl BaseUnitBundle {
+    pub fn new(health: u16, id_path: u8, spawn_tick: u32) -> Self {
+        Self {
+            marker: UnitMarker,
+            dist: UnitDist(0),
+            health: UnitHealth(health),
+            id_path: UnitPathId(id_path),
+            spawn_tick: UnitSpawnTick(spawn_tick),
+            status: UnitStatus(UnitStatusTypes::PRESPAWN),
+        }
+    }
+}

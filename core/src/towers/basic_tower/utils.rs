@@ -1,3 +1,5 @@
+use crate::towers::components::BaseTowerBundle;
+
 use super::super::components::{TowerMarker, TowerPosition};
 use bevy::{ecs::system::SystemState, prelude::*};
 
@@ -18,18 +20,11 @@ pub fn spawn_model(
     entity
 }
 
-pub fn spawn(world: &mut World, pos: Vec3) {
+pub fn spawn(world: &mut World, pos: (i16, i16)) {
     let mut state: SystemState<Commands> = SystemState::new(world);
     let mut commands = state.get_mut(world);
 
-    commands.spawn((
-        TowerMarker,
-        TowerPosition {
-            x: pos.x as i16,
-            z: pos.z as i16,
-        },
-        super::Marker,
-    ));
+    commands.spawn((BaseTowerBundle::new(pos), super::Marker));
 
     state.apply(world);
 }
