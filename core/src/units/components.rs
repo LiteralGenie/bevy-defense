@@ -27,6 +27,9 @@ pub struct UnitSpawnTick(pub u32);
 #[derive(Component)]
 pub struct UnitModel(pub Entity);
 
+#[derive(Component)]
+pub struct UnitHealthBarModel(pub Entity);
+
 #[derive(Bundle)]
 pub struct BaseUnitBundle {
     marker: UnitMarker,

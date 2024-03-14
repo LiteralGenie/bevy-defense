@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     gui::console,
-    scenario::{Path, Scenario, Wave},
+    scenario::Scenario,
     timers::{round_timer::RoundTimer, tick_timer::TickTimer},
 };
 
@@ -79,16 +79,20 @@ pub fn render_status_change(
         (&UnitStatus, &UnitModel),
         Or<(Changed<UnitStatus>, Added<UnitModel>)>,
     >,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    mut materials_query: Query<&Handle<StandardMaterial>>,
+    mut visibility_query: Query<&mut Visibility>,
 ) {
     for (status, model) in units.iter() {
         let is_alive = matches!(status.0, UnitStatusTypes::ALIVE);
-        let opacity = if is_alive { 1.0 } else { 0.0 };
+        let update = if is_alive {
+            Visibility::Inherited
+        } else {
+            Visibility::Hidden
+        };
 
-        let handle = materials_query.get_mut(model.0).unwrap();
-        let mat = materials.get_mut(handle).unwrap();
-        mat.base_color.set_a(opacity);
+        let mut visibility =
+            visibility_query.get_mut(model.0).unwrap();
+
+        *visibility = update;
     }
 }
 
