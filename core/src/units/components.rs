@@ -16,7 +16,7 @@ pub struct UnitMarker;
 pub struct UnitDist(pub u16);
 
 #[derive(Component)]
-pub struct UnitHealth(pub u16);
+pub struct UnitHealth(pub u32);
 
 #[derive(Component)]
 pub struct UnitPathId(pub u8);
@@ -38,7 +38,7 @@ pub struct BaseUnitBundle {
 }
 
 impl BaseUnitBundle {
-    pub fn new(health: u16, id_path: u8, spawn_tick: u32) -> Self {
+    pub fn new(health: u32, id_path: u8, spawn_tick: u32) -> Self {
         Self {
             marker: UnitMarker,
             dist: UnitDist(0),

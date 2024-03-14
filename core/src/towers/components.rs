@@ -12,10 +12,21 @@ pub struct TowerPosition {
     pub z: i16,
 }
 
+pub enum TowerPriorityTypes {
+    FIRST,
+    LAST,
+    WEAKEST,
+    STRONGEST,
+}
+
+#[derive(Component)]
+pub struct TowerPriority(pub TowerPriorityTypes);
+
 #[derive(Bundle)]
 pub struct BaseTowerBundle {
     marker: TowerMarker,
     position: TowerPosition,
+    priority: TowerPriority,
 }
 
 impl BaseTowerBundle {
@@ -26,6 +37,7 @@ impl BaseTowerBundle {
                 x: position.0,
                 z: position.1,
             },
+            priority: TowerPriority(TowerPriorityTypes::FIRST),
         }
     }
 }
