@@ -36,8 +36,12 @@ pub fn render_health_bar(
             if let Ok(res) = model_query.get_mut(*child) {
                 let (_, mut transform) = res;
 
-                transform.scale =
-                    Vec3::new(health.0 as f32 / 100.0, 1.0, 1.0);
+                let health_percent = health.0 as f32 / 100.0;
+
+                transform.scale = Vec3::new(health_percent, 1.0, 1.0);
+
+                transform.translation.x =
+                    -(1.0 - health_percent) / 2.0;
 
                 break;
             }
