@@ -23,11 +23,19 @@ impl Plugin for TowersPlugin {
             // Apply damage to units
             .add_systems(
                 FixedUpdate,
-                (super::attacks::basic_attack::apply_basic_attack,)
+                (super::attacks::apply_basic_attack,)
                     .in_set(TowerAttackSystems)
                     .after(TargetIndexSystems),
-            );
+            )
+            .add_event::<super::attacks::BasicAttackEvent>();
 
-        app.add_systems(Update, (super::basic_tower::render,));
+        app.add_systems(
+            Update,
+            (
+                super::basic_tower::render,
+                super::systems::render_attacks,
+                super::attacks::render_basic_attack,
+            ),
+        );
     }
 }

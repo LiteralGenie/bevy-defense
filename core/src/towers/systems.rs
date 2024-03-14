@@ -7,6 +7,8 @@ use crate::{
 use bevy::prelude::*;
 use std::collections::{HashMap, HashSet};
 
+use super::components::Projectile;
+
 // Units binned by dist (from start of path)
 #[derive(Resource)]
 pub struct UnitsByDist(
@@ -44,4 +46,41 @@ pub fn index_units_by_dist(
     }
 
     commands.insert_resource(UnitsByDist(by_path));
+}
+
+pub fn render_attacks(
+    projectile_query: Query<(Entity, &Projectile)>,
+    unit_query: Query<(&UnitPathId, &UnitDist)>,
+    mut model_query: Query<&mut Transform>,
+    scenario: Res<Scenario>,
+    mut commands: Commands,
+) {
+    const TRAVEL_DIST: f32 = 0.25;
+    const DESPAWN_DIST: f32 = 2.0 * TRAVEL_DIST;
+
+    for (entity, p) in projectile_query.iter() {
+        let mut model = model_query.get_mut(p.model).unwrap();
+
+        let unit_pos = {
+            let (unit_path, unit_dist) =
+                unit_query.get(p.unit).unwrap();
+            let path = scenario.paths.get(&unit_path.0).unwrap();
+            path.points.get(unit_dist.0 as usize).unwrap()
+        };
+
+        // Vector pointing to unit position
+        let dist = Vec3::new(
+            unit_pos.pos.0 as f32 - model.translation.x as f32,
+            0.0,
+            unit_pos.pos.1 as f32 - model.translation.z as f32,
+        );
+
+        if dist.length() > DESPAWN_DIST {
+            let update = dist * (TRAVEL_DIST / dist.length());
+            model.translation += update;
+        } else {
+            commands.entity(p.model).despawn();
+            commands.entity(entity).despawn();
+        }
+    }
 }

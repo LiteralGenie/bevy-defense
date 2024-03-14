@@ -40,6 +40,8 @@ pub fn render_health_bar(
 
                 transform.scale = Vec3::new(health_percent, 1.0, 1.0);
 
+                // The scale shrinks left / right sides of health bar by X
+                // so to keep it left aligned, translate it to the left by X / 2
                 transform.translation.x =
                     -(1.0 - health_percent) / 2.0;
 

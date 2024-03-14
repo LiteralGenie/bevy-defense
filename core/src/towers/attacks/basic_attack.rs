@@ -3,7 +3,9 @@ use bevy::prelude::*;
 use crate::{
     scenario::Scenario,
     towers::{
-        components::{TowerPriority, TowerRange},
+        components::{
+            Projectile, TowerPosition, TowerPriority, TowerRange,
+        },
         systems::UnitsByDist,
     },
     units::components::{
@@ -18,14 +20,21 @@ pub struct BasicAttack {
     pub damage: u32,
 }
 
+#[derive(Event)]
+pub struct BasicAttackEvent {
+    pub tower: Entity,
+    pub unit: Entity,
+}
+
 pub fn apply_basic_attack(
-    query: Query<(&BasicAttack, &TowerRange, &TowerPriority)>,
+    query: Query<(Entity, &BasicAttack, &TowerRange, &TowerPriority)>,
     targets_by_dist: Res<UnitsByDist>,
     mut info_query: Query<(&UnitPathId, &UnitDist, &mut UnitHealth)>,
     scenario: Res<Scenario>,
     mut status_query: Query<&mut UnitStatus>,
+    mut events: EventWriter<BasicAttackEvent>,
 ) {
-    for (attack, range, priority) in query.iter() {
+    for (entity, attack, range, priority) in query.iter() {
         let candidates =
             filter_targets_by_dist(&targets_by_dist, range);
 
@@ -46,5 +55,43 @@ pub fn apply_basic_attack(
             let mut status = status_query.get_mut(target).unwrap();
             status.0 = UnitStatusTypes::DEAD;
         }
+
+        events.send(BasicAttackEvent {
+            tower: entity,
+            unit: target,
+        });
+    }
+}
+
+pub fn render_basic_attack(
+    mut reader: EventReader<BasicAttackEvent>,
+    tower_query: Query<&TowerPosition>,
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    for ev in reader.read() {
+        let tower_pos = tower_query.get(ev.tower).unwrap();
+
+        let model = commands
+            .spawn(PbrBundle {
+                mesh: meshes.add(Capsule3d::new(0.25, 0.25)),
+                material: materials.add(StandardMaterial {
+                    base_color: Color::rgb(0.5, 0.0, 0.0),
+                    ..default()
+                }),
+                transform: Transform::from_xyz(
+                    tower_pos.x as f32,
+                    0.5,
+                    tower_pos.z as f32,
+                ),
+                ..default()
+            })
+            .id();
+
+        commands.spawn(Projectile {
+            unit: ev.unit,
+            model,
+        });
     }
 }
