@@ -1,4 +1,9 @@
-use crate::towers::components::BaseTowerBundle;
+use crate::{
+    scenario::Scenario,
+    towers::{
+        components::BaseTowerBundle, ranges::basic_range::BasicRange,
+    },
+};
 
 use super::super::components::{TowerMarker, TowerPosition};
 use bevy::{ecs::system::SystemState, prelude::*};
@@ -21,10 +26,15 @@ pub fn spawn_model(
 }
 
 pub fn spawn(world: &mut World, pos: (i16, i16)) {
-    let mut state: SystemState<Commands> = SystemState::new(world);
-    let mut commands = state.get_mut(world);
+    let mut state: SystemState<(Commands, Res<Scenario>)> =
+        SystemState::new(world);
+    let (mut commands, scenario) = state.get_mut(world);
 
-    commands.spawn((BaseTowerBundle::new(pos), super::Marker));
+    commands.spawn((
+        BaseTowerBundle::new(pos),
+        super::Marker,
+        BasicRange::new(3, pos, scenario),
+    ));
 
     state.apply(world);
 }
