@@ -6,14 +6,16 @@ use crate::{
         components::{TowerPriority, TowerRange},
         systems::UnitsByDist,
     },
-    units::components::{UnitDist, UnitHealth, UnitPathId},
+    units::components::{
+        UnitDist, UnitHealth, UnitPathId, UnitStatus, UnitStatusTypes,
+    },
 };
 
 use super::utils::{filter_targets_by_dist, find_target};
 
 #[derive(Component)]
 pub struct BasicAttack {
-    damage: u32,
+    pub damage: u32,
 }
 
 pub fn apply_basic_attack(
@@ -21,6 +23,7 @@ pub fn apply_basic_attack(
     targets_by_dist: Res<UnitsByDist>,
     mut info_query: Query<(&UnitPathId, &UnitDist, &mut UnitHealth)>,
     scenario: Res<Scenario>,
+    mut status_query: Query<&mut UnitStatus>,
 ) {
     for (attack, range, priority) in query.iter() {
         let candidates =
@@ -38,5 +41,10 @@ pub fn apply_basic_attack(
 
         let (_, _, mut health) = info_query.get_mut(target).unwrap();
         health.0 = health.0.saturating_sub(attack.damage);
+
+        if health.0 == 0 {
+            let mut status = status_query.get_mut(target).unwrap();
+            status.0 = UnitStatusTypes::DEAD;
+        }
     }
 }
