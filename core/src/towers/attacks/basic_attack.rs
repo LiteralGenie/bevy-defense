@@ -1,11 +1,15 @@
 use bevy::prelude::*;
 
 use crate::{
-    towers::{components::TowerPriority, systems::TargetsByDist},
-    units::components::{UnitHealth, UnitStatus},
+    scenario::Scenario,
+    towers::{
+        components::{TowerPriority, TowerRange},
+        systems::UnitsByDist,
+    },
+    units::components::{UnitDist, UnitHealth, UnitPathId},
 };
 
-use super::utils::find_target;
+use super::utils::{filter_targets_by_dist, find_target};
 
 #[derive(Component)]
 pub struct BasicAttack {
@@ -13,22 +17,26 @@ pub struct BasicAttack {
 }
 
 pub fn apply_basic_attack(
-    query: Query<(&BasicAttack, &TowerPriority)>,
-    status_query: Query<&UnitStatus>,
-    mut health_query: Query<&mut UnitHealth>,
-    targets_by_dist: Res<TargetsByDist>,
+    query: Query<(&BasicAttack, &TowerRange, &TowerPriority)>,
+    targets_by_dist: Res<UnitsByDist>,
+    mut info_query: Query<(&UnitPathId, &UnitDist, &mut UnitHealth)>,
+    scenario: Res<Scenario>,
 ) {
-    for (attack, priority) in query.iter() {
+    for (attack, range, priority) in query.iter() {
+        let candidates =
+            filter_targets_by_dist(&targets_by_dist, range);
+
         let target = match find_target(
             &priority.0,
-            &targets_by_dist,
-            &status_query,
+            candidates,
+            &info_query,
+            &scenario,
         ) {
             Some(val) => val,
             None => continue,
         };
 
-        let mut health = health_query.get_mut(target).unwrap();
+        let (_, _, mut health) = info_query.get_mut(target).unwrap();
         health.0 = health.0.saturating_sub(attack.damage);
     }
 }

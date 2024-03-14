@@ -3,15 +3,14 @@ use bevy::prelude::*;
 use std::collections::{HashMap, HashSet};
 
 #[derive(Component)]
-pub struct BasicRange {
-    radius: u8,
-    points: HashSet<(i16, i16)>,
+pub struct TowerRange {
+    pub points: HashSet<(i16, i16)>,
     // Map where key is a path id, and values are the dists where this range intersect
-    path_intersections: HashMap<u8, HashSet<u16>>,
+    pub path_intersections: HashMap<u8, HashSet<u16>>,
 }
 
-impl BasicRange {
-    pub fn new(
+impl TowerRange {
+    pub fn from_basic(
         radius: u8,
         center: (i16, i16),
         scenario: Res<Scenario>,
@@ -75,7 +74,6 @@ impl BasicRange {
         }
 
         Self {
-            radius,
             points,
             path_intersections,
         }
