@@ -29,7 +29,7 @@ impl TowerRange {
         for x in 0..(r + 1) {
             let height = r - x;
             for y in 0..(height + 1) {
-                points.insert((center.0 + x, center.0 + y));
+                points.insert((x, y));
             }
         }
 
@@ -41,11 +41,11 @@ impl TowerRange {
         // -----       -----
         let mut added = HashSet::new();
         for pt in points.iter() {
-            added.insert((center.0 - pt.0, pt.1));
+            added.insert((-pt.0, pt.1));
         }
         points.extend(added);
 
-        // Flip the half vertically, completing the range
+        // Flip the half vertically
         // --x--       --x--
         // -xxx-       -xxx-
         // xxxxx  ...  xxxxx
@@ -56,6 +56,13 @@ impl TowerRange {
             added.insert((pt.0, -pt.1));
         }
         points.extend(added);
+
+        // Move range onto specified center
+        let points = HashSet::from_iter(
+            points
+                .iter()
+                .map(|pt| (pt.0 + center.0, pt.1 + center.1)),
+        );
 
         // Find points that lie on a path and cache them
         // (as distances from the start of path)

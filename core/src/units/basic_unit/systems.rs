@@ -1,6 +1,5 @@
-use crate::units::utils::render_health_bar;
-
 use super::super::components::UnitModel;
+use super::super::health_bar::build_health_bar;
 use bevy::prelude::*;
 
 pub fn render(
@@ -11,7 +10,7 @@ pub fn render(
 ) {
     for entity in units.iter() {
         let health_bar_model_id = commands
-            .spawn(render_health_bar(&mut meshes, &mut materials))
+            .spawn(build_health_bar(&mut meshes, &mut materials))
             .id();
 
         let mut model = commands.spawn(PbrBundle {
