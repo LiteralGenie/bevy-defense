@@ -9,6 +9,9 @@ mod states;
 mod timers;
 mod towers;
 mod units;
+use bevy_mod_picking::{
+    picking_core::PickingPluginsSettings, prelude::*,
+};
 
 fn main() {
     let mut app = App::new();
@@ -45,6 +48,13 @@ fn main() {
         // @todo
     } else {
         app
+            // Emit events on model click / hover / etc
+            .add_plugins(
+                DefaultPickingPlugins
+                    .build()
+                    // Disable default highlighting effects
+                    .disable::<DefaultHighlightingPlugin>(),
+            )
             // Send state updates to gui
             .add_plugins(gui::tx::plugin::TxPlugin)
             // Read requests from gui

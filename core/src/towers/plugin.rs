@@ -27,13 +27,15 @@ impl Plugin for TowersPlugin {
                     .in_set(TowerAttackSystems)
                     .after(TargetIndexSystems),
             )
-            .add_event::<super::attacks::BasicAttackEvent>();
+            .add_event::<super::attacks::BasicAttackEvent>()
+            .add_event::<super::events::TowerClickEvent>();
 
         app.add_systems(
             Update,
             (
                 super::basic_tower::render,
                 super::systems::render_attacks,
+                super::systems::render_event_handlers,
                 super::attacks::render_basic_attack,
             ),
         );

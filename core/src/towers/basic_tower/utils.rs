@@ -30,7 +30,7 @@ pub fn spawn(world: &mut World, pos: (i16, i16)) {
     let (mut commands, scenario) = state.get_mut(world);
 
     commands.spawn((
-        BaseTowerBundle::new(pos),
+        BaseTowerBundle::new(10, pos),
         super::Marker,
         TowerRange::from_basic(3, pos, scenario),
         attacks::BasicAttack { damage: 10 },

@@ -1,15 +1,17 @@
-use bevy::ecs::{query::Changed, system::Query};
 use bevy::prelude::*;
+use js_sys::JsString;
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 use crate::player::{PlayerGold, PlayerHealth};
 use crate::states::GamePhase;
 use crate::timers::round_timer::RoundTimer;
 use crate::timers::tick_timer::TickTimer;
+use crate::towers::events::TowerClickEvent;
 
 #[wasm_bindgen(js_namespace = game)]
 extern "C" {
     pub fn updateState(key: String, value: JsValue);
+    pub fn dispatchEvent(name: String, detail: JsValue);
 }
 
 fn update_gold(query: Query<&PlayerGold, Changed<PlayerGold>>) {
@@ -43,6 +45,18 @@ fn update_phase(phase: Res<State<GamePhase>>) {
     );
 }
 
+fn handle_tower_click(mut reader: EventReader<TowerClickEvent>) {
+    for ev in reader.read() {
+        let detail = js_sys::Object::new();
+        let _ = js_sys::Reflect::set(
+            &detail,
+            &JsString::from("tower"),
+            &JsValue::from_f64(ev.0.to_bits() as f64),
+        );
+        dispatchEvent("towerclick".into(), JsValue::from(detail));
+    }
+}
+
 pub struct TxPlugin;
 
 impl Plugin for TxPlugin {
@@ -55,6 +69,7 @@ impl Plugin for TxPlugin {
                 update_round,
                 update_tick,
                 update_phase,
+                handle_tower_click,
             ),
         );
     }

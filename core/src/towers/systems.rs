@@ -1,3 +1,7 @@
+use super::{
+    components::{Projectile, TowerModel},
+    events::TowerClickEvent,
+};
 use crate::{
     scenario::Scenario,
     units::components::{
@@ -5,9 +9,8 @@ use crate::{
     },
 };
 use bevy::prelude::*;
+use bevy_mod_picking::prelude::*;
 use std::collections::{HashMap, HashSet};
-
-use super::components::Projectile;
 
 // Units binned by dist (from start of path)
 #[derive(Resource)]
@@ -41,7 +44,7 @@ pub fn index_units_by_dist(
         }
 
         let path_bin = by_path.get_mut(&id_path.0).unwrap();
-        let mut dist_bin = path_bin.get_mut(&dist.0).unwrap();
+        let dist_bin = path_bin.get_mut(&dist.0).unwrap();
         dist_bin.insert(entity);
     }
 
@@ -82,5 +85,17 @@ pub fn render_attacks(
             commands.entity(p.model).despawn();
             commands.entity(entity).despawn();
         }
+    }
+}
+
+pub fn render_event_handlers(
+    query: Query<&TowerModel, Added<TowerModel>>,
+    mut commands: Commands,
+) {
+    for model in query.iter() {
+        commands.entity(model.0).insert((
+            PickableBundle::default(),
+            On::<Pointer<Click>>::send_event::<TowerClickEvent>(),
+        ));
     }
 }

@@ -91,6 +91,13 @@ export class Game {
     }
 
     /**
+     * WASM-land calls this on interaction with the 3d models in the canvas
+     */
+    dispatchEvent(name: string, detail: any) {
+        console.log('dispatching event', name, detail)
+    }
+
+    /**
      * GUI calls this to send message to WASM-land
      */
     async pushRequest<TOut, TIn = any>(type: RequestType, data: TIn) {
