@@ -1,6 +1,5 @@
 <script lang="ts">
-    import Info from '$lib/components/info.svelte'
-    import Sidebar from '$lib/components/sidebar/sidebar.svelte'
+    import Gui from '$lib/components/gui.svelte'
     import { Game } from '$lib/game/game'
     import { onMount } from 'svelte'
 
@@ -17,13 +16,7 @@
 
 {#if game}
     <div class="container">
-        <div class="info">
-            <Info />
-        </div>
-
-        <div class="sidebar">
-            <Sidebar />
-        </div>
+        <Gui />
     </div>
 {/if}
 
@@ -50,30 +43,8 @@
         width: 100%;
     }
 
-    // For drag-and-drop purposes, ignore most of the gui overlay
-    // when calculating the drop target (document.elementFromPoint())
+    // For drag-and-drop purposes, make the gui invisible by default
     .container {
         pointer-events: none;
-
-        .sidebar {
-            pointer-events: all;
-        }
-    }
-
-    .container {
-        display: grid;
-        grid-template-columns: 1fr max(200px, 20vw);
-
-        color: white;
-
-        .info {
-            height: max-content;
-            width: max-content;
-            justify-self: flex-end;
-        }
-
-        .sidebar {
-            height: 100%;
-        }
     }
 </style>
