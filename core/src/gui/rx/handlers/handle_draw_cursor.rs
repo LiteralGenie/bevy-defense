@@ -32,11 +32,11 @@ pub fn handle_draw_cursor(
             return false;
         }
 
+        update_cursor_visbility(world, true);
         update_cursor_position(world, (pos.0 as f32, pos.1 as f32));
-        update_cursor_color(world, 0.5);
     } else {
         // Otherwise hide the ghost
-        update_cursor_color(world, 0.0);
+        update_cursor_visbility(world, false);
     }
 
     true
@@ -60,8 +60,9 @@ fn init_resource(world: &mut World) {
     );
 
     world.insert_resource(Cursor { model });
-
     state.apply(world);
+
+    update_cursor_color(world, 0.5);
 }
 
 fn update_cursor_position(world: &mut World, pos: (f32, f32)) {
@@ -87,6 +88,24 @@ fn update_cursor_color(world: &mut World, opacity: f32) {
     let mat = materials.get_mut(handle).unwrap();
     mat.alpha_mode = AlphaMode::Blend;
     mat.base_color.set_a(opacity);
+
+    state.apply(world);
+}
+
+fn update_cursor_visbility(world: &mut World, is_visible: bool) {
+    let mut state: SystemState<(
+        Res<Cursor>,
+        Query<&mut Visibility>,
+    )> = SystemState::new(world);
+
+    let (cursor, mut query) = state.get_mut(world);
+
+    let mut visibility = query.get_mut(cursor.model).unwrap();
+    *visibility = if is_visible {
+        Visibility::Inherited
+    } else {
+        Visibility::Hidden
+    };
 
     state.apply(world);
 }

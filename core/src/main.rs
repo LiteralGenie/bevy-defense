@@ -52,7 +52,7 @@ fn main() {
             .add_plugins(
                 DefaultPickingPlugins
                     .build()
-                    // Disable default highlighting effects
+                    // Disable color changes on click / hover
                     .disable::<DefaultHighlightingPlugin>(),
             )
             // Send state updates to gui

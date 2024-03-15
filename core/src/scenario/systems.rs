@@ -7,8 +7,16 @@ pub fn spawn_scenario(mut commands: Commands) {
         1,
         path::Path::new(
             1,
-            path::Point2(0, 5),
+            path::Point2(5, 10),
             vec![
+                path::Segment {
+                    dir: path::Direction::Down,
+                    length: 5,
+                },
+                path::Segment {
+                    dir: path::Direction::Left,
+                    length: 5,
+                },
                 path::Segment {
                     dir: path::Direction::Down,
                     length: 5,
@@ -17,29 +25,27 @@ pub fn spawn_scenario(mut commands: Commands) {
                     dir: path::Direction::Right,
                     length: 5,
                 },
+                path::Segment {
+                    dir: path::Direction::Down,
+                    length: 10,
+                },
             ],
         ),
     )]);
 
-    let scenario = Scenario {
+    let mut scenario = Scenario {
         paths,
         waves: Vec::from([Wave {
-            enemies: Vec::from([
-                WaveEnemy {
-                    id_path: 1,
-                    delay: 3,
-                },
-                WaveEnemy {
-                    id_path: 1,
-                    delay: 6,
-                },
-                WaveEnemy {
-                    id_path: 1,
-                    delay: 9,
-                },
-            ]),
+            enemies: Vec::new(),
         }]),
     };
+
+    for i in 1..99 {
+        scenario.waves[0].enemies.push(WaveEnemy {
+            id_path: 1,
+            delay: i * 3,
+        })
+    }
 
     commands.insert_resource(scenario);
 }
