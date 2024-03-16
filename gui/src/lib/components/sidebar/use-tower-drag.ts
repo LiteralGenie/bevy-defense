@@ -1,5 +1,5 @@
-import { drawCursor } from '$lib/game/handlers/draw-cursor'
-import { spawnTower } from '$lib/game/handlers/spawn-tower'
+import { drawCursor } from '$lib/game/command_handlers/draw-cursor'
+import { spawnTower } from '$lib/game/command_handlers/spawn-tower'
 import { get, writable } from 'svelte/store'
 
 export function useTowerDrag() {

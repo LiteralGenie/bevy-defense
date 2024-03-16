@@ -5,7 +5,7 @@
 </script>
 
 <script lang="ts">
-    import { startRound } from '$lib/game/handlers/start-round'
+    import { startRound } from '$lib/game/command_handlers/start-round'
 
     import { useTowerDrag } from './use-tower-drag'
 

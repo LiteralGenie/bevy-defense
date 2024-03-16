@@ -7,7 +7,7 @@ use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 #[wasm_bindgen(js_namespace = game)]
 extern "C" {
-    pub static guiRequests: js_sys::Array;
+    pub static pending_commands: js_sys::Array;
 }
 
 fn extract_request(
@@ -33,10 +33,10 @@ fn extract_xy(data: JsValue) -> Vec2 {
 }
 
 pub fn handle_gui_requests(world: &mut World) {
-    let len = guiRequests.length();
+    let len = pending_commands.length();
 
     for i in 0..len {
-        let req = guiRequests.get(i);
+        let req = pending_commands.get(i);
         let (event_type, resolve, reject, data) =
             extract_request(&req);
 
@@ -112,6 +112,6 @@ pub fn handle_gui_requests(world: &mut World) {
     // Remove processed requests
     // So that if new requests came in mid-process (is that possible?), leave them for next time
     // (This replaces the processed requests with undefined and then pops it because wasm-bindgen doesn't expose a 2-arg splice)
-    guiRequests.splice(0, len, &JsValue::undefined());
-    guiRequests.shift();
+    pending_commands.splice(0, len, &JsValue::undefined());
+    pending_commands.shift();
 }
