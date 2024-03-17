@@ -28,14 +28,15 @@ export class GameState {
                 this.phase.set(value)
                 break
             case 'towers':
-                this.updateTowerState(value)
+                this.updateTower(value)
                 break
             default:
                 console.error('invalid updateState key', key, value)
         }
     }
 
-    private updateTowerState(tower: TowerState) {
+    private updateTower(tower: TowerState) {
+        console.log('towers', tower)
         this.towers.update((current) => ({ ...current, [tower.id]: tower }))
     }
 }
@@ -43,5 +44,8 @@ export class GameState {
 interface TowerState {
     id: number
 
-    damage: number
+    base_damage: number
+    effective_damage: number
+    base_range: number
+    effective_range: number
 }

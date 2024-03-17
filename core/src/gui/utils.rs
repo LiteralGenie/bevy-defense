@@ -1,12 +1,11 @@
-use bevy::{ecs::system::SystemState, prelude::*};
-use wasm_bindgen::JsValue;
-
+use super::console;
 use crate::{
-    scenario::{Path, Scenario},
+    scenario::Scenario,
     towers::components::{TowerMarker, TowerPosition},
 };
-
-use super::console;
+use bevy::{ecs::system::SystemState, prelude::*};
+use js_sys::Object;
+use wasm_bindgen::JsValue;
 
 pub fn get_prop(val: &JsValue, key: &str) -> JsValue {
     let key_val = JsValue::from_str(key);
