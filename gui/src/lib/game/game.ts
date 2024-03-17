@@ -17,21 +17,21 @@ export class Game {
     /**
      * Add Game instance to window, for GUI (js) <-> Engine (wasm) communication
      */
-    static initSingleton() {
+    static async initSingleton() {
         const game = new Game()
         ;(window as any).game = game
 
-        loadWasm()
-            .catch((error) => {
-                if (
-                    !error.message.startsWith(
-                        "Using exceptions for control flow, don't mind me. This isn't actually an error!"
-                    )
-                ) {
-                    throw error
-                }
-            })
-            .then(() => game.pushCommand('start_game', null))
+        await loadWasm().catch((error) => {
+            if (
+                !error.message.startsWith(
+                    "Using exceptions for control flow, don't mind me. This isn't actually an error!"
+                )
+            ) {
+                throw error
+            }
+        })
+
+        game.pushCommand('start_game', null)
 
         return game
     }
@@ -47,7 +47,8 @@ export class Game {
      * Engine calls this on interaction with the 3d models in the canvas
      */
     dispatchEvent(name: string, detail: any) {
-        console.log('dispatching event', name, detail)
+        console.debug('dispatching event', name, detail)
+        window.dispatchEvent(new CustomEvent(name, { detail }))
     }
 
     /**

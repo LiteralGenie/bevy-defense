@@ -36,7 +36,6 @@ export class GameState {
     }
 
     private updateTower(tower: TowerState) {
-        console.log('towers', tower)
         this.towers.update((current) => ({ ...current, [tower.id]: tower }))
     }
 }
