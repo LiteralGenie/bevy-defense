@@ -102,16 +102,31 @@ fn update_towers(
     }
 }
 
-fn handle_tower_click(mut reader: EventReader<TowerClickEvent>) {
-    for ev in reader.read() {
-        let detail = js_sys::Object::new();
+/**
+ * Emit mouse clicks as window events to gui
+ *
+ * If the click was targeting a game entity,
+ * the entity id will be included in the event details
+ */
+fn handle_clicks(
+    mouse: Res<ButtonInput<MouseButton>>,
+    mut tower_clicks: EventReader<TowerClickEvent>,
+) {
+    if !mouse.just_released(MouseButton::Left) {
+        return;
+    }
+
+    let detail = js_sys::Object::new();
+
+    if let Some(ev) = tower_clicks.read().nth(0) {
         let _ = js_sys::Reflect::set(
             &detail,
             &JsString::from("tower"),
             &JsValue::from(ev.0.to_bits()),
         );
-        dispatchEvent("towerclick".into(), JsValue::from(detail));
     }
+
+    dispatchEvent("gameclick".into(), JsValue::from(detail));
 }
 
 pub struct TxPlugin;
@@ -127,7 +142,7 @@ impl Plugin for TxPlugin {
                 update_tick,
                 update_phase,
                 update_towers,
-                handle_tower_click,
+                handle_clicks,
             ),
         );
     }

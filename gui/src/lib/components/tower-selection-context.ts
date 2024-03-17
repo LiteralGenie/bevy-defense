@@ -11,7 +11,7 @@ const KEY = 'tower_selection'
 
 export function setTowerSelectionContext() {
     let idTower = writable(null)
-    window.addEventListener('towerclick', onTowerClick)
+    window.addEventListener('gameclick', handleClick)
 
     let value = derived([idTower, window.game.state.towers], ([id, towers]) => {
         if (id === null) {
@@ -23,13 +23,13 @@ export function setTowerSelectionContext() {
     setContext(KEY, value)
 
     let deleteContext = () => {
-        window.removeEventListener('towerclick', onTowerClick)
+        window.removeEventListener('gameclick', handleClick)
     }
     return { value, deleteContext }
 
-    function onTowerClick(ev: any) {
+    function handleClick(ev: any) {
         let id = (ev as CustomEvent).detail.tower
-        idTower.set(id)
+        idTower.set(id ?? null)
     }
 }
 
