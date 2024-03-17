@@ -2,7 +2,7 @@ use crate::{
     scenario::Scenario,
     towers::{
         attacks,
-        components::{BaseTowerBundle, TowerRange},
+        components::{BaseTowerBundle, BasicRangeType},
     },
 };
 use bevy::{ecs::system::SystemState, prelude::*};
@@ -32,8 +32,8 @@ pub fn spawn(world: &mut World, pos: (i16, i16)) {
     commands.spawn((
         BaseTowerBundle::new(10, pos),
         super::Marker,
-        TowerRange::from_basic(3, pos, scenario),
-        attacks::BasicAttack { damage: 10 },
+        BasicRangeType,
+        attacks::BasicAttack,
     ));
 
     state.apply(world);

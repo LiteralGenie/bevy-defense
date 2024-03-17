@@ -1,7 +1,9 @@
 mod misc;
 mod projectile;
-mod tower_range;
+mod ranges;
+mod stats;
 
 pub use misc::*;
 pub use projectile::*;
-pub use tower_range::*;
+pub use ranges::*;
+pub use stats::*;

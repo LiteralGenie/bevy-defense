@@ -4,7 +4,8 @@ use crate::{
     scenario::Scenario,
     towers::{
         components::{
-            Projectile, TowerPosition, TowerPriority, TowerRange,
+            EffectiveDamage, Projectile, TowerPosition,
+            TowerPriority, TowerRange,
         },
         systems::UnitsByDist,
     },
@@ -16,9 +17,7 @@ use crate::{
 use super::utils::{filter_targets_by_dist, find_target};
 
 #[derive(Component)]
-pub struct BasicAttack {
-    pub damage: u32,
-}
+pub struct BasicAttack;
 
 #[derive(Event)]
 pub struct BasicAttackEvent {
@@ -27,14 +26,17 @@ pub struct BasicAttackEvent {
 }
 
 pub fn apply_basic_attack(
-    query: Query<(Entity, &BasicAttack, &TowerRange, &TowerPriority)>,
+    query: Query<
+        (Entity, &EffectiveDamage, &TowerRange, &TowerPriority),
+        With<BasicAttack>,
+    >,
     targets_by_dist: Res<UnitsByDist>,
     mut info_query: Query<(&UnitPathId, &UnitDist, &mut UnitHealth)>,
     scenario: Res<Scenario>,
     mut status_query: Query<&mut UnitStatus>,
     mut events: EventWriter<BasicAttackEvent>,
 ) {
-    for (entity, attack, range, priority) in query.iter() {
+    for (entity, damage, range, priority) in query.iter() {
         let candidates =
             filter_targets_by_dist(&targets_by_dist, range);
 
@@ -49,7 +51,7 @@ pub fn apply_basic_attack(
         };
 
         let (_, _, mut health) = info_query.get_mut(target).unwrap();
-        health.0 = health.0.saturating_sub(attack.damage);
+        health.0 = health.0.saturating_sub(damage.0);
 
         if health.0 == 0 {
             let mut status = status_query.get_mut(target).unwrap();

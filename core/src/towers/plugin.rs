@@ -1,34 +1,31 @@
+use crate::{states::GamePhase, units};
 use bevy::prelude::*;
 
-use crate::units;
-
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
-pub struct TowerAttackSystems;
-
-#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
-pub struct TargetIndexSystems;
+pub struct TowerUpdateSystems;
 
 pub struct TowersPlugin;
 
 impl Plugin for TowersPlugin {
     fn build(&self, app: &mut App) {
-        app
-            // Pre-sort units by each targeting criteria (dist, health, etc)
-            .add_systems(
-                FixedUpdate,
-                (super::systems::index_units_by_dist,)
-                    .in_set(TargetIndexSystems)
-                    .after(units::plugin::UnitUpdateSystems),
+        app.add_systems(
+            FixedUpdate,
+            (
+                // Pre-sort units by each targeting criteria (dist, health, etc)
+                super::systems::index_units_by_dist,
+                // Update tower stats
+                super::systems::compute_effective_damage,
+                super::systems::compute_effective_range,
+                super::systems::compute_basic_range,
+                // Apply damage to units
+                super::attacks::apply_basic_attack,
             )
-            // Apply damage to units
-            .add_systems(
-                FixedUpdate,
-                (super::attacks::apply_basic_attack,)
-                    .in_set(TowerAttackSystems)
-                    .after(TargetIndexSystems),
-            )
-            .add_event::<super::attacks::BasicAttackEvent>()
-            .add_event::<super::events::TowerClickEvent>();
+                .chain()
+                .after(units::plugin::UnitUpdateSystems)
+                .run_if(in_state(GamePhase::COMBAT)),
+        )
+        .add_event::<super::attacks::BasicAttackEvent>()
+        .add_event::<super::events::TowerClickEvent>();
 
         app.add_systems(
             Update,

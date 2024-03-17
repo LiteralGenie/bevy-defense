@@ -1,6 +1,5 @@
-use bevy::prelude::*;
-
 use crate::{states::GamePhase, timers::tick_timer};
+use bevy::prelude::*;
 
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UnitUpdateSystems;

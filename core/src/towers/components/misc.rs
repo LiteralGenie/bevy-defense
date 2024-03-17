@@ -1,3 +1,4 @@
+use super::{BaseDamage, BaseRangeRadius};
 use bevy::prelude::*;
 
 #[derive(Component)]
@@ -12,9 +13,6 @@ pub struct TowerPosition {
     pub z: i16,
 }
 
-#[derive(Component)]
-pub struct TowerDamage(pub u32);
-
 pub enum TowerPriorityTypes {
     FIRST,
     LAST,
@@ -28,16 +26,20 @@ pub struct TowerPriority(pub TowerPriorityTypes);
 #[derive(Bundle)]
 pub struct BaseTowerBundle {
     marker: TowerMarker,
-    damage: TowerDamage,
+
     position: TowerPosition,
     priority: TowerPriority,
+
+    base_damage: BaseDamage,
+    base_range: BaseRangeRadius,
 }
 
 impl BaseTowerBundle {
     pub fn new(damage: u32, position: (i16, i16)) -> Self {
         Self {
             marker: TowerMarker,
-            damage: TowerDamage(damage),
+            base_damage: BaseDamage(damage),
+            base_range: BaseRangeRadius(4),
             position: TowerPosition {
                 x: position.0,
                 z: position.1,

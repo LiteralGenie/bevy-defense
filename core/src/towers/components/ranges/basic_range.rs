@@ -1,20 +1,17 @@
+use super::TowerRange;
 use crate::scenario::Scenario;
 use bevy::prelude::*;
 use std::collections::{HashMap, HashSet};
 
 #[derive(Component)]
-pub struct TowerRange {
-    pub points: HashSet<(i16, i16)>,
-    // Map where key is a path id, and values are the dists where this range intersect
-    pub path_intersections: HashMap<u8, HashSet<u16>>,
-}
+pub struct BasicRangeType;
 
-impl TowerRange {
-    pub fn from_basic(
+impl BasicRangeType {
+    pub fn create(
         radius: u8,
         center: (i16, i16),
-        scenario: Res<Scenario>,
-    ) -> Self {
+        scenario: &Res<Scenario>,
+    ) -> TowerRange {
         let r = radius as i16;
 
         let mut points = HashSet::new();
@@ -80,7 +77,7 @@ impl TowerRange {
             path_intersections.insert(path.id, bin);
         }
 
-        Self {
+        TowerRange {
             points,
             path_intersections,
         }
