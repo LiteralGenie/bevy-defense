@@ -35,11 +35,15 @@ pub struct BaseTowerBundle {
 }
 
 impl BaseTowerBundle {
-    pub fn new(damage: u32, position: (i16, i16)) -> Self {
+    pub fn new(
+        position: (i16, i16),
+        damage: u32,
+        radius: u8,
+    ) -> Self {
         Self {
             marker: TowerMarker,
             base_damage: BaseDamage(damage),
-            base_range: BaseRangeRadius(4),
+            base_range: BaseRangeRadius(radius),
             position: TowerPosition {
                 x: position.0,
                 z: position.1,

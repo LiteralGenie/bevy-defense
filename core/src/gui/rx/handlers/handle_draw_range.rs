@@ -14,6 +14,7 @@ struct RangeHighlight {
  * Highlight tiles in range of tower
  */
 pub fn handle_draw_range(world: &mut World, id_tower: Option<u64>) {
+    // Delete old range
     despawn_highlight(world);
 
     // Draw range for target tower
@@ -69,7 +70,6 @@ fn render_tile_highlight(
 }
 
 pub fn despawn_highlight(world: &mut World) {
-    // Delete old range
     let mut state: SystemState<(
         Option<ResMut<RangeHighlight>>,
         Commands,
@@ -77,16 +77,13 @@ pub fn despawn_highlight(world: &mut World) {
 
     let (highlight, mut commands) = state.get_mut(world);
 
-    match highlight {
-        None => {}
-        Some(mut highlight) => {
-            for entity in highlight.models.iter() {
-                commands.entity(*entity).despawn();
-            }
-
-            highlight.models.clear();
+    if let Some(mut highlight) = highlight {
+        for entity in highlight.models.iter() {
+            commands.entity(*entity).despawn();
         }
-    }
 
-    state.apply(world);
+        highlight.models.clear();
+
+        state.apply(world);
+    }
 }

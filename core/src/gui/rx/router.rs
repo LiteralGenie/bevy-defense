@@ -64,11 +64,10 @@ pub fn handle_gui_requests(world: &mut World) {
                 ));
             }
             "draw_range" => {
-                let id_tower =
-                    match js_sys::BigInt::from(data).as_f64() {
-                        Some(id) => Some(id as u64),
-                        None => None,
-                    };
+                let id_tower = match data.as_f64() {
+                    Some(id) => Some(id as u64),
+                    None => None,
+                };
 
                 super::handlers::handle_draw_range(world, id_tower);
 
