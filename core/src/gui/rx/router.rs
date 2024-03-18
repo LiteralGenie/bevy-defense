@@ -44,13 +44,14 @@ pub fn handle_gui_requests(world: &mut World) {
 
         match event_type.as_str() {
             "draw_cursor" => {
-                let pos: Option<Vec2>;
-                if data.is_null() {
-                    pos = None
-                } else {
-                    let position = get_prop(&data, "position");
-                    pos = Some(extract_xy(position));
-                }
+                let pos: Option<Vec2> = {
+                    if data.is_null() {
+                        None
+                    } else {
+                        let position = get_prop(&data, "position");
+                        Some(extract_xy(position))
+                    }
+                };
 
                 // @todo: Is it necessary to optimize this by only processing the latest draw_cursor event?
                 //        Even if the JS is firing events fast enough to pile up multiple in a single frame, is the performance impact significant?
@@ -61,6 +62,19 @@ pub fn handle_gui_requests(world: &mut World) {
                     &JsValue::null(),
                     &JsValue::from_bool(did_draw),
                 ));
+            }
+            "draw_range" => {
+                let id_tower =
+                    match js_sys::BigInt::from(data).as_f64() {
+                        Some(id) => Some(id as u64),
+                        None => None,
+                    };
+
+                super::handlers::handle_draw_range(world, id_tower);
+
+                result = Some(
+                    resolve.call1(&JsValue::null(), &JsValue::null()),
+                );
             }
             "spawn_tower" => {
                 super::handlers::handle_spawn_tower(

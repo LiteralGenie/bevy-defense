@@ -1,3 +1,4 @@
+import { drawRange } from '$lib/game/command_handlers/draw-range'
 import type { TowerState } from '$lib/game/game_state'
 import { getContext, setContext } from 'svelte'
 import { derived, writable, type Readable } from 'svelte/store'
@@ -25,8 +26,9 @@ export function setTowerSelectionContext() {
     return { selection: value, deleteContext }
 
     function handleClick(ev: any) {
-        let id = (ev as CustomEvent).detail.tower
-        idTower.set(id ?? null)
+        let id = (ev as CustomEvent).detail.tower ?? null
+        idTower.set(id)
+        drawRange(id)
     }
 }
 

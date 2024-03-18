@@ -8,7 +8,7 @@ export class GameState {
     tick = writable(0)
     phase = writable<'INIT' | 'BUILD' | 'COMBAT'>('INIT')
 
-    towers = writable<Record<number, TowerState>>({})
+    towers = writable<Map<bigint, TowerState>>(new Map())
 
     update(key: keyof GameState, value: any) {
         switch (key) {
@@ -36,12 +36,12 @@ export class GameState {
     }
 
     private updateTower(tower: TowerState) {
-        this.towers.update((current) => ({ ...current, [tower.id]: tower }))
+        this.towers.update((map) => map.set(tower.id, tower))
     }
 }
 
 export interface TowerState {
-    id: number
+    id: bigint
 
     base_damage: number
     effective_damage: number

@@ -2,7 +2,8 @@ export const COMMAND_TYPES = [
     'spawn_tower',
     'draw_cursor',
     'start_game',
-    'start_round'
+    'start_round',
+    'draw_range'
 ] as const
 
 export type CommandType = (typeof COMMAND_TYPES)[number]
