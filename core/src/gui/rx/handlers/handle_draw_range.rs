@@ -18,7 +18,6 @@ pub fn handle_draw_range(world: &mut World, id_tower: Option<u64>) {
 
     // Draw range for target tower
     if let Some(id) = id_tower {
-        console::log(format!("Drawing {}", id).as_str());
         let entity = world.entity(Entity::from_bits(id)).id();
 
         let mut state: SystemState<(

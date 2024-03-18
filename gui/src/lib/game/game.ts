@@ -19,7 +19,7 @@ export class Game {
      */
     static async initSingleton() {
         const game = new Game()
-        ;(window as any).game = game
+        window.game = game
 
         await loadWasm().catch((error) => {
             if (

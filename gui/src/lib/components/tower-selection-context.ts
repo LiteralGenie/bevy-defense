@@ -16,7 +16,7 @@ export function setTowerSelectionContext() {
             return null
         }
 
-        return towers[id] ?? null
+        return towers.get(id) ?? null
     })
     setContext<TowerSelectionValue>(KEY, value)
 
