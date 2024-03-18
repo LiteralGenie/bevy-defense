@@ -1,14 +1,5 @@
 <script lang="ts">
-    import {
-        getTowerSelectionContext,
-        setTowerSelectionContext
-    } from './tower-selection-context'
-
     let { gold, health, round, tick, phase } = window.game.state
-
-    setTowerSelectionContext()
-    let selection = getTowerSelectionContext()
-    console.log($selection)
 </script>
 
 <div class="container">

@@ -19,7 +19,7 @@
         height: 100%;
 
         display: grid;
-        grid-template-columns: 1fr max(200px, 20vw);
+        grid-template-columns: 1fr max-content;
 
         color: white;
 

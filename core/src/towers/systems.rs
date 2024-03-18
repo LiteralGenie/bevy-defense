@@ -93,13 +93,17 @@ pub fn render_attacks(
 }
 
 pub fn render_event_handlers(
-    query: Query<&TowerModel, Added<TowerModel>>,
+    query: Query<(Entity, &TowerModel), Added<TowerModel>>,
     mut commands: Commands,
 ) {
-    for model in query.iter() {
+    for (entity, model) in query.iter() {
         commands.entity(model.0).insert((
             PickableBundle::default(),
-            On::<Pointer<Click>>::send_event::<TowerClickEvent>(),
+            On::<Pointer<Click>>::run(
+                move |mut writer: EventWriter<TowerClickEvent>| {
+                    writer.send(TowerClickEvent(entity.clone()));
+                },
+            ),
         ));
     }
 }

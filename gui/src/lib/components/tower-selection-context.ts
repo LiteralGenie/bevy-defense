@@ -1,11 +1,8 @@
+import type { TowerState } from '$lib/game/game_state'
 import { getContext, setContext } from 'svelte'
 import { derived, writable, type Readable } from 'svelte/store'
 
-export interface TowerSelection {
-    id_tower: number
-}
-
-export type TowerSelectionValue = Readable<TowerSelection | null>
+export type TowerSelectionValue = Readable<TowerState | null>
 
 const KEY = 'tower_selection'
 
@@ -20,12 +17,12 @@ export function setTowerSelectionContext() {
 
         return towers[id] ?? null
     })
-    setContext(KEY, value)
+    setContext<TowerSelectionValue>(KEY, value)
 
     let deleteContext = () => {
         window.removeEventListener('gameclick', handleClick)
     }
-    return { value, deleteContext }
+    return { selection: value, deleteContext }
 
     function handleClick(ev: any) {
         let id = (ev as CustomEvent).detail.tower

@@ -40,7 +40,7 @@ export class GameState {
     }
 }
 
-interface TowerState {
+export interface TowerState {
     id: number
 
     base_damage: number
