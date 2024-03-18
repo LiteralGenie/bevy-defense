@@ -7,7 +7,7 @@ use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 #[wasm_bindgen(js_namespace = game)]
 extern "C" {
-    pub static guiRequests: js_sys::Array;
+    pub static pending_commands: js_sys::Array;
 }
 
 fn extract_request(
@@ -33,10 +33,10 @@ fn extract_xy(data: JsValue) -> Vec2 {
 }
 
 pub fn handle_gui_requests(world: &mut World) {
-    let len = guiRequests.length();
+    let len = pending_commands.length();
 
     for i in 0..len {
-        let req = guiRequests.get(i);
+        let req = pending_commands.get(i);
         let (event_type, resolve, reject, data) =
             extract_request(&req);
 
@@ -44,13 +44,14 @@ pub fn handle_gui_requests(world: &mut World) {
 
         match event_type.as_str() {
             "draw_cursor" => {
-                let pos: Option<Vec2>;
-                if data.is_null() {
-                    pos = None
-                } else {
-                    let position = get_prop(&data, "position");
-                    pos = Some(extract_xy(position));
-                }
+                let pos: Option<Vec2> = {
+                    if data.is_null() {
+                        None
+                    } else {
+                        let position = get_prop(&data, "position");
+                        Some(extract_xy(position))
+                    }
+                };
 
                 // @todo: Is it necessary to optimize this by only processing the latest draw_cursor event?
                 //        Even if the JS is firing events fast enough to pile up multiple in a single frame, is the performance impact significant?
@@ -61,6 +62,18 @@ pub fn handle_gui_requests(world: &mut World) {
                     &JsValue::null(),
                     &JsValue::from_bool(did_draw),
                 ));
+            }
+            "draw_range" => {
+                let id_tower = match data.as_f64() {
+                    Some(id) => Some(id as u64),
+                    None => None,
+                };
+
+                super::handlers::handle_draw_range(world, id_tower);
+
+                result = Some(
+                    resolve.call1(&JsValue::null(), &JsValue::null()),
+                );
             }
             "spawn_tower" => {
                 super::handlers::handle_spawn_tower(
@@ -112,6 +125,6 @@ pub fn handle_gui_requests(world: &mut World) {
     // Remove processed requests
     // So that if new requests came in mid-process (is that possible?), leave them for next time
     // (This replaces the processed requests with undefined and then pops it because wasm-bindgen doesn't expose a 2-arg splice)
-    guiRequests.splice(0, len, &JsValue::undefined());
-    guiRequests.shift();
+    pending_commands.splice(0, len, &JsValue::undefined());
+    pending_commands.shift();
 }

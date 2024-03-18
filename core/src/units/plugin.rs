@@ -1,6 +1,5 @@
-use bevy::prelude::*;
-
 use crate::{states::GamePhase, timers::tick_timer};
+use bevy::prelude::*;
 
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UnitUpdateSystems;
@@ -28,9 +27,10 @@ impl Plugin for UnitsPlugin {
         app.add_systems(
             Update,
             (
+                super::basic_unit::render,
                 super::systems::render_status_change,
                 super::systems::render_movement,
-                super::basic_unit::render,
+                super::health_bar::render_health_bar,
             ),
         );
     }
