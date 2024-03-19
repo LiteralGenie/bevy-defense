@@ -37,7 +37,6 @@ pub fn render(
 
         let model_id = model.id();
 
-        console::log("adding model");
         commands.entity(entity).insert(UnitModel(model_id));
     }
 }

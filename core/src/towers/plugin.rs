@@ -43,7 +43,8 @@ impl Plugin for TowersPlugin {
             Update,
             (
                 super::basic_tower::render,
-                super::systems::render_attacks,
+                super::systems::render_attack_start,
+                super::systems::render_attack_end,
                 super::systems::render_event_handlers,
                 super::attacks::render_basic_attack,
             ),
