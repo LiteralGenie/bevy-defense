@@ -28,7 +28,6 @@ impl Plugin for UnitsPlugin {
             Update,
             (
                 super::systems::render_status_change,
-                super::systems::render_movement,
                 super::health_bar::render_health_bar,
                 super::basic_unit::render,
                 super::tank_unit::render,
@@ -36,7 +35,7 @@ impl Plugin for UnitsPlugin {
         )
         .add_systems(
             FixedUpdate,
-            (super::systems::mark_for_movement_render,).chain(),
+            (super::systems::mark_for_movement_render,),
         );
     }
 }

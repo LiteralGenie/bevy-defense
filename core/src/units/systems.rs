@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
+    animation::components::InterpolateTranslation,
     components::DoNotRender,
     gui::console,
     scenario::{Direction, Scenario},
@@ -145,11 +146,10 @@ pub fn mark_for_movement_render(
     models: Query<&Transform>,
     scenario: Res<Scenario>,
     mut commands: Commands,
+    tick: Res<TickTimer>,
 ) {
     for (entity, path_id, dist, model) in units.iter() {
         let translation = models.get(model.0).unwrap().translation;
-        let start =
-            Vec3::new(translation.x, translation.y, translation.z);
 
         let path = &scenario.paths[&path_id.0];
         let point = path.points.get(dist.0 as usize).unwrap();
@@ -159,21 +159,13 @@ pub fn mark_for_movement_render(
             point.pos.1 as f32,
         );
 
-        commands
-            .entity(entity)
-            .insert(UnitMovementInfo::new(start, end));
-    }
-}
-
-pub fn render_movement(
-    units: Query<(&UnitModel, &UnitMovementInfo)>,
-    mut models: Query<&mut Transform>,
-    time: Res<Time<Fixed>>,
-) {
-    for (model, info) in units.iter() {
-        let mut transform = models.get_mut(model.0).unwrap();
-        transform.translation =
-            info.interpolate(time.overstep_fraction());
+        commands.entity(entity).insert(InterpolateTranslation::new(
+            model.0,
+            translation,
+            end,
+            tick.0,
+            tick.0 + 1,
+        ));
     }
 }
 

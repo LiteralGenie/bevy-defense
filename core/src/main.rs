@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use states::GamePhase;
+mod animation;
 mod camera;
 mod components;
 mod gui;
