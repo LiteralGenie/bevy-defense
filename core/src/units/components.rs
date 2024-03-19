@@ -19,6 +19,9 @@ pub struct UnitDist(pub u16);
 pub struct UnitHealth(pub u32);
 
 #[derive(Component)]
+pub struct UnitHealthMax(pub u32);
+
+#[derive(Component)]
 pub struct UnitPathId(pub u8);
 
 #[derive(Component)]
@@ -35,6 +38,7 @@ pub struct BaseUnitBundle {
     marker: UnitMarker,
     dist: UnitDist,
     health: UnitHealth,
+    health_max: UnitHealthMax,
     id_path: UnitPathId,
     spawn_tick: UnitSpawnTick,
     status: UnitStatus,
@@ -46,6 +50,7 @@ impl BaseUnitBundle {
             marker: UnitMarker,
             dist: UnitDist(0),
             health: UnitHealth(health),
+            health_max: UnitHealthMax(health),
             id_path: UnitPathId(id_path),
             spawn_tick: UnitSpawnTick(spawn_tick),
             status: UnitStatus(UnitStatusTypes::PRESPAWN),

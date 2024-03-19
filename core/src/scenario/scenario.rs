@@ -12,6 +12,7 @@ pub struct Wave {
 }
 
 pub struct WaveEnemy {
+    pub id_unit: u16,
     pub id_path: u8,
     pub delay: u32,
 }
