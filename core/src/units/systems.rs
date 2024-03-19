@@ -18,11 +18,25 @@ pub fn init_units_for_round(
 ) {
     let wave = &scenario.waves[round_timer.round as usize];
     for enemy in wave.enemies.iter() {
-        super::basic_unit::spawn(
-            &mut commands,
-            enemy.id_path,
-            round_timer.start_tick + enemy.delay,
-        );
+        match enemy.id_unit {
+            0 => {
+                super::basic_unit::spawn(
+                    &mut commands,
+                    enemy.id_path,
+                    round_timer.start_tick + enemy.delay,
+                );
+            }
+            1 => {
+                super::tank_unit::spawn(
+                    &mut commands,
+                    enemy.id_path,
+                    round_timer.start_tick + enemy.delay,
+                );
+            }
+            _ => {
+                panic!("Invalid unit id: {}", enemy.id_unit)
+            }
+        }
     }
 }
 

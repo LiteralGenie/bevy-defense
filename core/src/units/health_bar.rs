@@ -1,4 +1,4 @@
-use super::components::{UnitHealth, UnitModel};
+use super::components::{UnitHealth, UnitHealthMax, UnitModel};
 use crate::gui::console;
 use bevy::prelude::*;
 
@@ -25,18 +25,22 @@ pub fn build_health_bar(
 
 // Scale health bar model by unit health
 pub fn render_health_bar(
-    unit_query: Query<(&UnitHealth, &UnitModel), Changed<UnitHealth>>,
+    unit_query: Query<
+        (&UnitHealth, &UnitHealthMax, &UnitModel),
+        Changed<UnitHealth>,
+    >,
     children_query: Query<&Children>,
     mut model_query: Query<(&HealthBarMarker, &mut Transform)>,
 ) {
-    for (health, model) in unit_query.iter() {
+    for (health, health_max, model) in unit_query.iter() {
         let children = children_query.get(model.0).unwrap();
 
         for child in children.iter() {
             if let Ok(res) = model_query.get_mut(*child) {
                 let (_, mut transform) = res;
 
-                let health_percent = health.0 as f32 / 100.0;
+                let health_percent =
+                    health.0 as f32 / health_max.0 as f32;
 
                 transform.scale = Vec3::new(health_percent, 1.0, 1.0);
 

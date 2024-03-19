@@ -27,10 +27,11 @@ impl Plugin for UnitsPlugin {
         app.add_systems(
             Update,
             (
-                super::basic_unit::render,
                 super::systems::render_status_change,
                 super::systems::render_movement,
                 super::health_bar::render_health_bar,
+                super::basic_unit::render,
+                super::tank_unit::render,
             ),
         );
     }
