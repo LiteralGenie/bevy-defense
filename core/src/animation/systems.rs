@@ -1,5 +1,5 @@
 use super::components::InterpolateTranslation;
-use crate::timers::tick_timer::TickTimer;
+use crate::{gui::console, timers::tick_timer::TickTimer};
 use bevy::prelude::*;
 
 pub fn interpolate_translation(
@@ -19,11 +19,14 @@ pub fn interpolate_translation(
         }
 
         // Update position
-        let elapsed = tick.0 as f32 + time.overstep_fraction();
+        let elapsed = (tick.0 - info.tick_start) as f32
+            + time.overstep_fraction();
         let elapsed_frac = elapsed / info.duration as f32;
         let update = info.pos_start + info.pos_diff * elapsed_frac;
 
-        let mut transform = transform.get_mut(info.model).unwrap();
-        transform.translation = update;
+        // Need to handle deleted-model case (eg unit died)
+        if let Ok(mut transform) = transform.get_mut(info.model) {
+            transform.translation = update;
+        }
     }
 }

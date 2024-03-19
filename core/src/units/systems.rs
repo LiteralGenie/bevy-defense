@@ -9,8 +9,8 @@ use crate::{
 };
 
 use super::components::{
-    UnitDist, UnitModel, UnitMovementInfo, UnitPathId, UnitSpawnTick,
-    UnitStatus, UnitStatusTypes,
+    UnitDist, UnitModel, UnitPathId, UnitSpawnTick, UnitStatus,
+    UnitStatusTypes,
 };
 
 pub fn init_units_for_round(
@@ -138,10 +138,10 @@ pub fn render_status_change(
     }
 }
 
-pub fn mark_for_movement_render(
+pub fn render_movement_start(
     units: Query<
         (Entity, &UnitPathId, &UnitDist, &UnitModel),
-        Or<(Changed<UnitDist>,)>,
+        Changed<UnitDist>,
     >,
     models: Query<&Transform>,
     scenario: Res<Scenario>,
@@ -159,12 +159,15 @@ pub fn mark_for_movement_render(
             point.pos.1 as f32,
         );
 
+        // @fixme: It seems this system runs after the animation system
+        //         that handles this component, causing a no-op
+        //         Fix this when refactoring into explicit system ordering
         commands.entity(entity).insert(InterpolateTranslation::new(
             model.0,
             translation,
             end,
-            tick.0,
             tick.0 + 1,
+            tick.0 + 2,
         ));
     }
 }

@@ -50,6 +50,8 @@ fn main() {
         // @todo
     } else {
         app
+            // Utility systems for rendering transforms that span multiple frames
+            .add_plugins(animation::plugin::AnimationPlugin)
             // Emit events on model click / hover / etc
             .add_plugins(
                 DefaultPickingPlugins

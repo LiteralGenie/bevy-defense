@@ -35,7 +35,7 @@ impl Plugin for UnitsPlugin {
         )
         .add_systems(
             FixedUpdate,
-            (super::systems::mark_for_movement_render,),
+            (super::systems::render_movement_start,),
         );
     }
 }
