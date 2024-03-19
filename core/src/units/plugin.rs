@@ -33,6 +33,10 @@ impl Plugin for UnitsPlugin {
                 super::basic_unit::render,
                 super::tank_unit::render,
             ),
+        )
+        .add_systems(
+            FixedUpdate,
+            (super::systems::mark_for_movement_render,).chain(),
         );
     }
 }
