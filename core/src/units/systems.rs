@@ -1,8 +1,10 @@
 use bevy::prelude::*;
 
 use crate::{
+    animation::components::InterpolateTranslation,
+    components::DoNotRender,
     gui::console,
-    scenario::Scenario,
+    scenario::{Direction, Scenario},
     timers::{round_timer::RoundTimer, tick_timer::TickTimer},
 };
 
@@ -18,11 +20,25 @@ pub fn init_units_for_round(
 ) {
     let wave = &scenario.waves[round_timer.round as usize];
     for enemy in wave.enemies.iter() {
-        super::basic_unit::spawn(
-            &mut commands,
-            enemy.id_path,
-            round_timer.start_tick + enemy.delay,
-        );
+        match enemy.id_unit {
+            0 => {
+                super::basic_unit::spawn(
+                    &mut commands,
+                    enemy.id_path,
+                    round_timer.start_tick + enemy.delay,
+                );
+            }
+            1 => {
+                super::tank_unit::spawn(
+                    &mut commands,
+                    enemy.id_path,
+                    round_timer.start_tick + enemy.delay,
+                );
+            }
+            _ => {
+                panic!("Invalid unit id: {}", enemy.id_unit)
+            }
+        }
     }
 }
 
@@ -66,52 +82,93 @@ pub fn spawn_pending_units(
         // Move unit to start of path
         let path = &scenario.paths[&path_id.0];
         let point = path.points.get(dist.0 as usize).unwrap();
+        let dir = &path.segments.get(0).unwrap().dir;
 
         let mut transform = models.get_mut(model.0).unwrap();
         let translation = &mut transform.translation;
         translation.x = point.pos.0 as f32;
         translation.z = point.pos.1 as f32;
+
+        // Offset a bit for the sake of having an initial movement animation
+        match dir {
+            Direction::Up => {
+                translation.z -= 1.0;
+            }
+            Direction::Down => {
+                translation.z += 1.0;
+            }
+            Direction::Right => {
+                translation.x -= 1.0;
+            }
+            Direction::Left => {
+                translation.x += 1.0;
+            }
+        }
     }
 }
 
 pub fn render_status_change(
     units: Query<
-        (&UnitStatus, &UnitModel),
+        (Entity, &UnitStatus, &UnitModel),
         Or<(Changed<UnitStatus>, Added<UnitModel>)>,
     >,
     mut visibility_query: Query<&mut Visibility>,
+    mut commands: Commands,
 ) {
-    for (status, model) in units.iter() {
-        let is_alive = matches!(status.0, UnitStatusTypes::ALIVE);
-        let update = if is_alive {
-            Visibility::Inherited
-        } else {
-            Visibility::Hidden
-        };
+    for (entity, status, model) in units.iter() {
+        match status.0 {
+            UnitStatusTypes::PRESPAWN => {
+                let mut visibility =
+                    visibility_query.get_mut(model.0).unwrap();
 
-        let mut visibility =
-            visibility_query.get_mut(model.0).unwrap();
+                *visibility = Visibility::Hidden;
+            }
+            UnitStatusTypes::ALIVE => {
+                let mut visibility =
+                    visibility_query.get_mut(model.0).unwrap();
 
-        *visibility = update;
+                *visibility = Visibility::Inherited;
+            }
+            UnitStatusTypes::DEAD => {
+                commands.entity(model.0).despawn_recursive();
+                commands.entity(entity).remove::<UnitModel>();
+                commands.entity(entity).insert(DoNotRender);
+            }
+        }
     }
 }
 
-pub fn render_movement(
+pub fn render_movement_start(
     units: Query<
-        (&UnitPathId, &UnitDist, &UnitModel),
-        (With<UnitModel>, Or<(Changed<UnitDist>, Added<UnitModel>)>),
+        (Entity, &UnitPathId, &UnitDist, &UnitModel),
+        Changed<UnitDist>,
     >,
-    mut models: Query<&mut Transform>,
+    models: Query<&Transform>,
     scenario: Res<Scenario>,
+    mut commands: Commands,
+    tick: Res<TickTimer>,
 ) {
-    for (path_id, dist, model) in units.iter() {
+    for (entity, path_id, dist, model) in units.iter() {
+        let translation = models.get(model.0).unwrap().translation;
+
         let path = &scenario.paths[&path_id.0];
         let point = path.points.get(dist.0 as usize).unwrap();
+        let end = Vec3::new(
+            point.pos.0 as f32,
+            translation.y,
+            point.pos.1 as f32,
+        );
 
-        let mut transform = models.get_mut(model.0).unwrap();
-        let translation = &mut transform.translation;
-        translation.x = point.pos.0 as f32;
-        translation.z = point.pos.1 as f32;
+        // @fixme: It seems this system runs after the animation system
+        //         that handles this component, causing a no-op
+        //         Fix this when refactoring into explicit system ordering
+        commands.entity(entity).insert(InterpolateTranslation::new(
+            model.0,
+            translation,
+            end,
+            tick.0 + 1,
+            tick.0 + 2,
+        ));
     }
 }
 

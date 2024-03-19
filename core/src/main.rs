@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use states::GamePhase;
+mod animation;
 mod camera;
+mod components;
 mod gui;
 mod map;
 mod player;
@@ -9,9 +11,7 @@ mod states;
 mod timers;
 mod towers;
 mod units;
-use bevy_mod_picking::{
-    picking_core::PickingPluginsSettings, prelude::*,
-};
+use bevy_mod_picking::prelude::*;
 
 fn main() {
     let mut app = App::new();
@@ -42,12 +42,16 @@ fn main() {
                 player::spawn_players,
             ),
         )
-        .insert_resource(Time::<Fixed>::from_hz(5.0));
+        .insert_resource(Time::<Fixed>::from_hz(
+            timers::tick_timer::TICK_FREQUENCY_HZ,
+        ));
 
     if cfg!(server) {
         // @todo
     } else {
         app
+            // Utility systems for rendering transforms that span multiple frames
+            .add_plugins(animation::plugin::AnimationPlugin)
             // Emit events on model click / hover / etc
             .add_plugins(
                 DefaultPickingPlugins

@@ -2,12 +2,14 @@ use super::{
     components::{
         BaseDamage, BaseRangeRadius, BasicRangeType, EffectiveDamage,
         EffectiveRangeRadius, Projectile, TowerModel, TowerPosition,
-        TowerRange,
     },
     events::TowerClickEvent,
 };
 use crate::{
+    animation::components::InterpolateTranslation,
+    gui::console,
     scenario::Scenario,
+    timers::tick_timer::TickTimer,
     units::components::{
         UnitDist, UnitPathId, UnitStatus, UnitStatusTypes,
     },
@@ -55,18 +57,21 @@ pub fn index_units_by_dist(
     commands.insert_resource(UnitsByDist(by_path));
 }
 
-pub fn render_attacks(
-    projectile_query: Query<(Entity, &Projectile)>,
+// @todo: Projectiles have no movement prediction
+//        They only move towards the unit's position at time of spawn
+//        So if the tower is far away, the projectile arrives too late -- behind the unit
+pub fn render_attack_start(
+    projectile_query: Query<(Entity, &Projectile), Added<Projectile>>,
     unit_query: Query<(&UnitPathId, &UnitDist)>,
-    mut model_query: Query<&mut Transform>,
+    model_query: Query<&Transform>,
     scenario: Res<Scenario>,
     mut commands: Commands,
+    tick_timer: Res<TickTimer>,
 ) {
-    const TRAVEL_DIST: f32 = 0.25;
-    const DESPAWN_DIST: f32 = 2.0 * TRAVEL_DIST;
+    const TRAVEL_SPEED: f32 = 1.25;
 
     for (entity, p) in projectile_query.iter() {
-        let mut model = model_query.get_mut(p.model).unwrap();
+        let model = model_query.get(p.model).unwrap();
 
         let unit_pos = {
             let (unit_path, unit_dist) =
@@ -74,19 +79,36 @@ pub fn render_attacks(
             let path = scenario.paths.get(&unit_path.0).unwrap();
             path.points.get(unit_dist.0 as usize).unwrap()
         };
-
-        // Vector pointing to unit position
-        let dist = Vec3::new(
-            unit_pos.pos.0 as f32 - model.translation.x as f32,
-            0.0,
-            unit_pos.pos.1 as f32 - model.translation.z as f32,
+        let unit_pos = Vec3::new(
+            unit_pos.pos.0 as f32,
+            model.translation.y,
+            unit_pos.pos.1 as f32,
         );
 
-        if dist.length() > DESPAWN_DIST {
-            let update = dist * (TRAVEL_DIST / dist.length());
-            model.translation += update;
-        } else {
+        let dist = (model.translation - unit_pos).length();
+        let travel_ticks = (dist / TRAVEL_SPEED) as u32;
+
+        commands.entity(entity).insert(InterpolateTranslation::new(
+            p.model,
+            model.translation,
+            unit_pos,
+            tick_timer.0,
+            tick_timer.0 + travel_ticks,
+        ));
+    }
+}
+
+pub fn render_attack_end(
+    query: Query<(Entity, &Projectile)>,
+    mut done: RemovedComponents<InterpolateTranslation>,
+    mut commands: Commands,
+) {
+    for entity in done.read() {
+        if let Ok((entity, p)) = query.get(entity) {
+            // Despawn projectile model
             commands.entity(p.model).despawn();
+
+            // Despawn projectile
             commands.entity(entity).despawn();
         }
     }
