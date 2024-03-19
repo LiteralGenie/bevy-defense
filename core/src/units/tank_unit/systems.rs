@@ -1,3 +1,5 @@
+use crate::components::DoNotRender;
+
 use super::super::components::UnitModel;
 use super::super::health_bar::build_health_bar;
 use bevy::prelude::*;
@@ -6,7 +8,14 @@ pub fn render(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    units: Query<Entity, (With<super::Marker>, Without<UnitModel>)>,
+    units: Query<
+        Entity,
+        (
+            With<super::Marker>,
+            Without<UnitModel>,
+            Without<DoNotRender>,
+        ),
+    >,
 ) {
     for entity in units.iter() {
         let health_bar_model_id = commands

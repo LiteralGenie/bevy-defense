@@ -2,7 +2,6 @@ use super::{
     components::{
         BaseDamage, BaseRangeRadius, BasicRangeType, EffectiveDamage,
         EffectiveRangeRadius, Projectile, TowerModel, TowerPosition,
-        TowerRange,
     },
     events::TowerClickEvent,
 };
