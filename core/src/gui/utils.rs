@@ -7,7 +7,6 @@ use crate::{
     },
 };
 use bevy::{ecs::system::SystemState, prelude::*};
-use js_sys::Object;
 use wasm_bindgen::JsValue;
 
 pub fn get_prop(val: &JsValue, key: &str) -> JsValue {

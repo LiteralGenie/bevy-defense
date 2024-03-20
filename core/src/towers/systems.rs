@@ -4,6 +4,7 @@ use super::{
         EffectiveRangeRadius, Projectile, TowerModel, TowerPosition,
     },
     events::TowerClickEvent,
+    matchers::match_size,
 };
 use crate::{
     animation::components::InterpolateTranslation,
@@ -155,6 +156,7 @@ pub fn compute_basic_range(
         let range = BasicRangeType::create(
             effective_radius.0,
             pos.top_left,
+            match_size(0),
             &scenario,
         );
         commands.entity(entity).insert(range);

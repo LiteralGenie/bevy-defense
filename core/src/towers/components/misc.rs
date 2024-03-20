@@ -24,7 +24,7 @@ impl TowerPosition {
         let sz = size as i16;
         for x in 0..sz {
             for y in 0..sz {
-                coords.insert((top_left.0 + x, top_left.1 + y));
+                coords.insert((top_left.0 + x, top_left.1 - y));
             }
         }
 
