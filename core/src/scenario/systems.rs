@@ -7,27 +7,39 @@ pub fn spawn_scenario(mut commands: Commands) {
         1,
         path::Path::new(
             1,
-            (5, 10),
+            (12, -11),
             vec![
                 path::Segment {
-                    dir: path::Direction::Down,
-                    length: 5,
-                },
-                path::Segment {
                     dir: path::Direction::Left,
-                    length: 5,
+                    length: 25,
                 },
                 path::Segment {
-                    dir: path::Direction::Down,
-                    length: 5,
+                    dir: path::Direction::Up,
+                    length: 6,
                 },
                 path::Segment {
                     dir: path::Direction::Right,
-                    length: 5,
+                    length: 20,
                 },
                 path::Segment {
-                    dir: path::Direction::Down,
-                    length: 10,
+                    dir: path::Direction::Up,
+                    length: 6,
+                },
+                path::Segment {
+                    dir: path::Direction::Left,
+                    length: 20,
+                },
+                path::Segment {
+                    dir: path::Direction::Up,
+                    length: 6,
+                },
+                path::Segment {
+                    dir: path::Direction::Right,
+                    length: 20,
+                },
+                path::Segment {
+                    dir: path::Direction::Up,
+                    length: 4,
                 },
             ],
         ),
@@ -81,7 +93,7 @@ pub fn render_paths(
         commands.spawn((
             PbrBundle {
                 mesh: meshes.add(Cuboid::default()),
-                material: materials.add(Color::rgb(0.0, 0.5, 0.0)),
+                material: materials.add(Color::rgb(0.35, 0.25, 0.25)),
                 transform: Transform::from_xyz(
                     pt.0 as f32,
                     0.0,

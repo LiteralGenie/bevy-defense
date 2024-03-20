@@ -82,7 +82,7 @@ fn points_from_segments(
             Direction::Left => (-1, 0),
             Direction::Right => (1, 0),
             Direction::Down => (0, -1),
-            Direction::Up => (1, 0),
+            Direction::Up => (0, 1),
         };
 
         let (buffer_x, buffer_y): (i16, i16) = match segment.dir {
