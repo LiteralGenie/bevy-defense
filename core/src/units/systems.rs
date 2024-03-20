@@ -82,28 +82,11 @@ pub fn spawn_pending_units(
         // Move unit to start of path
         let path = &scenario.paths[&path_id.0];
         let point = path.points.get(dist.0 as usize).unwrap();
-        let dir = &path.segments.get(0).unwrap().dir;
 
         let mut transform = models.get_mut(model.0).unwrap();
         let translation = &mut transform.translation;
         translation.x = point.pos.0 as f32;
         translation.z = point.pos.1 as f32;
-
-        // Offset a bit for the sake of having an initial movement animation
-        match dir {
-            Direction::Up => {
-                translation.z -= 1.0;
-            }
-            Direction::Down => {
-                translation.z += 1.0;
-            }
-            Direction::Right => {
-                translation.x -= 1.0;
-            }
-            Direction::Left => {
-                translation.x += 1.0;
-            }
-        }
     }
 }
 

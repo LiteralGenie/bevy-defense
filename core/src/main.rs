@@ -44,12 +44,9 @@ fn main() {
             FixedUpdate,
             (
                 timers::plugin::TimerUpdateSystems,
-                units::plugin::UnitUpdateSystems
-                    .after(timers::plugin::TimerUpdateSystems),
-                towers::plugin::TowerUpdateSystems
-                    .after(units::plugin::UnitUpdateSystems),
-                towers::plugin::TowerAttackSystems
-                    .after(towers::plugin::TowerUpdateSystems),
+                units::plugin::UnitUpdateSystems,
+                towers::plugin::TowerUpdateSystems,
+                towers::plugin::TowerAttackSystems,
             )
                 .chain()
                 .run_if(in_state(GamePhase::COMBAT)),
