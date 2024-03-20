@@ -49,7 +49,7 @@ pub fn handle_draw_range(world: &mut World, id_tower: Option<u64>) {
     }
 }
 
-fn render_tile_highlight(
+pub fn render_tile_highlight(
     pos: &(i16, i16),
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,

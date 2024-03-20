@@ -1,13 +1,22 @@
 use bevy::{ecs::system::SystemState, prelude::*};
 
-use crate::gui::{
-    console,
-    utils::{can_place_tower, snap_coords, window_to_world_coords},
+use crate::{
+    gui::{
+        console,
+        utils::{
+            can_place_tower, snap_coords, window_to_world_coords,
+        },
+    },
+    towers::{
+        components::BasicRangeType,
+        matchers::{match_range_radius, match_size},
+    },
 };
 
 #[derive(Resource)]
 struct Cursor {
     model: Entity,
+    range_model: Entity,
 }
 
 /**
@@ -59,7 +68,24 @@ fn init_resource(world: &mut World) {
         Vec3::new(0.0, 0.0, 0.0),
     );
 
-    world.insert_resource(Cursor { model });
+    let id = 0;
+    let range_model = commands.spawn(SpatialBundle::default()).id();
+    let points = BasicRangeType::compute_points(
+        match_range_radius(id),
+        (0, 0),
+        match_size(id),
+    );
+    for pt in points {
+        let tile = super::render_tile_highlight(
+            &pt,
+            &mut commands,
+            &mut meshes,
+            &mut materials,
+        );
+        commands.entity(range_model).push_children(&[tile]);
+    }
+
+    world.insert_resource(Cursor { model, range_model });
     state.apply(world);
 
     update_cursor_color(world, 0.5);
@@ -68,7 +94,12 @@ fn init_resource(world: &mut World) {
 fn update_cursor_position(world: &mut World, pos: (f32, f32)) {
     let cursor = world.resource::<Cursor>();
     let mut entity = world.entity_mut(cursor.model);
+    let mut transform = entity.get_mut::<Transform>().unwrap();
+    transform.translation.x = pos.0;
+    transform.translation.z = pos.1;
 
+    let cursor = world.resource::<Cursor>();
+    let mut entity = world.entity_mut(cursor.range_model);
     let mut transform = entity.get_mut::<Transform>().unwrap();
     transform.translation.x = pos.0;
     transform.translation.z = pos.1;
@@ -103,12 +134,17 @@ fn update_cursor_visbility(world: &mut World, is_visible: bool) {
 
     let (cursor, mut query) = state.get_mut(world);
 
-    let mut visibility = query.get_mut(cursor.model).unwrap();
-    *visibility = if is_visible {
+    let update = if is_visible {
         Visibility::Inherited
     } else {
         Visibility::Hidden
     };
+
+    let mut visibility = query.get_mut(cursor.model).unwrap();
+    *visibility = update;
+
+    let mut visibility = query.get_mut(cursor.range_model).unwrap();
+    *visibility = update;
 
     state.apply(world);
 }

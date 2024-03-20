@@ -1,7 +1,7 @@
 use crate::towers::{
     attacks,
     components::{BaseTowerBundle, BasicRangeType},
-    matchers::match_size,
+    matchers::{match_range_radius, match_size},
 };
 use bevy::prelude::*;
 
@@ -41,7 +41,12 @@ pub fn spawn_model(
 
 pub fn spawn(world: &mut World, pos: (i16, i16)) {
     world.spawn((
-        BaseTowerBundle::new(pos, 10, match_size(ID), 5),
+        BaseTowerBundle::new(
+            pos,
+            10,
+            match_size(ID),
+            match_range_radius(ID),
+        ),
         super::Marker,
         BasicRangeType,
         attacks::BasicAttack,

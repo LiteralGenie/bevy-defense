@@ -13,6 +13,36 @@ impl BasicRangeType {
         axis_width: u8,
         scenario: &Res<Scenario>,
     ) -> TowerRange {
+        let points =
+            Self::compute_points(radius, top_left, axis_width);
+
+        // Find points that lie on a path and cache them
+        // (as distances from the start of path)
+        let mut path_intersections = HashMap::new();
+        for path in scenario.paths.values() {
+            let mut bin = HashSet::new();
+
+            for (idx, pt) in path.points.iter().enumerate() {
+                let pt = (pt.pos.0, pt.pos.1);
+                if points.contains(&pt) {
+                    bin.insert(idx as u16);
+                }
+            }
+
+            path_intersections.insert(path.id, bin);
+        }
+
+        TowerRange {
+            points,
+            path_intersections,
+        }
+    }
+
+    pub fn compute_points(
+        radius: u8,
+        top_left: (i16, i16),
+        axis_width: u8,
+    ) -> HashSet<(i16, i16)> {
         let r = radius as i16;
         let w = axis_width as i16;
 
@@ -109,25 +139,6 @@ impl BasicRangeType {
                 .map(|pt| (pt.0 + top_left.0, pt.1 + top_left.1)),
         );
 
-        // Find points that lie on a path and cache them
-        // (as distances from the start of path)
-        let mut path_intersections = HashMap::new();
-        for path in scenario.paths.values() {
-            let mut bin = HashSet::new();
-
-            for (idx, pt) in path.points.iter().enumerate() {
-                let pt = (pt.pos.0, pt.pos.1);
-                if points.contains(&pt) {
-                    bin.insert(idx as u16);
-                }
-            }
-
-            path_intersections.insert(path.id, bin);
-        }
-
-        TowerRange {
-            points,
-            path_intersections,
-        }
+        points
     }
 }
