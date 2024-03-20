@@ -1,4 +1,3 @@
-use crate::{states::GamePhase, units};
 use bevy::prelude::*;
 
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
@@ -7,23 +6,27 @@ pub struct TowerUpdateSystems;
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TowerAttackSystems;
 
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct TowerRenderSystems;
+
 pub struct TowersPlugin;
 
 impl Plugin for TowersPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            Update,
+            FixedUpdate,
             (
                 // Pre-sort units by each targeting criteria (dist, health, etc)
                 super::systems::index_units_by_dist,
                 // Update tower stats
-                super::systems::compute_effective_damage,
-                super::systems::compute_effective_range,
-                super::systems::compute_basic_range,
+                (
+                    super::systems::compute_effective_damage,
+                    super::systems::compute_effective_range,
+                    super::systems::compute_basic_range,
+                ),
             )
                 .in_set(TowerUpdateSystems)
-                .chain()
-                .after(units::plugin::UnitUpdateSystems),
+                .chain(),
         )
         .add_systems(
             FixedUpdate,
@@ -32,9 +35,7 @@ impl Plugin for TowersPlugin {
                 super::attacks::apply_basic_attack,
             )
                 .in_set(TowerAttackSystems)
-                .chain()
-                .after(TowerUpdateSystems)
-                .run_if(in_state(GamePhase::COMBAT)),
+                .chain(),
         )
         .add_event::<super::attacks::BasicAttackEvent>()
         .add_event::<super::events::TowerClickEvent>();
@@ -47,7 +48,18 @@ impl Plugin for TowersPlugin {
                 super::systems::render_attack_end,
                 super::systems::render_event_handlers,
                 super::attacks::render_basic_attack,
-            ),
+            )
+                .in_set(TowerRenderSystems),
+        )
+        .add_systems(
+            Update,
+            (
+                // GUI can trigger tower creation at any time so this needs to run every frame
+                super::systems::compute_effective_damage,
+                super::systems::compute_effective_range,
+                super::systems::compute_basic_range,
+            )
+                .in_set(TowerRenderSystems),
         );
     }
 }

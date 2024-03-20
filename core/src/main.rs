@@ -18,20 +18,14 @@ fn main() {
 
     app
         // Load game into canvas#game-canvas
-        .add_plugins((
-            DefaultPlugins.set(WindowPlugin {
-                primary_window: Some(Window {
-                    canvas: Some("#game-canvas".into()),
-                    prevent_default_event_handling: false,
-                    ..default()
-                }),
+        .add_plugins((DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                canvas: Some("#game-canvas".into()),
+                prevent_default_event_handling: false,
                 ..default()
             }),
-            scenario::plugin::ScenarioPlugin,
-            timers::plugin::TimersPlugin,
-            units::plugin::UnitsPlugin,
-            towers::plugin::TowersPlugin,
-        ))
+            ..default()
+        }),))
         // Init game state
         .init_state::<GamePhase>()
         .add_systems(
@@ -44,6 +38,28 @@ fn main() {
         )
         .insert_resource(Time::<Fixed>::from_hz(
             timers::tick_timer::TICK_FREQUENCY_HZ,
+        ))
+        // Order tick-based systems
+        .configure_sets(
+            FixedUpdate,
+            (
+                timers::plugin::TimerUpdateSystems,
+                units::plugin::UnitUpdateSystems
+                    .after(timers::plugin::TimerUpdateSystems),
+                towers::plugin::TowerUpdateSystems
+                    .after(units::plugin::UnitUpdateSystems),
+                towers::plugin::TowerAttackSystems
+                    .after(towers::plugin::TowerUpdateSystems),
+            )
+                .chain()
+                .run_if(in_state(GamePhase::COMBAT)),
+        )
+        // Plugins should be added *after* their SystemSet(s) are configured
+        .add_plugins((
+            scenario::plugin::ScenarioPlugin,
+            timers::plugin::TimersPlugin,
+            units::plugin::UnitsPlugin,
+            towers::plugin::TowersPlugin,
         ));
 
     if cfg!(server) {

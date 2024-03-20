@@ -1,8 +1,11 @@
-use crate::{states::GamePhase, timers::tick_timer};
+use crate::states::GamePhase;
 use bevy::prelude::*;
 
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UnitUpdateSystems;
+
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct UnitRenderSystems;
 
 pub struct UnitsPlugin;
 
@@ -19,9 +22,7 @@ impl Plugin for UnitsPlugin {
                 super::systems::spawn_pending_units,
             )
                 .in_set(UnitUpdateSystems)
-                .chain()
-                .run_if(in_state(GamePhase::COMBAT))
-                .after(tick_timer::update_timer),
+                .chain(),
         );
 
         app.add_systems(
@@ -31,7 +32,8 @@ impl Plugin for UnitsPlugin {
                 super::health_bar::render_health_bar,
                 super::basic_unit::render,
                 super::tank_unit::render,
-            ),
+            )
+                .in_set(UnitRenderSystems),
         )
         .add_systems(
             FixedUpdate,

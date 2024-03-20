@@ -159,15 +159,12 @@ pub fn render_movement_start(
             point.pos.1 as f32,
         );
 
-        // @fixme: It seems this system runs after the animation system
-        //         that handles this component, causing a no-op
-        //         Fix this when refactoring into explicit system ordering
         commands.entity(entity).insert(InterpolateTranslation::new(
             model.0,
             translation,
             end,
+            tick.0,
             tick.0 + 1,
-            tick.0 + 2,
         ));
     }
 }

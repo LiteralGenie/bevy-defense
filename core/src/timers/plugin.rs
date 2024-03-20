@@ -1,5 +1,7 @@
-use crate::states::GamePhase;
 use bevy::prelude::*;
+
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct TimerUpdateSystems;
 
 pub struct TimersPlugin;
 
@@ -15,7 +17,7 @@ impl Plugin for TimersPlugin {
         .add_systems(
             FixedUpdate,
             (super::tick_timer::update_timer,)
-                .run_if(in_state(GamePhase::COMBAT)),
+                .in_set(TimerUpdateSystems),
         );
     }
 }
