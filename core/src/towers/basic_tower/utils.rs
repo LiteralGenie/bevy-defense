@@ -1,10 +1,11 @@
 use crate::towers::{
     attacks,
     components::{BaseTowerBundle, BasicRangeType},
+    matchers::match_size,
 };
 use bevy::prelude::*;
 
-pub const SIZE_RADIUS: u8 = 2;
+pub const ID: u16 = 0;
 
 pub fn spawn_model(
     commands: &mut Commands,
@@ -12,7 +13,8 @@ pub fn spawn_model(
     materials: &mut ResMut<Assets<StandardMaterial>>,
     top_left: Vec3,
 ) -> Entity {
-    const OFFSET: f32 = (SIZE_RADIUS as f32 - 1.0) / 2.0;
+    let size = match_size(ID) as f32;
+    let offset = (size - 1.0) / 2.0;
 
     let container = commands
         .spawn(SpatialBundle {
@@ -25,13 +27,9 @@ pub fn spawn_model(
 
     let model = commands
         .spawn(PbrBundle {
-            mesh: meshes.add(Cuboid::new(
-                SIZE_RADIUS as f32,
-                1.0,
-                SIZE_RADIUS as f32,
-            )),
+            mesh: meshes.add(Cuboid::new(size, 1.0, size)),
             material: materials.add(Color::rgb(1.0, 0.0, 0.0)),
-            transform: Transform::from_xyz(OFFSET, 0.0, OFFSET),
+            transform: Transform::from_xyz(offset, 0.0, offset),
             ..default()
         })
         .id();
@@ -43,7 +41,7 @@ pub fn spawn_model(
 
 pub fn spawn(world: &mut World, pos: (i16, i16)) {
     world.spawn((
-        BaseTowerBundle::new(pos, 10, SIZE_RADIUS, 5),
+        BaseTowerBundle::new(pos, 10, match_size(ID), 5),
         super::Marker,
         BasicRangeType,
         attacks::BasicAttack,

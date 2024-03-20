@@ -26,7 +26,7 @@ export function useTowerDrag() {
             // Note: Cursor coordinates need to be provided by the JS-side
             //       because Bevy can't read cursor position while an HTML element is mid-drag
             await drawCursor({
-                type: 'tower',
+                id_tower: 0,
                 position: { x, y }
             })
         )

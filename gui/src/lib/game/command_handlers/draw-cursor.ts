@@ -1,17 +1,11 @@
-interface ICursor {
-    type: string
+export interface TowerCursor {
+    id_tower: number
     position: {
         x: number
         y: number
     }
 }
 
-export interface TowerCursor extends ICursor {
-    type: 'tower'
-}
-
-export type CursorType = TowerCursor
-
-export async function drawCursor(cursor: CursorType | null) {
+export async function drawCursor(cursor: TowerCursor | null) {
     return await window.game.pushCommand<boolean>('draw_cursor', cursor)
 }

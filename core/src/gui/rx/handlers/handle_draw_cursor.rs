@@ -15,7 +15,7 @@ struct Cursor {
  */
 pub fn handle_draw_cursor(
     world: &mut World,
-    maybe_pos: Option<Vec2>,
+    data: Option<((f32, f32), u16)>,
 ) -> bool {
     // Init cursor resource
     match world.get_resource::<Cursor>() {
@@ -24,11 +24,11 @@ pub fn handle_draw_cursor(
     }
 
     // If cursor pos is non-null, update position of cursor ghost
-    if let Some(cursor_pos) = maybe_pos {
+    if let Some((cursor_pos, id_tower)) = data {
         let pos =
             snap_coords(window_to_world_coords(world, cursor_pos));
 
-        if !can_place_tower(world, pos) {
+        if !can_place_tower(world, pos, id_tower) {
             return false;
         }
 

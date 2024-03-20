@@ -74,7 +74,7 @@ pub fn render_basic_attack(
 ) {
     for ev in reader.read() {
         let pos = tower_query.get(ev.tower).unwrap();
-        let offset = (pos.radius as f32) / 2.0;
+        let offset = (pos.size as f32) / 2.0;
 
         let model = commands
             .spawn(PbrBundle {
