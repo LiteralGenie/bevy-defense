@@ -154,7 +154,7 @@ pub fn compute_basic_range(
     for (entity, effective_radius, pos) in query.iter() {
         let range = BasicRangeType::create(
             effective_radius.0,
-            (pos.x, pos.z),
+            pos.top_left,
             &scenario,
         );
         commands.entity(entity).insert(range);

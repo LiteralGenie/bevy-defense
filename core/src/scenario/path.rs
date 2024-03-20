@@ -13,8 +13,7 @@ pub struct Segment {
     pub length: u16,
 }
 
-#[derive(Copy, Clone, Hash, PartialEq, std::cmp::Eq)]
-pub struct Point2(pub i16, pub i16);
+type Point2 = (i16, i16);
 
 pub struct PathPos {
     pub idx_segment: usize,
@@ -60,20 +59,20 @@ fn points_from_segments(
     let mut buffer_points = HashSet::<Point2>::new();
     match segments.get(0).unwrap().dir {
         Direction::Left => {
-            buffer_points.insert(Point2(start.0, start.1 - 1));
-            buffer_points.insert(Point2(start.0, start.1 + 1));
+            buffer_points.insert((start.0, start.1 - 1));
+            buffer_points.insert((start.0, start.1 + 1));
         }
         Direction::Right => {
-            buffer_points.insert(Point2(start.0, start.1 - 1));
-            buffer_points.insert(Point2(start.0, start.1 + 1));
+            buffer_points.insert((start.0, start.1 - 1));
+            buffer_points.insert((start.0, start.1 + 1));
         }
         Direction::Down => {
-            buffer_points.insert(Point2(start.0 - 1, start.1));
-            buffer_points.insert(Point2(start.0 + 1, start.1));
+            buffer_points.insert((start.0 - 1, start.1));
+            buffer_points.insert((start.0 + 1, start.1));
         }
         Direction::Up => {
-            buffer_points.insert(Point2(start.0 - 1, start.1));
-            buffer_points.insert(Point2(start.0 + 1, start.1));
+            buffer_points.insert((start.0 - 1, start.1));
+            buffer_points.insert((start.0 + 1, start.1));
         }
     }
 
@@ -100,19 +99,19 @@ fn points_from_segments(
             points.push(PathPos { pos, idx_segment });
 
             buffer_points
-                .insert(Point2(pos.0 - buffer_x, pos.1 - buffer_y));
+                .insert((pos.0 - buffer_x, pos.1 - buffer_y));
             buffer_points
-                .insert(Point2(pos.0 + buffer_x, pos.1 + buffer_y));
+                .insert((pos.0 + buffer_x, pos.1 + buffer_y));
 
             if idx_pt == segment.length {
-                let next_pt = Point2(pos.0 + step_x, pos.1 + step_y);
+                let next_pt = (pos.0 + step_x, pos.1 + step_y);
 
-                buffer_points.insert(Point2(
+                buffer_points.insert((
                     next_pt.0 - buffer_x,
                     next_pt.1 - buffer_y,
                 ));
                 buffer_points.insert(next_pt);
-                buffer_points.insert(Point2(
+                buffer_points.insert((
                     next_pt.0 + buffer_x,
                     next_pt.1 + buffer_y,
                 ));

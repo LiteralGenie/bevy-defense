@@ -73,7 +73,8 @@ pub fn render_basic_attack(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     for ev in reader.read() {
-        let tower_pos = tower_query.get(ev.tower).unwrap();
+        let pos = tower_query.get(ev.tower).unwrap();
+        let offset = (pos.radius as f32) / 2.0;
 
         let model = commands
             .spawn(PbrBundle {
@@ -83,9 +84,9 @@ pub fn render_basic_attack(
                     ..default()
                 }),
                 transform: Transform::from_xyz(
-                    tower_pos.x as f32,
+                    (pos.top_left.0 as f32) + offset,
                     0.5,
-                    tower_pos.z as f32,
+                    (pos.top_left.1 as f32) + offset,
                 ),
                 ..default()
             })

@@ -76,15 +76,18 @@ fn update_cursor_position(world: &mut World, pos: (f32, f32)) {
 
 fn update_cursor_color(world: &mut World, opacity: f32) {
     let mut state: SystemState<(
-        ResMut<Assets<StandardMaterial>>,
         Res<Cursor>,
+        ResMut<Assets<StandardMaterial>>,
         Query<&Handle<StandardMaterial>>,
+        Query<&Children>,
     )> = SystemState::new(world);
 
-    let (mut materials, cursor, mut color_query) =
+    let (cursor, mut materials, mut color_query, children_query) =
         state.get_mut(world);
 
-    let handle = color_query.get_mut(cursor.model).unwrap();
+    let model =
+        children_query.get(cursor.model).unwrap().first().unwrap();
+    let handle = color_query.get_mut(*model).unwrap();
     let mat = materials.get_mut(handle).unwrap();
     mat.alpha_mode = AlphaMode::Blend;
     mat.base_color.set_a(opacity);

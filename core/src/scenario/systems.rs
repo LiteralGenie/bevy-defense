@@ -1,4 +1,4 @@
-use super::{path, Point2, Scenario, Wave, WaveEnemy};
+use super::{path, Scenario, Wave, WaveEnemy};
 use bevy::prelude::*;
 use std::collections::{HashMap, HashSet};
 
@@ -7,7 +7,7 @@ pub fn spawn_scenario(mut commands: Commands) {
         1,
         path::Path::new(
             1,
-            path::Point2(5, 10),
+            (5, 10),
             vec![
                 path::Segment {
                     dir: path::Direction::Down,
@@ -65,7 +65,7 @@ pub fn render_paths(
     mut materials: ResMut<Assets<StandardMaterial>>,
     scenario: Res<Scenario>,
 ) {
-    let mut points = HashSet::<Point2>::new();
+    let mut points = HashSet::new();
 
     for path in scenario.paths.values() {
         for pt in path.points.iter() {

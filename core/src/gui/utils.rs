@@ -48,7 +48,7 @@ pub fn can_place_tower(world: &mut World, pos: (i16, i16)) -> bool {
     let (tower_query, scenario) = state.get_mut(world);
 
     for tower in tower_query.iter() {
-        if pos.0 as i16 == tower.x && pos.1 as i16 == tower.z {
+        if tower.coords.contains(&pos) {
             return false;
         }
     }
@@ -60,10 +60,8 @@ pub fn can_place_tower(world: &mut World, pos: (i16, i16)) -> bool {
             }
         }
 
-        for pt in path.buffer_points.iter() {
-            if pos.0 as i16 == pt.0 && pos.1 as i16 == pt.1 {
-                return false;
-            }
+        if path.buffer_points.contains(&pos) {
+            return false;
         }
     }
 
