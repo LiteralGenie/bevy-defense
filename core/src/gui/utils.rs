@@ -59,6 +59,12 @@ pub fn can_place_tower(world: &mut World, pos: (i16, i16)) -> bool {
                 return false;
             }
         }
+
+        for pt in path.buffer_points.iter() {
+            if pos.0 as i16 == pt.0 && pos.1 as i16 == pt.1 {
+                return false;
+            }
+        }
     }
 
     true
