@@ -74,7 +74,7 @@ pub fn render_basic_attack(
 ) {
     for ev in reader.read() {
         let pos = tower_query.get(ev.tower).unwrap();
-        let offset = (pos.size as f32) / 2.0;
+        let offset = (pos.size as f32 - 1.0) / 2.0;
 
         let model = commands
             .spawn(PbrBundle {
@@ -84,9 +84,9 @@ pub fn render_basic_attack(
                     ..default()
                 }),
                 transform: Transform::from_xyz(
-                    (pos.top_left.0 as f32) + offset,
-                    0.5,
-                    (pos.top_left.1 as f32) + offset,
+                    pos.top_left.0 as f32 + offset,
+                    0.75,
+                    pos.top_left.1 as f32 - offset,
                 ),
                 ..default()
             })
