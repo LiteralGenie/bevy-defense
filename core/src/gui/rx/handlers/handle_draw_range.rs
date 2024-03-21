@@ -1,9 +1,6 @@
 use bevy::{ecs::system::SystemState, prelude::*};
 
-use crate::{
-    gui::console,
-    towers::components::{TowerPosition, TowerRange},
-};
+use crate::{gui::console, towers::components::TowerRange};
 
 #[derive(Resource)]
 struct RangeHighlight {
@@ -58,10 +55,10 @@ pub fn render_tile_highlight(
     commands
         .spawn(PbrBundle {
             mesh: meshes.add(Cuboid::new(1.0, 0.1, 1.0)),
-            material: materials.add(Color::rgba(0.5, 0.0, 0.5, 0.5)),
+            material: materials.add(Color::rgba(0.0, 0.5, 0.0, 0.65)),
             transform: Transform::from_xyz(
                 pos.0 as f32,
-                0.0,
+                0.25,
                 pos.1 as f32,
             ),
             ..default()

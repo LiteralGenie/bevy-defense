@@ -92,7 +92,7 @@ pub fn render_paths(
     for pt in points {
         commands.spawn((
             PbrBundle {
-                mesh: meshes.add(Cuboid::default()),
+                mesh: meshes.add(Cuboid::new(1.0, 0.01, 1.0)),
                 material: materials.add(Color::rgb(0.35, 0.25, 0.25)),
                 transform: Transform::from_xyz(
                     pt.0 as f32,

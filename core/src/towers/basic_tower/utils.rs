@@ -29,7 +29,7 @@ pub fn spawn_model(
         .spawn(PbrBundle {
             mesh: meshes.add(Cuboid::new(size, 1.0, size)),
             material: materials.add(Color::rgb(1.0, 0.0, 0.0)),
-            transform: Transform::from_xyz(offset, 0.0, -offset),
+            transform: Transform::from_xyz(offset, 0.5, -offset),
             ..default()
         })
         .id();

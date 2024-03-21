@@ -37,7 +37,8 @@ impl Plugin for UnitsPlugin {
         )
         .add_systems(
             FixedUpdate,
-            (super::systems::render_movement_start,),
+            (super::systems::render_movement_start,)
+                .after(UnitUpdateSystems),
         );
     }
 }
