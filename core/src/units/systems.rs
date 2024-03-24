@@ -20,8 +20,8 @@ pub fn init_units_for_round(
 ) {
     let wave = &scenario.waves[round_timer.round as usize];
     for enemy in wave.enemies.iter() {
-        super::matchers::match_spawn(
-            enemy.id_unit,
+        let cfg = super::config::match_config(enemy.id_unit);
+        (cfg.spawn)(
             &mut commands,
             enemy.id_path,
             round_timer.start_tick + enemy.delay,
