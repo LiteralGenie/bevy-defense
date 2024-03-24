@@ -3,7 +3,7 @@ use crate::{
     scenario::Scenario,
     towers::{
         components::{TowerMarker, TowerPosition},
-        matchers::match_size,
+        config::match_config,
     },
 };
 use bevy::{ecs::system::SystemState, prelude::*};
@@ -60,7 +60,7 @@ pub fn can_place_tower(
     let (tower_query, scenario) = state.get_mut(world);
 
     let tower_pos =
-        TowerPosition::new(top_left, match_size(id_tower));
+        TowerPosition::new(top_left, match_config(id_tower).size);
 
     for pos in tower_pos.coords {
         for tower in tower_query.iter() {

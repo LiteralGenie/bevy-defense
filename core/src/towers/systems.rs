@@ -3,8 +3,8 @@ use super::{
         BaseDamage, BaseRangeRadius, BasicRangeType, EffectiveDamage,
         EffectiveRangeRadius, Projectile, TowerModel, TowerPosition,
     },
+    config::match_config,
     events::TowerClickEvent,
-    matchers::match_size,
 };
 use crate::{
     animation::components::InterpolateTranslation,
@@ -156,7 +156,7 @@ pub fn compute_basic_range(
         let range = BasicRangeType::create(
             effective_radius.0,
             pos.top_left,
-            match_size(0),
+            match_config(0).range_radius,
             &scenario,
         );
         commands.entity(entity).insert(range);

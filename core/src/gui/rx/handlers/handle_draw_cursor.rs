@@ -7,10 +7,7 @@ use crate::{
             can_place_tower, snap_coords, window_to_world_coords,
         },
     },
-    towers::{
-        components::BasicRangeType,
-        matchers::{match_range_radius, match_size},
-    },
+    towers::{components::BasicRangeType, config::match_config},
 };
 
 #[derive(Resource)]
@@ -69,11 +66,13 @@ fn init_resource(world: &mut World) {
     );
 
     let id = 0;
+    let cfg = match_config(id);
+
     let range_model = commands.spawn(SpatialBundle::default()).id();
     let points = BasicRangeType::compute_points(
-        match_range_radius(id),
+        cfg.range_radius,
         (0, 0),
-        match_size(id),
+        cfg.size,
     );
     for pt in points {
         let tile = super::render_tile_highlight(
