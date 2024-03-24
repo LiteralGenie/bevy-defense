@@ -1,5 +1,5 @@
 use crate::gui::console;
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashSet};
 
 pub enum Direction {
     Up,
@@ -13,8 +13,7 @@ pub struct Segment {
     pub length: u16,
 }
 
-#[derive(Copy, Clone)]
-pub struct Point2(pub i16, pub i16);
+type Point2 = (i16, i16);
 
 pub struct PathPos {
     pub idx_segment: usize,
@@ -24,6 +23,7 @@ pub struct PathPos {
 pub struct Path {
     pub id: u8,
     pub points: Vec<PathPos>,
+    pub buffer_points: HashSet<Point2>,
     pub start: Point2,
     pub segments: Vec<Segment>,
 }
@@ -34,9 +34,13 @@ impl Path {
         start: Point2,
         segments: Vec<Segment>,
     ) -> Path {
+        let (points, buffer_points) =
+            points_from_segments(start, &segments);
+
         Path {
             id,
-            points: points_from_segments(start, &segments),
+            points,
+            buffer_points,
             start,
             segments,
         }
@@ -46,37 +50,92 @@ impl Path {
 fn points_from_segments(
     start: Point2,
     segments: &[Segment],
-) -> Vec<PathPos> {
+) -> (Vec<PathPos>, HashSet<Point2>) {
     let mut points = vec![PathPos {
         pos: start,
         idx_segment: 0,
     }];
 
-    let mut pos = start;
-    for (idx, segment) in segments.iter().enumerate() {
-        let step_x: i8 = match segment.dir {
-            Direction::Left => -1,
-            Direction::Right => 1,
-            _ => 0,
-        };
-
-        let step_y: i8 = match segment.dir {
-            Direction::Down => -1,
-            Direction::Up => 1,
-            _ => 0,
-        };
-
-        for _ in 0..=segment.length {
-            pos.0 += step_x as i16;
-            pos.1 += step_y as i16;
-            points.push(PathPos {
-                pos,
-                idx_segment: idx,
-            });
+    // Buffer points outline the center set of points
+    let mut buffer_points = HashSet::<Point2>::new();
+    match segments.get(0).unwrap().dir {
+        Direction::Left => {
+            buffer_points.insert((start.0, start.1 - 1));
+            buffer_points.insert((start.0, start.1 + 1));
+        }
+        Direction::Right => {
+            buffer_points.insert((start.0, start.1 - 1));
+            buffer_points.insert((start.0, start.1 + 1));
+        }
+        Direction::Down => {
+            buffer_points.insert((start.0 - 1, start.1));
+            buffer_points.insert((start.0 + 1, start.1));
+        }
+        Direction::Up => {
+            buffer_points.insert((start.0 - 1, start.1));
+            buffer_points.insert((start.0 + 1, start.1));
         }
     }
 
-    points
+    // Given a path defined by two segments like this
+    // . . . . . .
+    // . | - - - -
+    // . | . . . .
+    // . | .
+    // . | .
+    //
+    // The draw loop fills the two point sets like this
+    // . . . . . .   . . . . . .   . . . . . .   . . . . . .   . . . . . .         . . . . . .   o o o . . .   o o o . . .    o o o o . .
+    // . | - - - -   . | - - - -   . | - - - -   . | - - - -   . | - - - -         o x o - - -   o x o - - -   o x x - - -    o x x x - -
+    // . | . . . .   . | . . . .   . | . . . .   . | . . . .   . | . . . .   ...   o x o . . .   o x o . . .   o x o . . .    o x o o . .
+    // . | .         . | .         . | .         . x .         o x o               o x o         o x o         o x o          o x o
+    // . | .         . x .         o x o         o x o         o x o               o x o         o x o         o x o          o x o
+    //
+    // (The start point is missing one edge of outlines and there's a small overlap at corners but whatever)
+    let mut pos = start;
+    for (idx_segment, segment) in segments.iter().enumerate() {
+        let (step_x, step_y): (i16, i16) = match segment.dir {
+            Direction::Left => (-1, 0),
+            Direction::Right => (1, 0),
+            Direction::Down => (0, -1),
+            Direction::Up => (0, 1),
+        };
+
+        let (buffer_x, buffer_y): (i16, i16) = match segment.dir {
+            Direction::Left => (0, 1),
+            Direction::Right => (0, 1),
+            Direction::Down => (1, 0),
+            Direction::Up => (1, 0),
+        };
+
+        for idx_pt in 0..=segment.length {
+            pos.0 += step_x as i16;
+            pos.1 += step_y as i16;
+
+            points.push(PathPos { pos, idx_segment });
+
+            buffer_points
+                .insert((pos.0 - buffer_x, pos.1 - buffer_y));
+            buffer_points
+                .insert((pos.0 + buffer_x, pos.1 + buffer_y));
+
+            if idx_pt == segment.length {
+                let next_pt = (pos.0 + step_x, pos.1 + step_y);
+
+                buffer_points.insert((
+                    next_pt.0 - buffer_x,
+                    next_pt.1 - buffer_y,
+                ));
+                buffer_points.insert(next_pt);
+                buffer_points.insert((
+                    next_pt.0 + buffer_x,
+                    next_pt.1 + buffer_y,
+                ));
+            }
+        }
+    }
+
+    (points, buffer_points)
 }
 
 #[derive(Component)]

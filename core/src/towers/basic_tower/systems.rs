@@ -16,7 +16,11 @@ pub fn render(
             &mut commands,
             &mut meshes,
             &mut materials,
-            Vec3::new(pos.x as f32, 0.0, pos.z as f32),
+            Vec3::new(
+                pos.top_left.0 as f32,
+                0.0,
+                pos.top_left.1 as f32,
+            ),
         );
 
         commands.entity(entity).insert(TowerModel(model));

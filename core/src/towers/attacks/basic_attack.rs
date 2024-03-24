@@ -37,6 +37,11 @@ pub fn apply_basic_attack(
     mut events: EventWriter<BasicAttackEvent>,
 ) {
     for (entity, damage, range, priority) in query.iter() {
+        // @todo: It's a little wasteful to grab all the candidates if the priority is distance-based
+        //        eg if we want the first unit....
+        //          we can iterate over the tower range in descending order
+        //          check the bin for each point
+        //          and return the first unit found
         let candidates =
             filter_targets_by_dist(&targets_by_dist, range);
 
@@ -73,7 +78,8 @@ pub fn render_basic_attack(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     for ev in reader.read() {
-        let tower_pos = tower_query.get(ev.tower).unwrap();
+        let pos = tower_query.get(ev.tower).unwrap();
+        let offset = (pos.size as f32 - 1.0) / 2.0;
 
         let model = commands
             .spawn(PbrBundle {
@@ -83,9 +89,9 @@ pub fn render_basic_attack(
                     ..default()
                 }),
                 transform: Transform::from_xyz(
-                    tower_pos.x as f32,
-                    0.5,
-                    tower_pos.z as f32,
+                    pos.top_left.0 as f32 + offset,
+                    0.75,
+                    pos.top_left.1 as f32 - offset,
                 ),
                 ..default()
             })

@@ -18,8 +18,8 @@ impl Plugin for UnitsPlugin {
         .add_systems(
             FixedUpdate,
             (
-                super::systems::move_units,
                 super::systems::spawn_pending_units,
+                super::systems::move_units,
             )
                 .in_set(UnitUpdateSystems)
                 .chain(),
@@ -37,7 +37,8 @@ impl Plugin for UnitsPlugin {
         )
         .add_systems(
             FixedUpdate,
-            (super::systems::render_movement_start,),
+            (super::systems::render_movement_start,)
+                .after(UnitUpdateSystems),
         );
     }
 }

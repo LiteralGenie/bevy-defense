@@ -26,10 +26,10 @@ fn extract_request(
     (event_type, resolve, reject, data)
 }
 
-fn extract_xy(data: JsValue) -> Vec2 {
-    let x = get_prop(&data, "x").as_f64().unwrap();
-    let y = get_prop(&data, "y").as_f64().unwrap();
-    Vec2::new(x as f32, y as f32)
+fn extract_xy(data: JsValue) -> (f32, f32) {
+    let x = get_prop(&data, "x").as_f64().unwrap() as f32;
+    let y = get_prop(&data, "y").as_f64().unwrap() as f32;
+    (x, y)
 }
 
 pub fn handle_gui_requests(world: &mut World) {
@@ -44,19 +44,23 @@ pub fn handle_gui_requests(world: &mut World) {
 
         match event_type.as_str() {
             "draw_cursor" => {
-                let pos: Option<Vec2> = {
+                let data = {
                     if data.is_null() {
                         None
                     } else {
                         let position = get_prop(&data, "position");
-                        Some(extract_xy(position))
+                        let id_tower = get_prop(&data, "id_tower")
+                            .as_f64()
+                            .unwrap()
+                            as u16;
+                        Some((extract_xy(position), id_tower))
                     }
                 };
 
                 // @todo: Is it necessary to optimize this by only processing the latest draw_cursor event?
                 //        Even if the JS is firing events fast enough to pile up multiple in a single frame, is the performance impact significant?
                 let did_draw =
-                    super::handlers::handle_draw_cursor(world, pos);
+                    super::handlers::handle_draw_cursor(world, data);
 
                 result = Some(resolve.call1(
                     &JsValue::null(),

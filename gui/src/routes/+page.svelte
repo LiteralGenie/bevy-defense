@@ -38,6 +38,9 @@
 
     // Make the gui an overlay
     .container {
+        // @todo: the same parts of game should be visible regardless of screen size
+        //        so this cant be an absolute overlay
+        //        (responsive sidebar width is probably fine though)
         position: absolute;
         height: 100%;
         width: 100%;

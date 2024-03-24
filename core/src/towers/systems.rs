@@ -3,6 +3,7 @@ use super::{
         BaseDamage, BaseRangeRadius, BasicRangeType, EffectiveDamage,
         EffectiveRangeRadius, Projectile, TowerModel, TowerPosition,
     },
+    config::match_config,
     events::TowerClickEvent,
 };
 use crate::{
@@ -154,7 +155,8 @@ pub fn compute_basic_range(
     for (entity, effective_radius, pos) in query.iter() {
         let range = BasicRangeType::create(
             effective_radius.0,
-            (pos.x, pos.z),
+            pos.top_left,
+            match_config(0).range_radius,
             &scenario,
         );
         commands.entity(entity).insert(range);

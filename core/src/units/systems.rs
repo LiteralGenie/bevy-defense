@@ -4,7 +4,7 @@ use crate::{
     animation::components::InterpolateTranslation,
     components::DoNotRender,
     gui::console,
-    scenario::{Direction, Scenario},
+    scenario::Scenario,
     timers::{round_timer::RoundTimer, tick_timer::TickTimer},
 };
 
@@ -20,25 +20,12 @@ pub fn init_units_for_round(
 ) {
     let wave = &scenario.waves[round_timer.round as usize];
     for enemy in wave.enemies.iter() {
-        match enemy.id_unit {
-            0 => {
-                super::basic_unit::spawn(
-                    &mut commands,
-                    enemy.id_path,
-                    round_timer.start_tick + enemy.delay,
-                );
-            }
-            1 => {
-                super::tank_unit::spawn(
-                    &mut commands,
-                    enemy.id_path,
-                    round_timer.start_tick + enemy.delay,
-                );
-            }
-            _ => {
-                panic!("Invalid unit id: {}", enemy.id_unit)
-            }
-        }
+        super::matchers::match_spawn(
+            enemy.id_unit,
+            &mut commands,
+            enemy.id_path,
+            round_timer.start_tick + enemy.delay,
+        );
     }
 }
 
@@ -82,28 +69,11 @@ pub fn spawn_pending_units(
         // Move unit to start of path
         let path = &scenario.paths[&path_id.0];
         let point = path.points.get(dist.0 as usize).unwrap();
-        let dir = &path.segments.get(0).unwrap().dir;
 
         let mut transform = models.get_mut(model.0).unwrap();
         let translation = &mut transform.translation;
         translation.x = point.pos.0 as f32;
         translation.z = point.pos.1 as f32;
-
-        // Offset a bit for the sake of having an initial movement animation
-        match dir {
-            Direction::Up => {
-                translation.z -= 1.0;
-            }
-            Direction::Down => {
-                translation.z += 1.0;
-            }
-            Direction::Right => {
-                translation.x -= 1.0;
-            }
-            Direction::Left => {
-                translation.x += 1.0;
-            }
-        }
     }
 }
 
