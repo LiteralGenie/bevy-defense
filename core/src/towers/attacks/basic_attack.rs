@@ -37,6 +37,11 @@ pub fn apply_basic_attack(
     mut events: EventWriter<BasicAttackEvent>,
 ) {
     for (entity, damage, range, priority) in query.iter() {
+        // @todo: It's a little wasteful to grab all the candidates if the priority is distance-based
+        //        eg if we want the first unit....
+        //          we can iterate over the tower range in descending order
+        //          check the bin for each point
+        //          and return the first unit found
         let candidates =
             filter_targets_by_dist(&targets_by_dist, range);
 

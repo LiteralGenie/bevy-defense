@@ -56,6 +56,7 @@ fn points_from_segments(
         idx_segment: 0,
     }];
 
+    // Buffer points outline the center set of points
     let mut buffer_points = HashSet::<Point2>::new();
     match segments.get(0).unwrap().dir {
         Direction::Left => {
@@ -76,6 +77,21 @@ fn points_from_segments(
         }
     }
 
+    // Given a path defined by two segments like this
+    // . . . . . .
+    // . | - - - -
+    // . | . . . .
+    // . | .
+    // . | .
+    //
+    // The draw loop fills the two point sets like this
+    // . . . . . .   . . . . . .   . . . . . .   . . . . . .   . . . . . .         . . . . . .   o o o . . .   o o o . . .    o o o o . .
+    // . | - - - -   . | - - - -   . | - - - -   . | - - - -   . | - - - -         o x o - - -   o x o - - -   o x x - - -    o x x x - -
+    // . | . . . .   . | . . . .   . | . . . .   . | . . . .   . | . . . .   ...   o x o . . .   o x o . . .   o x o . . .    o x o o . .
+    // . | .         . | .         . | .         . x .         o x o               o x o         o x o         o x o          o x o
+    // . | .         . x .         o x o         o x o         o x o               o x o         o x o         o x o          o x o
+    //
+    // (The start point is missing one edge of outlines and there's a small overlap at corners but whatever)
     let mut pos = start;
     for (idx_segment, segment) in segments.iter().enumerate() {
         let (step_x, step_y): (i16, i16) = match segment.dir {
