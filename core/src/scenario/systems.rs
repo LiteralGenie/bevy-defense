@@ -68,6 +68,14 @@ pub fn spawn_scenario(mut commands: Commands) {
         });
     }
 
+    for i in 1..10 {
+        scenario.waves[0].enemies.push(WaveEnemy {
+            id_unit: 2,
+            id_path: 1,
+            delay: i * 48,
+        });
+    }
+
     commands.insert_resource(scenario);
 }
 

@@ -1,7 +1,10 @@
 use bevy::prelude::*;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
-use crate::{scenario::Scenario, units::components::UnitPosition};
+use crate::{
+    scenario::Scenario,
+    units::components::{UnitPosition, UnitStatus, UnitStatusTypes},
+};
 
 struct Buff {
     duration: u16,
@@ -39,9 +42,16 @@ pub fn init_buff_map(
 
 pub fn spawn_speed_buff(
     mut buffs: ResMut<BuffsByPath>,
-    units: Query<(Entity, &UnitPosition), With<super::Marker>>,
+    units: Query<
+        (Entity, &UnitPosition, &UnitStatus),
+        With<super::Marker>,
+    >,
 ) {
-    for (entity, pos) in units.iter() {
+    for (entity, pos, status) in units.iter() {
+        if !matches!(status.0, UnitStatusTypes::ALIVE) {
+            continue;
+        }
+
         let path = buffs.0.get_mut(&pos.id_path).unwrap();
         let bin = path.get_mut(pos.dist as usize).unwrap();
         bin.insert(
@@ -51,6 +61,23 @@ pub fn spawn_speed_buff(
                 multiplier: super::BUFF_MULTIPLIER,
             },
         );
+    }
+}
+
+pub fn update_speed_buff_duration(mut buffs: ResMut<BuffsByPath>) {
+    for path in buffs.0.values_mut() {
+        for bin in path.iter_mut() {
+            let mut to_delete = HashSet::new();
+
+            for (id_unit, buff) in bin.iter_mut() {
+                buff.duration -= 1;
+                to_delete.insert(*id_unit);
+            }
+
+            for id in to_delete {
+                bin.remove(&id);
+            }
+        }
     }
 }
 

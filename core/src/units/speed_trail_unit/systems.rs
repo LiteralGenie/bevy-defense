@@ -23,9 +23,9 @@ pub fn render(
             .id();
 
         let mut model = commands.spawn(PbrBundle {
-            mesh: meshes.add(Sphere::new(0.5)),
+            mesh: meshes.add(Sphere::new(1.5)),
             material: materials.add(StandardMaterial {
-                base_color: Color::rgb(0.0, 0.0, 0.75),
+                base_color: Color::rgb(0.0, 0.5, 0.75),
                 alpha_mode: AlphaMode::Blend,
                 ..default()
             }),

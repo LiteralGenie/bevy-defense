@@ -6,4 +6,4 @@ pub const CONFIG: UnitConfig = UnitConfig {
 
 pub const BUFF_DURATION: u16 = 10;
 
-pub const BUFF_MULTIPLIER: f64 = 1.5;
+pub const BUFF_MULTIPLIER: f64 = 2.0;

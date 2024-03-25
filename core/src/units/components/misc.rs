@@ -39,6 +39,8 @@ pub struct BaseUnitBundle {
     status: UnitStatus,
 }
 
+// @todo: move unit stats to config (same with tower)
+//        these new fns should instead take an id and pull the data from the config matcher
 impl BaseUnitBundle {
     pub fn new(
         id_path: u8,

@@ -23,6 +23,7 @@ impl Plugin for UnitsPlugin {
         .add_systems(
             FixedUpdate,
             (
+                super::speed_trail_unit::update_speed_buff_duration,
                 super::speed_trail_unit::spawn_speed_buff,
                 super::speed_trail_unit::apply_speed_buff,
                 super::systems::compute_effective_speed,
@@ -40,6 +41,7 @@ impl Plugin for UnitsPlugin {
                 super::health_bar::render_health_bar,
                 super::basic_unit::render,
                 super::tank_unit::render,
+                super::speed_trail_unit::render,
             )
                 .in_set(UnitRenderSystems),
         )
