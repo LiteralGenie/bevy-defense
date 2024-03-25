@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use super::{
     components::{
         BaseSpeed, EffectiveSpeed, UnitModel, UnitPosition,
@@ -121,13 +123,32 @@ pub fn render_movement_start(
     for (entity, pos, model) in units.iter() {
         let translation = models.get(model.0).unwrap().translation;
 
+        // Point defined by pos.dist
         let path = &scenario.paths[&pos.id_path];
         let point = path.points.get(pos.dist as usize).unwrap();
-        let end = Vec3::new(
-            point.pos.0 as f32,
-            translation.y,
-            point.pos.1 as f32,
-        );
+
+        // Point defined by pos.dist + 1
+        let next_point =
+            path.points.get((pos.dist + 1) as usize).unwrap_or(point);
+
+        // Interpolate between the two based on accumulator value
+        let target_point = {
+            let start = point.pos;
+            let end = next_point.pos;
+            let diff = (end.0 - start.0, end.1 - start.1);
+
+            let frac = pos.acc as f32 / 100.0;
+            let scaled_diff =
+                (diff.0 as f32 * frac, diff.1 as f32 * frac);
+
+            (
+                start.0 as f32 + scaled_diff.0,
+                start.1 as f32 + scaled_diff.1,
+            )
+        };
+
+        let end =
+            Vec3::new(target_point.0, translation.y, target_point.1);
 
         commands.entity(entity).insert(InterpolateTranslation::new(
             model.0,
@@ -169,13 +190,25 @@ pub fn move_units(
 }
 
 pub fn compute_effective_speed(
-    query: Query<
-        (Entity, &BaseSpeed, Option<&SpeedBuff>),
+    info_query: Query<(&BaseSpeed, Option<&SpeedBuff>)>,
+    changed: Query<
+        Entity,
         Or<(Changed<BaseSpeed>, Changed<SpeedBuff>)>,
     >,
+    mut unbuffed: RemovedComponents<SpeedBuff>,
     mut commands: Commands,
 ) {
-    for (entity, base, buff) in query.iter() {
+    let to_check: HashSet<Entity> =
+        HashSet::from_iter(changed.iter().chain(unbuffed.read()));
+
+    for entity in to_check {
+        let (base, buff) = {
+            match info_query.get(entity) {
+                Ok(res) => res,
+                Err(_) => continue,
+            }
+        };
+
         let mut update = base.0 as f64;
 
         if let Some(buff) = buff {

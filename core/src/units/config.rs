@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+// @todo: unit stats in config
 pub struct UnitConfig {
     pub spawn: fn(&mut Commands, u8, u32),
 }

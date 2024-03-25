@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+// @todo: callers should only need to specify duration
 #[derive(Component)]
 pub struct InterpolateTranslation {
     pub model: Entity,
