@@ -118,7 +118,6 @@ pub fn render_movement_start(
     models: Query<&Transform>,
     scenario: Res<Scenario>,
     mut commands: Commands,
-    tick: Res<TickTimer>,
 ) {
     for (entity, pos, model) in units.iter() {
         let translation = models.get(model.0).unwrap().translation;
@@ -152,10 +151,9 @@ pub fn render_movement_start(
 
         commands.entity(entity).insert(InterpolateTranslation::new(
             model.0,
+            1,
             translation,
             end,
-            tick.0,
-            tick.0 + 1,
         ));
     }
 }

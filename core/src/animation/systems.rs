@@ -1,26 +1,25 @@
 use super::components::InterpolateTranslation;
-use crate::{gui::console, timers::tick_timer::TickTimer};
 use bevy::prelude::*;
 
 pub fn interpolate_translation(
-    query: Query<(Entity, &InterpolateTranslation)>,
+    mut query: Query<(Entity, &mut InterpolateTranslation)>,
     mut transform: Query<&mut Transform>,
     time: Res<Time<Fixed>>,
-    tick: Res<TickTimer>,
     mut commands: Commands,
 ) {
-    for (entity, info) in query.iter() {
+    for (entity, mut info) in query.iter_mut() {
         // Check if animation complete
-        if tick.0 >= info.tick_end {
+        if info.elapsed >= info.duration {
             commands
                 .entity(entity)
                 .remove::<InterpolateTranslation>();
             continue;
+        } else {
+            info.elapsed += 1;
         }
 
         // Update position
-        let elapsed = (tick.0 - info.tick_start) as f32
-            + time.overstep_fraction();
+        let elapsed = info.elapsed as f32 + time.overstep_fraction();
         let elapsed_frac = elapsed / info.duration as f32;
         let update = info.pos_start + info.pos_diff * elapsed_frac;
 

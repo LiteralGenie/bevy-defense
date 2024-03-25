@@ -65,7 +65,6 @@ pub fn render_attack_start(
     model_query: Query<&Transform>,
     scenario: Res<Scenario>,
     mut commands: Commands,
-    tick_timer: Res<TickTimer>,
 ) {
     const TRAVEL_SPEED: f32 = 1.25;
 
@@ -88,10 +87,9 @@ pub fn render_attack_start(
 
         commands.entity(entity).insert(InterpolateTranslation::new(
             p.model,
+            travel_ticks,
             model.translation,
             unit_pos,
-            tick_timer.0,
-            tick_timer.0 + travel_ticks,
         ));
     }
 }
