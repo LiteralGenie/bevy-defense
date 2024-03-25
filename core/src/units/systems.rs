@@ -182,8 +182,8 @@ pub fn compute_effective_speed(
             update *= buff.0;
         }
 
-        commands
-            .entity(entity)
-            .insert(EffectiveSpeed(update as u16));
+        let update = update.min(100.0) as u16;
+
+        commands.entity(entity).insert(EffectiveSpeed(update));
     }
 }

@@ -1,6 +1,6 @@
 use bevy::ecs::system::{Commands, ResMut, Resource};
 
-pub const TICK_FREQUENCY_HZ: f64 = 5.0;
+pub const TICK_FREQUENCY_HZ: f64 = 20.0;
 
 #[derive(Resource)]
 pub struct TickTimer(pub u32);

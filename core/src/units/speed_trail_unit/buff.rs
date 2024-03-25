@@ -71,7 +71,10 @@ pub fn update_speed_buff_duration(mut buffs: ResMut<BuffsByPath>) {
 
             for (id_unit, buff) in bin.iter_mut() {
                 buff.duration -= 1;
-                to_delete.insert(*id_unit);
+
+                if buff.duration == 0 {
+                    to_delete.insert(*id_unit);
+                }
             }
 
             for id in to_delete {
@@ -97,6 +100,8 @@ pub fn apply_speed_buff(
             commands
                 .entity(entity)
                 .insert(SpeedBuff(buff.multiplier));
+        } else {
+            commands.entity(entity).remove::<SpeedBuff>();
         }
     }
 }
