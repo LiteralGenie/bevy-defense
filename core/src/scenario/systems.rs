@@ -72,7 +72,7 @@ pub fn spawn_scenario(mut commands: Commands) {
         scenario.waves[0].enemies.push(WaveEnemy {
             id_unit: 2,
             id_path: 1,
-            delay: i * 300,
+            delay: i * 200,
         });
     }
 

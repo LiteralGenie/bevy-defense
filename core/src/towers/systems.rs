@@ -66,7 +66,7 @@ pub fn render_attack_start(
     scenario: Res<Scenario>,
     mut commands: Commands,
 ) {
-    const TRAVEL_SPEED: f32 = 1.25;
+    const TRAVEL_SPEED: f32 = 0.5;
 
     for (entity, p) in projectile_query.iter() {
         let model = model_query.get(p.model).unwrap();

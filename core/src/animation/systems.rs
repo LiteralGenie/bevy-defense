@@ -1,4 +1,5 @@
 use super::components::InterpolateTranslation;
+use crate::gui::console;
 use bevy::prelude::*;
 
 pub fn interpolate_translation(
@@ -9,21 +10,32 @@ pub fn interpolate_translation(
 ) {
     for (entity, mut info) in query.iter_mut() {
         // Check if animation complete
-        if info.elapsed >= info.duration {
-            commands
-                .entity(entity)
-                .remove::<InterpolateTranslation>();
-            continue;
-        } else {
-            info.elapsed += 1;
+        if time.is_changed() {
+            if info.elapsed >= info.duration {
+                commands
+                    .entity(entity)
+                    .remove::<InterpolateTranslation>();
+                continue;
+            } else {
+                info.elapsed += 1;
+            }
         }
 
         // Update position
-        let elapsed = info.elapsed as f32 + time.overstep_fraction();
-        let elapsed_frac = elapsed / info.duration as f32;
+        let elapsed_frac = {
+            let ticks =
+                info.elapsed as f32 + time.overstep_fraction();
+
+            let frac = ticks / info.duration as f32;
+
+            // @jank: The elapsed time can be larger than the specified duration
+            //          due to bevy (probably?) deferring the above component removal
+            //        So we need to cap this frac to 1.0 to avoid overshooting the end pos
+            frac.min(1.0)
+        };
         let update = info.pos_start + info.pos_diff * elapsed_frac;
 
-        // Need to handle deleted-model case (eg unit died)
+        // Handle deleted-model case (eg unit died)
         if let Ok(mut transform) = transform.get_mut(info.model) {
             transform.translation = update;
         }
