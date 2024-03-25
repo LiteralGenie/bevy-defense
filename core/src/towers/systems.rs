@@ -1,7 +1,8 @@
 use super::{
     components::{
         BaseDamage, BaseRangeRadius, BasicRangeType, EffectiveDamage,
-        EffectiveRangeRadius, Projectile, TowerModel, TowerPosition,
+        EffectiveRangeRadius, Projectile, TowerMarker, TowerModel,
+        TowerPosition,
     },
     config::match_config,
     events::TowerClickEvent,
@@ -141,17 +142,17 @@ pub fn compute_effective_range(
 
 pub fn compute_basic_range(
     query: Query<
-        (Entity, &EffectiveRangeRadius, &TowerPosition),
+        (Entity, &TowerMarker, &EffectiveRangeRadius, &TowerPosition),
         (With<BasicRangeType>, Changed<EffectiveRangeRadius>),
     >,
     scenario: Res<Scenario>,
     mut commands: Commands,
 ) {
-    for (entity, effective_radius, pos) in query.iter() {
+    for (entity, id, effective_radius, pos) in query.iter() {
         let range = BasicRangeType::create(
             effective_radius.0,
             pos.top_left,
-            match_config(0).size,
+            match_config(id.0).size,
             &scenario,
         );
         commands.entity(entity).insert(range);

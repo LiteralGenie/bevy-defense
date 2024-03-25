@@ -6,7 +6,7 @@ use super::{BaseDamage, BaseRangeRadius};
 use bevy::prelude::*;
 
 #[derive(Component)]
-pub struct TowerMarker;
+pub struct TowerMarker(pub u16);
 
 #[derive(Component)]
 pub struct TowerModel(pub Entity);
@@ -62,7 +62,7 @@ impl BaseTowerBundle {
         let cfg = match_config(id_tower);
 
         Self {
-            marker: TowerMarker,
+            marker: TowerMarker(id_tower),
             base_damage: BaseDamage(cfg.damage),
             base_range: BaseRangeRadius(cfg.range_radius),
             position: TowerPosition::new(position, cfg.size),
