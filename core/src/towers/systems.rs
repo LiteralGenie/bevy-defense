@@ -1,7 +1,8 @@
 use super::{
     components::{
         BaseDamage, BaseRangeRadius, BasicRangeType, EffectiveDamage,
-        EffectiveRangeRadius, Projectile, TowerModel, TowerPosition,
+        EffectiveRangeRadius, Projectile, TowerMarker, TowerModel,
+        TowerPosition,
     },
     config::match_config,
     events::TowerClickEvent,
@@ -11,9 +12,7 @@ use crate::{
     gui::console,
     scenario::Scenario,
     timers::tick_timer::TickTimer,
-    units::components::{
-        UnitDist, UnitPathId, UnitStatus, UnitStatusTypes,
-    },
+    units::components::{UnitPosition, UnitStatus, UnitStatusTypes},
 };
 use bevy::prelude::*;
 use bevy_mod_picking::prelude::*;
@@ -28,7 +27,7 @@ pub struct UnitsByDist(
 pub fn index_units_by_dist(
     mut commands: Commands,
     scenario: Res<Scenario>,
-    query: Query<(Entity, &UnitStatus, &UnitPathId, &UnitDist)>,
+    query: Query<(Entity, &UnitStatus, &UnitPosition)>,
 ) {
     // Init bins
     let mut by_path = HashMap::new();
@@ -45,13 +44,13 @@ pub fn index_units_by_dist(
     }
 
     // Populate bins
-    for (entity, status, id_path, dist) in query.iter() {
+    for (entity, status, pos) in query.iter() {
         if !matches!(status.0, UnitStatusTypes::ALIVE) {
             continue;
         }
 
-        let path_bin = by_path.get_mut(&id_path.0).unwrap();
-        let dist_bin = path_bin.get_mut(&dist.0).unwrap();
+        let path_bin = by_path.get_mut(&pos.id_path).unwrap();
+        let dist_bin = path_bin.get_mut(&pos.dist).unwrap();
         dist_bin.insert(entity);
     }
 
@@ -63,27 +62,25 @@ pub fn index_units_by_dist(
 //        So if the tower is far away, the projectile arrives too late -- behind the unit
 pub fn render_attack_start(
     projectile_query: Query<(Entity, &Projectile), Added<Projectile>>,
-    unit_query: Query<(&UnitPathId, &UnitDist)>,
+    pos_query: Query<&UnitPosition>,
     model_query: Query<&Transform>,
     scenario: Res<Scenario>,
     mut commands: Commands,
-    tick_timer: Res<TickTimer>,
 ) {
-    const TRAVEL_SPEED: f32 = 1.25;
+    const TRAVEL_SPEED: f32 = 0.5;
 
     for (entity, p) in projectile_query.iter() {
         let model = model_query.get(p.model).unwrap();
 
-        let unit_pos = {
-            let (unit_path, unit_dist) =
-                unit_query.get(p.unit).unwrap();
-            let path = scenario.paths.get(&unit_path.0).unwrap();
-            path.points.get(unit_dist.0 as usize).unwrap()
+        let coord = {
+            let pos = pos_query.get(p.unit).unwrap();
+            let path = scenario.paths.get(&pos.id_path).unwrap();
+            path.points.get(pos.dist as usize).unwrap()
         };
         let unit_pos = Vec3::new(
-            unit_pos.pos.0 as f32,
+            coord.pos.0 as f32,
             model.translation.y,
-            unit_pos.pos.1 as f32,
+            coord.pos.1 as f32,
         );
 
         let dist = (model.translation - unit_pos).length();
@@ -91,10 +88,9 @@ pub fn render_attack_start(
 
         commands.entity(entity).insert(InterpolateTranslation::new(
             p.model,
+            travel_ticks,
             model.translation,
             unit_pos,
-            tick_timer.0,
-            tick_timer.0 + travel_ticks,
         ));
     }
 }
@@ -146,17 +142,17 @@ pub fn compute_effective_range(
 
 pub fn compute_basic_range(
     query: Query<
-        (Entity, &EffectiveRangeRadius, &TowerPosition),
+        (Entity, &TowerMarker, &EffectiveRangeRadius, &TowerPosition),
         (With<BasicRangeType>, Changed<EffectiveRangeRadius>),
     >,
     scenario: Res<Scenario>,
     mut commands: Commands,
 ) {
-    for (entity, effective_radius, pos) in query.iter() {
+    for (entity, id, effective_radius, pos) in query.iter() {
         let range = BasicRangeType::create(
             effective_radius.0,
             pos.top_left,
-            match_config(0).range_radius,
+            match_config(id.0).size,
             &scenario,
         );
         commands.entity(entity).insert(range);

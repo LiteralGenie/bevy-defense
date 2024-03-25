@@ -1,12 +1,12 @@
 use std::collections::HashSet;
 
-use crate::gui::console;
+use crate::{gui::console, towers::config::match_config};
 
 use super::{BaseDamage, BaseRangeRadius};
 use bevy::prelude::*;
 
 #[derive(Component)]
-pub struct TowerMarker;
+pub struct TowerMarker(pub u16);
 
 #[derive(Component)]
 pub struct TowerModel(pub Entity);
@@ -58,17 +58,14 @@ pub struct BaseTowerBundle {
 }
 
 impl BaseTowerBundle {
-    pub fn new(
-        position: (i16, i16),
-        damage: u32,
-        size: u8,
-        range_radius: u8,
-    ) -> Self {
+    pub fn new(id_tower: u16, position: (i16, i16)) -> Self {
+        let cfg = match_config(id_tower);
+
         Self {
-            marker: TowerMarker,
-            base_damage: BaseDamage(damage),
-            base_range: BaseRangeRadius(range_radius),
-            position: TowerPosition::new(position, size),
+            marker: TowerMarker(id_tower),
+            base_damage: BaseDamage(cfg.damage),
+            base_range: BaseRangeRadius(cfg.range_radius),
+            position: TowerPosition::new(position, cfg.size),
             priority: TowerPriority(TowerPriorityTypes::FIRST),
         }
     }

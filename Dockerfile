@@ -4,6 +4,9 @@ FROM ubuntu:22.04 as base
 WORKDIR /app
 RUN apt update
 
+# misc
+RUN apt install screen -y
+
 # rust
 RUN apt install curl -y
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -17,7 +20,7 @@ RUN rustup target install wasm32-unknown-unknown
 RUN cargo install wasm-server-runner wasm-bindgen-cli
 
 # linux-only optimizaiton: https://bevyengine.org/learn/book/getting-started/setup/
-RUN apt install mold clang  -y
+RUN apt install mold clang -y
 
 # node
 RUN curl -fsSL https://deb.nodesource.com/setup_21.x | bash - && apt-get install -y nodejs

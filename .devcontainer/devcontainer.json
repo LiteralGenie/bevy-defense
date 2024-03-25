@@ -27,5 +27,7 @@
 
   // This is post-attach instead of postCreate because of
   // https://github.com/microsoft/vscode-remote-release/issues/6810#issuecomment-1449807170
-  "postAttachCommand": "git config --global --add safe.directory /app"
+  "postAttachCommand": "git config --global --add safe.directory /app",
+
+  "postStartCommand": "bash /app/.devcontainer/start.sh"
 }
