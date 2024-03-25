@@ -1,0 +1,81 @@
+use bevy::prelude::*;
+use std::collections::HashMap;
+
+use crate::{
+    scenario::Scenario,
+    units::components::{UnitDist, UnitPathId},
+};
+
+struct Buff {
+    duration: u16,
+    multiplier: f64,
+}
+
+type BuffsByUnit = HashMap<u64, Buff>;
+
+type PathBuffs = Vec<BuffsByUnit>;
+
+#[derive(Resource)]
+struct BuffsByPath(HashMap<u8, PathBuffs>);
+
+#[derive(Component)]
+pub struct SpeedBuff(f64);
+
+pub fn init_buff_map(
+    mut commands: Commands,
+    scenario: Res<Scenario>,
+) {
+    let mut map = BuffsByPath(HashMap::new());
+
+    for (id, path) in scenario.paths.iter() {
+        let mut path_buffs = Vec::new();
+
+        for pt in path.points.iter() {
+            path_buffs.push(HashMap::new());
+        }
+
+        map.0.insert(*id, path_buffs);
+    }
+
+    commands.insert_resource(map);
+}
+
+pub fn spawn_speed_buff(
+    mut buffs: ResMut<BuffsByPath>,
+    units: Query<
+        (Entity, &UnitPathId, &UnitDist),
+        With<super::Marker>,
+    >,
+) {
+    for (entity, id_path, dist) in units.iter() {
+        let path = buffs.0.get_mut(&id_path.0).unwrap();
+        let bin = path.get_mut(dist.0 as usize).unwrap();
+        bin.insert(
+            entity.to_bits(),
+            Buff {
+                duration: super::BUFF_DURATION,
+                multiplier: super::BUFF_MULTIPLIER,
+            },
+        );
+    }
+}
+
+pub fn apply_speed_buff(
+    buffs: Res<BuffsByPath>,
+    units: Query<(Entity, &UnitPathId, &UnitDist)>,
+    mut commands: Commands,
+) {
+    for (entity, id_path, dist) in units.iter() {
+        let path = buffs.0.get(&id_path.0).unwrap();
+        let bin = path.get(dist.0 as usize).unwrap();
+        let buff = bin.values().max_by(|left, right| {
+            left.multiplier.partial_cmp(&right.multiplier).unwrap()
+        });
+
+        if let Some(buff) = buff {
+            commands
+                .entity(entity)
+                .insert(SpeedBuff(buff.multiplier));
+        }
+    }
+}

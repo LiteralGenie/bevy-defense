@@ -21,6 +21,7 @@ pub struct UnitHealth(pub u32);
 #[derive(Component)]
 pub struct UnitHealthMax(pub u32);
 
+// @todo: group the path id and dist
 #[derive(Component)]
 pub struct UnitPathId(pub u8);
 
