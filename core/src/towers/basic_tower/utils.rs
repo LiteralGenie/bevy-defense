@@ -37,10 +37,8 @@ pub fn spawn_model(
 }
 
 pub fn spawn(world: &mut World, pos: (i16, i16)) {
-    let cfg = super::CONFIG;
-
     world.spawn((
-        BaseTowerBundle::new(pos, 10, cfg.size, cfg.range_radius),
+        BaseTowerBundle::new(super::ID, pos),
         super::Marker,
         BasicRangeType,
         attacks::BasicAttack,

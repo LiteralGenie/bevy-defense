@@ -1,3 +1,5 @@
+use crate::units::config::match_config;
+
 use super::BaseSpeed;
 use bevy::prelude::*;
 pub enum UnitStatusTypes {
@@ -39,26 +41,21 @@ pub struct BaseUnitBundle {
     status: UnitStatus,
 }
 
-// @todo: move unit stats to config (same with tower)
-//        these new fns should instead take an id and pull the data from the config matcher
 impl BaseUnitBundle {
-    pub fn new(
-        id_path: u8,
-        spawn_tick: u32,
-        health: u32,
-        speed: u16,
-    ) -> Self {
+    pub fn new(id_unit: u16, id_path: u8, spawn_tick: u32) -> Self {
+        let cfg = match_config(id_unit);
+
         Self {
             marker: UnitMarker,
-            health: UnitHealth(health),
-            health_max: UnitHealthMax(health),
+            health: UnitHealth(cfg.health_max),
+            health_max: UnitHealthMax(cfg.health_max),
             position: UnitPosition {
                 id_path,
                 dist: 0,
                 acc: 0,
             },
             spawn_tick: UnitSpawnTick(spawn_tick),
-            speed: BaseSpeed(speed),
+            speed: BaseSpeed(cfg.speed),
             status: UnitStatus(UnitStatusTypes::PRESPAWN),
         }
     }

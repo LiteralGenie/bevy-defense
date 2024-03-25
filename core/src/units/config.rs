@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 
-// @todo: unit stats in config
 pub struct UnitConfig {
+    pub health_max: u32,
+    pub speed: u16,
     pub spawn: fn(&mut Commands, u8, u32),
 }
 

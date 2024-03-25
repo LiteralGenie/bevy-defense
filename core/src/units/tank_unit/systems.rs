@@ -23,7 +23,7 @@ pub fn render(
             .id();
 
         let mut model = commands.spawn(PbrBundle {
-            mesh: meshes.add(Cuboid::new(0.75, 1.0, 0.75)),
+            mesh: meshes.add(Cuboid::new(1.25, 1.0, 1.25)),
             material: materials.add(StandardMaterial {
                 base_color: Color::rgb(0.5, 0.5, 0.5),
                 alpha_mode: AlphaMode::Blend,

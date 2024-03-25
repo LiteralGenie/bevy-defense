@@ -1,6 +1,10 @@
 use crate::units::config::UnitConfig;
 
+pub const ID: u16 = 2;
+
 pub const CONFIG: UnitConfig = UnitConfig {
+    health_max: 50,
+    speed: 50,
     spawn: super::utils::spawn,
 };
 

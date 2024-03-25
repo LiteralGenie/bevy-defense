@@ -3,6 +3,7 @@
 use super::basic_tower::CONFIG;
 
 pub struct TowerConfig {
+    pub damage: u32,
     pub size: u8,
     pub range_radius: u8,
 }
