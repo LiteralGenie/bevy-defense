@@ -1,5 +1,6 @@
 use wasm_bindgen::prelude::*;
 
+// todo: use web_sys console
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]
