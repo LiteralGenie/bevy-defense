@@ -151,7 +151,7 @@ pub fn compute_basic_range(
         let range = BasicRangeType::create(
             effective_radius.0,
             pos.top_left,
-            match_config(0).range_radius,
+            match_config(0).size,
             &scenario,
         );
         commands.entity(entity).insert(range);
