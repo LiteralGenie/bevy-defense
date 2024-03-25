@@ -1,5 +1,5 @@
+use super::BaseSpeed;
 use bevy::prelude::*;
-
 pub enum UnitStatusTypes {
     PRESPAWN,
     ALIVE,
@@ -13,7 +13,11 @@ pub struct UnitStatus(pub UnitStatusTypes);
 pub struct UnitMarker;
 
 #[derive(Component)]
-pub struct UnitDist(pub u16);
+pub struct UnitPosition {
+    pub id_path: u8,
+    pub dist: u16,
+    pub acc: u16,
+}
 
 #[derive(Component)]
 pub struct UnitHealth(pub u32);
@@ -21,33 +25,38 @@ pub struct UnitHealth(pub u32);
 #[derive(Component)]
 pub struct UnitHealthMax(pub u32);
 
-// @todo: group the path id and dist
-#[derive(Component)]
-pub struct UnitPathId(pub u8);
-
 #[derive(Component)]
 pub struct UnitSpawnTick(pub u32);
 
 #[derive(Bundle)]
 pub struct BaseUnitBundle {
     marker: UnitMarker,
-    dist: UnitDist,
+    position: UnitPosition,
     health: UnitHealth,
     health_max: UnitHealthMax,
-    id_path: UnitPathId,
     spawn_tick: UnitSpawnTick,
+    speed: BaseSpeed,
     status: UnitStatus,
 }
 
 impl BaseUnitBundle {
-    pub fn new(health: u32, id_path: u8, spawn_tick: u32) -> Self {
+    pub fn new(
+        id_path: u8,
+        spawn_tick: u32,
+        health: u32,
+        speed: u16,
+    ) -> Self {
         Self {
             marker: UnitMarker,
-            dist: UnitDist(0),
             health: UnitHealth(health),
             health_max: UnitHealthMax(health),
-            id_path: UnitPathId(id_path),
+            position: UnitPosition {
+                id_path,
+                dist: 0,
+                acc: 0,
+            },
             spawn_tick: UnitSpawnTick(spawn_tick),
+            speed: BaseSpeed(speed),
             status: UnitStatus(UnitStatusTypes::PRESPAWN),
         }
     }

@@ -11,9 +11,7 @@ use crate::{
     gui::console,
     scenario::Scenario,
     timers::tick_timer::TickTimer,
-    units::components::{
-        UnitDist, UnitPathId, UnitStatus, UnitStatusTypes,
-    },
+    units::components::{UnitPosition, UnitStatus, UnitStatusTypes},
 };
 use bevy::prelude::*;
 use bevy_mod_picking::prelude::*;
@@ -28,7 +26,7 @@ pub struct UnitsByDist(
 pub fn index_units_by_dist(
     mut commands: Commands,
     scenario: Res<Scenario>,
-    query: Query<(Entity, &UnitStatus, &UnitPathId, &UnitDist)>,
+    query: Query<(Entity, &UnitStatus, &UnitPosition)>,
 ) {
     // Init bins
     let mut by_path = HashMap::new();
@@ -45,13 +43,13 @@ pub fn index_units_by_dist(
     }
 
     // Populate bins
-    for (entity, status, id_path, dist) in query.iter() {
+    for (entity, status, pos) in query.iter() {
         if !matches!(status.0, UnitStatusTypes::ALIVE) {
             continue;
         }
 
-        let path_bin = by_path.get_mut(&id_path.0).unwrap();
-        let dist_bin = path_bin.get_mut(&dist.0).unwrap();
+        let path_bin = by_path.get_mut(&pos.id_path).unwrap();
+        let dist_bin = path_bin.get_mut(&pos.dist).unwrap();
         dist_bin.insert(entity);
     }
 
@@ -63,7 +61,7 @@ pub fn index_units_by_dist(
 //        So if the tower is far away, the projectile arrives too late -- behind the unit
 pub fn render_attack_start(
     projectile_query: Query<(Entity, &Projectile), Added<Projectile>>,
-    unit_query: Query<(&UnitPathId, &UnitDist)>,
+    pos_query: Query<&UnitPosition>,
     model_query: Query<&Transform>,
     scenario: Res<Scenario>,
     mut commands: Commands,
@@ -74,16 +72,15 @@ pub fn render_attack_start(
     for (entity, p) in projectile_query.iter() {
         let model = model_query.get(p.model).unwrap();
 
-        let unit_pos = {
-            let (unit_path, unit_dist) =
-                unit_query.get(p.unit).unwrap();
-            let path = scenario.paths.get(&unit_path.0).unwrap();
-            path.points.get(unit_dist.0 as usize).unwrap()
+        let coord = {
+            let pos = pos_query.get(p.unit).unwrap();
+            let path = scenario.paths.get(&pos.id_path).unwrap();
+            path.points.get(pos.dist as usize).unwrap()
         };
         let unit_pos = Vec3::new(
-            unit_pos.pos.0 as f32,
+            coord.pos.0 as f32,
             model.translation.y,
-            unit_pos.pos.1 as f32,
+            coord.pos.1 as f32,
         );
 
         let dist = (model.translation - unit_pos).length();

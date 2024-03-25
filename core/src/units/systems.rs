@@ -1,5 +1,10 @@
-use bevy::prelude::*;
-
+use super::{
+    components::{
+        BaseSpeed, EffectiveSpeed, UnitModel, UnitPosition,
+        UnitSpawnTick, UnitStatus, UnitStatusTypes,
+    },
+    speed_trail_unit::SpeedBuff,
+};
 use crate::{
     animation::components::InterpolateTranslation,
     components::DoNotRender,
@@ -7,11 +12,7 @@ use crate::{
     scenario::Scenario,
     timers::{round_timer::RoundTimer, tick_timer::TickTimer},
 };
-
-use super::components::{
-    UnitDist, UnitModel, UnitPathId, UnitSpawnTick, UnitStatus,
-    UnitStatusTypes,
-};
+use bevy::prelude::*;
 
 pub fn init_units_for_round(
     mut commands: Commands,
@@ -35,8 +36,7 @@ pub fn spawn_pending_units(
         Entity,
         &UnitStatus,
         &UnitSpawnTick,
-        &UnitPathId,
-        &UnitDist,
+        &UnitPosition,
         &UnitModel,
     )>,
     tick_timer: Res<TickTimer>,
@@ -44,12 +44,12 @@ pub fn spawn_pending_units(
     mut models: Query<&mut Transform>,
 ) {
     let to_spawn =
-        units.iter().filter(|(_, status, spawn_tick, _, _, _)| {
+        units.iter().filter(|(_, status, spawn_tick, _, _)| {
             matches!(status.0, UnitStatusTypes::PRESPAWN)
                 && spawn_tick.0 <= tick_timer.0
         });
 
-    for (entity, _, spawn_tick, path_id, dist, model) in to_spawn {
+    for (entity, _, spawn_tick, pos, model) in to_spawn {
         let is_late = spawn_tick.0 < tick_timer.0;
         if is_late {
             console::warn(
@@ -67,8 +67,8 @@ pub fn spawn_pending_units(
             .insert(UnitStatus(UnitStatusTypes::ALIVE));
 
         // Move unit to start of path
-        let path = &scenario.paths[&path_id.0];
-        let point = path.points.get(dist.0 as usize).unwrap();
+        let path = &scenario.paths[&pos.id_path];
+        let point = path.points.get(pos.dist as usize).unwrap();
 
         let mut transform = models.get_mut(model.0).unwrap();
         let translation = &mut transform.translation;
@@ -110,19 +110,19 @@ pub fn render_status_change(
 
 pub fn render_movement_start(
     units: Query<
-        (Entity, &UnitPathId, &UnitDist, &UnitModel),
-        Changed<UnitDist>,
+        (Entity, &UnitPosition, &UnitModel),
+        Changed<UnitPosition>,
     >,
     models: Query<&Transform>,
     scenario: Res<Scenario>,
     mut commands: Commands,
     tick: Res<TickTimer>,
 ) {
-    for (entity, path_id, dist, model) in units.iter() {
+    for (entity, pos, model) in units.iter() {
         let translation = models.get(model.0).unwrap().translation;
 
-        let path = &scenario.paths[&path_id.0];
-        let point = path.points.get(dist.0 as usize).unwrap();
+        let path = &scenario.paths[&pos.id_path];
+        let point = path.points.get(pos.dist as usize).unwrap();
         let end = Vec3::new(
             point.pos.0 as f32,
             translation.y,
@@ -140,21 +140,50 @@ pub fn render_movement_start(
 }
 
 pub fn move_units(
-    mut units: Query<(&UnitPathId, &mut UnitDist, &mut UnitStatus)>,
+    mut units: Query<(
+        &mut UnitPosition,
+        &mut UnitStatus,
+        &EffectiveSpeed,
+    )>,
     scenario: Res<Scenario>,
 ) {
-    let mut alive = units.iter_mut().filter(|(_, _, status)| {
+    let mut alive = units.iter_mut().filter(|(_, status, _)| {
         matches!(status.0, UnitStatusTypes::ALIVE)
     });
 
-    for (path_id, mut dist, mut status) in &mut alive {
+    for (mut pos, mut status, speed) in &mut alive {
         // Update position
-        dist.0 += 1;
+        pos.acc += speed.0;
+        while pos.acc >= 100 {
+            pos.acc -= 100;
+            pos.dist += 1;
+        }
 
         // If at end of path, kill unit
-        let path = &scenario.paths[&path_id.0];
-        if dist.0 as usize == path.points.len() - 1 {
+        let len = scenario.paths[&pos.id_path].points.len() as u16;
+        pos.dist = pos.dist.min(len - 1);
+        if pos.dist == len - 1 {
             status.0 = UnitStatusTypes::DEAD;
         }
+    }
+}
+
+pub fn compute_effective_speed(
+    query: Query<
+        (Entity, &BaseSpeed, Option<&SpeedBuff>),
+        Or<(Changed<BaseSpeed>, Changed<SpeedBuff>)>,
+    >,
+    mut commands: Commands,
+) {
+    for (entity, base, buff) in query.iter() {
+        let mut update = base.0 as f64;
+
+        if let Some(buff) = buff {
+            update *= buff.0;
+        }
+
+        commands
+            .entity(entity)
+            .insert(EffectiveSpeed(update as u16));
     }
 }

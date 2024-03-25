@@ -1,10 +1,7 @@
 use bevy::prelude::*;
 use std::collections::HashMap;
 
-use crate::{
-    scenario::Scenario,
-    units::components::{UnitDist, UnitPathId},
-};
+use crate::{scenario::Scenario, units::components::UnitPosition};
 
 struct Buff {
     duration: u16,
@@ -16,10 +13,10 @@ type BuffsByUnit = HashMap<u64, Buff>;
 type PathBuffs = Vec<BuffsByUnit>;
 
 #[derive(Resource)]
-struct BuffsByPath(HashMap<u8, PathBuffs>);
+pub struct BuffsByPath(HashMap<u8, PathBuffs>);
 
 #[derive(Component)]
-pub struct SpeedBuff(f64);
+pub struct SpeedBuff(pub f64);
 
 pub fn init_buff_map(
     mut commands: Commands,
@@ -30,7 +27,7 @@ pub fn init_buff_map(
     for (id, path) in scenario.paths.iter() {
         let mut path_buffs = Vec::new();
 
-        for pt in path.points.iter() {
+        for _ in path.points.iter() {
             path_buffs.push(HashMap::new());
         }
 
@@ -42,14 +39,11 @@ pub fn init_buff_map(
 
 pub fn spawn_speed_buff(
     mut buffs: ResMut<BuffsByPath>,
-    units: Query<
-        (Entity, &UnitPathId, &UnitDist),
-        With<super::Marker>,
-    >,
+    units: Query<(Entity, &UnitPosition), With<super::Marker>>,
 ) {
-    for (entity, id_path, dist) in units.iter() {
-        let path = buffs.0.get_mut(&id_path.0).unwrap();
-        let bin = path.get_mut(dist.0 as usize).unwrap();
+    for (entity, pos) in units.iter() {
+        let path = buffs.0.get_mut(&pos.id_path).unwrap();
+        let bin = path.get_mut(pos.dist as usize).unwrap();
         bin.insert(
             entity.to_bits(),
             Buff {
@@ -62,12 +56,12 @@ pub fn spawn_speed_buff(
 
 pub fn apply_speed_buff(
     buffs: Res<BuffsByPath>,
-    units: Query<(Entity, &UnitPathId, &UnitDist)>,
+    units: Query<(Entity, &UnitPosition)>,
     mut commands: Commands,
 ) {
-    for (entity, id_path, dist) in units.iter() {
-        let path = buffs.0.get(&id_path.0).unwrap();
-        let bin = path.get(dist.0 as usize).unwrap();
+    for (entity, pos) in units.iter() {
+        let path = buffs.0.get(&pos.id_path).unwrap();
+        let bin = path.get(pos.dist as usize).unwrap();
         let buff = bin.values().max_by(|left, right| {
             left.multiplier.partial_cmp(&right.multiplier).unwrap()
         });

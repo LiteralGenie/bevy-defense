@@ -6,7 +6,7 @@ use crate::{
         components::{TowerPriorityTypes, TowerRange},
         systems::UnitsByDist,
     },
-    units::components::{UnitDist, UnitHealth, UnitPathId},
+    units::components::{UnitHealth, UnitPosition},
 };
 
 pub fn filter_targets_by_dist(
@@ -32,19 +32,16 @@ pub fn filter_targets_by_dist(
 pub fn find_target(
     priority: &TowerPriorityTypes,
     candidates: HashSet<Entity>,
-    info_query: &Query<(&UnitPathId, &UnitDist, &mut UnitHealth)>,
+    query: &Query<&UnitPosition>,
     scenario: &Res<Scenario>,
 ) -> Option<Entity> {
     match priority {
         TowerPriorityTypes::FIRST => candidates
             .iter()
             .min_by_key(|entity| {
-                let (id_path, dist, _) =
-                    info_query.get(**entity).unwrap();
-
-                let path = scenario.paths.get(&id_path.0).unwrap();
-
-                let rem_dist = path.points.len() as u16 - dist.0;
+                let pos = query.get(**entity).unwrap();
+                let path = scenario.paths.get(&pos.id_path).unwrap();
+                let rem_dist = path.points.len() as u16 - pos.dist;
                 rem_dist
             })
             .copied(),
