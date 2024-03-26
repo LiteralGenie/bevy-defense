@@ -12,6 +12,7 @@ use crate::{
 
 #[derive(Resource)]
 struct Cursor {
+    id_tower: u16,
     model: Entity,
     range_model: Entity,
 }
@@ -23,14 +24,10 @@ pub fn handle_draw_cursor(
     world: &mut World,
     data: Option<((f32, f32), u16)>,
 ) -> bool {
-    // Init cursor resource
-    match world.get_resource::<Cursor>() {
-        None => init_resource(world),
-        Some(_) => {}
-    }
-
     // If cursor pos is non-null, update position of cursor ghost
     if let Some((cursor_pos, id_tower)) = data {
+        init_resource(world, id_tower);
+
         let pos =
             snap_coords(window_to_world_coords(world, cursor_pos));
 
@@ -48,7 +45,17 @@ pub fn handle_draw_cursor(
     true
 }
 
-fn init_resource(world: &mut World) {
+fn init_resource(world: &mut World, id_tower: u16) {
+    // Check if models for this tower type are already loaded
+    let cursor = world.get_resource::<Cursor>();
+    if let Some(cursor) = cursor {
+        if cursor.id_tower == id_tower {
+            return;
+        }
+    }
+
+    let cfg = match_config(id_tower);
+
     let mut state: SystemState<(
         Commands,
         ResMut<Assets<Mesh>>,
@@ -58,15 +65,12 @@ fn init_resource(world: &mut World) {
     let (mut commands, mut meshes, mut materials) =
         state.get_mut(world);
 
-    let model = crate::towers::basic_tower::spawn_model(
+    let model = (cfg.spawn_model)(
         &mut commands,
         &mut meshes,
         &mut materials,
         Vec3::new(0.0, 0.0, 0.0),
     );
-
-    let id = 0;
-    let cfg = match_config(id);
 
     let range_model = commands.spawn(SpatialBundle::default()).id();
     let points = BasicRangeType::compute_points(
@@ -84,7 +88,11 @@ fn init_resource(world: &mut World) {
         commands.entity(range_model).push_children(&[tile]);
     }
 
-    world.insert_resource(Cursor { model, range_model });
+    world.insert_resource(Cursor {
+        id_tower,
+        model,
+        range_model,
+    });
     state.apply(world);
 
     update_cursor_color(world, 0.5);

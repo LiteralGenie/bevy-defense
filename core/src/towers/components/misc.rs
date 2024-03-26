@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use crate::{gui::console, towers::config::match_config};
 
-use super::{BaseDamage, BaseRangeRadius};
+use super::{BaseAttackSpeed, BaseDamage, BaseRangeRadius};
 use bevy::prelude::*;
 
 #[derive(Component)]
@@ -46,15 +46,23 @@ pub enum TowerPriorityTypes {
 #[derive(Component)]
 pub struct TowerPriority(pub TowerPriorityTypes);
 
+#[derive(Component)]
+pub struct TowerAttackEnergy {
+    pub acc: u8,
+    pub charges: u8,
+}
+
 #[derive(Bundle)]
 pub struct BaseTowerBundle {
     marker: TowerMarker,
 
+    energy: TowerAttackEnergy,
     position: TowerPosition,
     priority: TowerPriority,
 
     base_damage: BaseDamage,
     base_range: BaseRangeRadius,
+    base_speed: BaseAttackSpeed,
 }
 
 impl BaseTowerBundle {
@@ -63,10 +71,12 @@ impl BaseTowerBundle {
 
         Self {
             marker: TowerMarker(id_tower),
-            base_damage: BaseDamage(cfg.damage),
-            base_range: BaseRangeRadius(cfg.range_radius),
+            energy: TowerAttackEnergy { acc: 0, charges: 0 },
             position: TowerPosition::new(position, cfg.size),
             priority: TowerPriority(TowerPriorityTypes::FIRST),
+            base_damage: BaseDamage(cfg.damage),
+            base_range: BaseRangeRadius(cfg.range_radius),
+            base_speed: BaseAttackSpeed(cfg.speed),
         }
     }
 }

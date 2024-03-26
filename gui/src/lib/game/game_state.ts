@@ -8,6 +8,7 @@ export class GameState {
     tick = writable(0)
     phase = writable<'INIT' | 'BUILD' | 'COMBAT'>('INIT')
 
+    tower_types = writable<Map<number, TowerType>>(new Map())
     towers = writable<Map<bigint, TowerState>>(new Map())
 
     update(key: keyof GameState, value: any) {
@@ -27,6 +28,9 @@ export class GameState {
             case 'phase':
                 this.phase.set(value)
                 break
+            case 'tower_types':
+                this.updateTowerType(value)
+                break
             case 'towers':
                 this.updateTower(value)
                 break
@@ -38,6 +42,10 @@ export class GameState {
     private updateTower(tower: TowerState) {
         this.towers.update((map) => map.set(tower.id, tower))
     }
+
+    private updateTowerType(type: TowerType) {
+        this.tower_types.update((map) => map.set(type.id, type))
+    }
 }
 
 export interface TowerState {
@@ -47,4 +55,13 @@ export interface TowerState {
     effective_damage: number
     base_range: number
     effective_range: number
+    base_attack_speed: number
+    effective_attack_speed: number
+}
+
+export interface TowerType {
+    id: number
+    damage: number
+    speed: number
+    range_radius: number
 }

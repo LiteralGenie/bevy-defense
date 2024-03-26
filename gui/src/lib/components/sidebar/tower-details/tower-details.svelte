@@ -6,10 +6,18 @@
 
 <div class="container">
     <p>{selection.id}</p>
-    <p>{selection.base_damage}</p>
-    <p>{selection.effective_damage}</p>
-    <p>{selection.base_range}</p>
-    <p>{selection.effective_range}</p>
+
+    <div>
+        damage: {selection.base_damage} -> {selection.effective_damage}
+    </div>
+
+    <div>
+        range: {selection.base_range} -> {selection.effective_range}
+    </div>
+
+    <div>
+        speed: {selection.base_attack_speed} -> {selection.effective_attack_speed}
+    </div>
 </div>
 
 <style lang="scss">
@@ -22,6 +30,7 @@
 
         display: flex;
         flex-flow: column;
+        gap: 1rem;
 
         background: black;
     }

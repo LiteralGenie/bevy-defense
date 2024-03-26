@@ -3,9 +3,10 @@ use crate::states::GamePhase;
 use crate::timers::round_timer::RoundTimer;
 use crate::timers::tick_timer::TickTimer;
 use crate::towers::components::{
-    BaseDamage, BaseRangeRadius, EffectiveDamage,
-    EffectiveRangeRadius,
+    BaseAttackSpeed, BaseDamage, BaseRangeRadius,
+    EffectiveAttackSpeed, EffectiveDamage, EffectiveRangeRadius,
 };
+use crate::towers::config::TOWER_CONFIGS;
 use crate::towers::events::TowerClickEvent;
 use bevy::prelude::*;
 use js_sys::JsString;
@@ -56,16 +57,20 @@ fn update_towers(
             &EffectiveDamage,
             &BaseRangeRadius,
             &EffectiveRangeRadius,
+            &BaseAttackSpeed,
+            &EffectiveAttackSpeed,
         ),
         Or<(
             Changed<BaseDamage>,
             Changed<EffectiveDamage>,
             Changed<BaseRangeRadius>,
             Changed<EffectiveRangeRadius>,
+            Changed<BaseAttackSpeed>,
+            Changed<EffectiveAttackSpeed>,
         )>,
     >,
 ) {
-    for (e, bd, ed, br, er) in query.iter() {
+    for (e, bd, ed, br, er, bs, es) in query.iter() {
         let update = js_sys::Object::new();
 
         let _ = js_sys::Reflect::set(
@@ -79,7 +84,6 @@ fn update_towers(
             &JsString::from("base_damage"),
             &JsValue::from(bd.0),
         );
-
         let _ = js_sys::Reflect::set(
             &update,
             &JsString::from("effective_damage"),
@@ -91,14 +95,56 @@ fn update_towers(
             &JsString::from("base_range"),
             &JsValue::from(br.0),
         );
-
         let _ = js_sys::Reflect::set(
             &update,
             &JsString::from("effective_range"),
             &JsValue::from(er.0),
         );
 
+        let _ = js_sys::Reflect::set(
+            &update,
+            &JsString::from("base_attack_speed"),
+            &JsValue::from(bs.0),
+        );
+        let _ = js_sys::Reflect::set(
+            &update,
+            &JsString::from("effective_attack_speed"),
+            &JsValue::from(es.0),
+        );
+
         updateState("towers".into(), update.into());
+    }
+}
+
+pub fn update_tower_types() {
+    for cfg in TOWER_CONFIGS {
+        let update = js_sys::Object::new();
+
+        let _ = js_sys::Reflect::set(
+            &update,
+            &JsString::from("id"),
+            &JsValue::from(cfg.id),
+        );
+
+        let _ = js_sys::Reflect::set(
+            &update,
+            &JsString::from("damage"),
+            &JsValue::from(cfg.damage),
+        );
+
+        let _ = js_sys::Reflect::set(
+            &update,
+            &JsString::from("speed"),
+            &JsValue::from(cfg.speed),
+        );
+
+        let _ = js_sys::Reflect::set(
+            &update,
+            &JsString::from("range_radius"),
+            &JsValue::from(cfg.range_radius),
+        );
+
+        updateState("tower_types".into(), update.into());
     }
 }
 
@@ -133,7 +179,7 @@ pub struct TxPlugin;
 
 impl Plugin for TxPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
+        app.add_systems(Startup, (update_tower_types,)).add_systems(
             Update,
             (
                 update_gold,

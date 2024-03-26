@@ -1,7 +1,6 @@
 use super::super::console;
 use super::super::utils::get_prop;
 use bevy::ecs::world::World;
-use bevy::math::Vec2;
 use js_sys::Function;
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
@@ -80,9 +79,14 @@ pub fn handle_gui_requests(world: &mut World) {
                 );
             }
             "spawn_tower" => {
+                let id_tower =
+                    get_prop(&data, "id").as_f64().unwrap() as u16;
+                let position = {
+                    let pos = get_prop(&data, "position");
+                    extract_xy(pos)
+                };
                 super::handlers::handle_spawn_tower(
-                    world,
-                    extract_xy(data),
+                    world, id_tower, position,
                 );
 
                 result = Some(

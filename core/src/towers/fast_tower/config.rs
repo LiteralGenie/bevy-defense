@@ -1,12 +1,12 @@
 use crate::towers::config::TowerConfig;
 
 pub const CONFIG: TowerConfig = TowerConfig {
-    id: 0,
+    id: 1,
 
-    damage: 30,
+    damage: 11,
     size: 2,
-    speed: 15,
-    range_radius: 5,
+    speed: 35,
+    range_radius: 6,
 
     spawn: super::spawn,
     spawn_model: super::spawn_model,

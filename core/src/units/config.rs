@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 pub struct UnitConfig {
     pub health_max: u32,
+    // Movement speed bounded by [0, 100]
     pub speed: u16,
     pub spawn: fn(&mut Commands, u8, u32),
 }
