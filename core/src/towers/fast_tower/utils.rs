@@ -38,7 +38,7 @@ pub fn spawn_model(
 
 pub fn spawn(world: &mut World, pos: (i16, i16)) {
     world.spawn((
-        BaseTowerBundle::new(super::ID, pos),
+        BaseTowerBundle::new(super::CONFIG.id, pos),
         super::Marker,
         BasicRangeType,
         attacks::BasicAttack,

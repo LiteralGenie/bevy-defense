@@ -1,7 +1,11 @@
 <script context="module" lang="ts">
-    interface Tower {
-        id: number
+    interface TowerInfo {
         name: string
+    }
+
+    const TOWER_INFO: Record<number, TowerInfo> = {
+        0: { name: 'Basic Tower' },
+        1: { name: 'Fast Tower' }
     }
 </script>
 
@@ -9,24 +13,14 @@
     import { startRound } from '$lib/game/command_handlers/start-round'
     import TowerTile from './tower-tile.svelte'
 
-    // @todo: rust should submit this
-    const towers: Tower[] = [
-        {
-            id: 0,
-            name: 'Basic Tower'
-        },
-        {
-            id: 1,
-            name: 'Fast Tower'
-        }
-    ]
+    let tower_types = window.game.state.tower_types
 </script>
 
 <div class="container">
     <div class="grid">
-        {#each towers as tower}
+        {#each $tower_types.values() as tower}
             <div class="cell">
-                <TowerTile id={tower.id} name={tower.name} />
+                <TowerTile id={tower.id} name={TOWER_INFO[tower.id].name} />
             </div>
         {/each}
     </div>

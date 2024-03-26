@@ -1,8 +1,8 @@
 use crate::towers::config::TowerConfig;
 
-pub const ID: u16 = 1;
-
 pub const CONFIG: TowerConfig = TowerConfig {
+    id: 1,
+
     damage: 11,
     size: 2,
     speed: 35,

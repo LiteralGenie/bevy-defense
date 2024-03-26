@@ -6,6 +6,7 @@ use crate::towers::components::{
     BaseAttackSpeed, BaseDamage, BaseRangeRadius,
     EffectiveAttackSpeed, EffectiveDamage, EffectiveRangeRadius,
 };
+use crate::towers::config::TOWER_CONFIGS;
 use crate::towers::events::TowerClickEvent;
 use bevy::prelude::*;
 use js_sys::JsString;
@@ -115,6 +116,38 @@ fn update_towers(
     }
 }
 
+pub fn update_tower_types() {
+    for cfg in TOWER_CONFIGS {
+        let update = js_sys::Object::new();
+
+        let _ = js_sys::Reflect::set(
+            &update,
+            &JsString::from("id"),
+            &JsValue::from(cfg.id),
+        );
+
+        let _ = js_sys::Reflect::set(
+            &update,
+            &JsString::from("damage"),
+            &JsValue::from(cfg.damage),
+        );
+
+        let _ = js_sys::Reflect::set(
+            &update,
+            &JsString::from("speed"),
+            &JsValue::from(cfg.speed),
+        );
+
+        let _ = js_sys::Reflect::set(
+            &update,
+            &JsString::from("range_radius"),
+            &JsValue::from(cfg.range_radius),
+        );
+
+        updateState("tower_types".into(), update.into());
+    }
+}
+
 /**
  * Emit mouse clicks as window events to gui
  *
@@ -146,7 +179,7 @@ pub struct TxPlugin;
 
 impl Plugin for TxPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
+        app.add_systems(Startup, (update_tower_types,)).add_systems(
             Update,
             (
                 update_gold,
