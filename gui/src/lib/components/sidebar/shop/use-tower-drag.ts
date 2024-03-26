@@ -2,7 +2,7 @@ import { drawCursor } from '$lib/game/command_handlers/draw-cursor'
 import { spawnTower } from '$lib/game/command_handlers/spawn-tower'
 import { get, writable } from 'svelte/store'
 
-export function useTowerDrag() {
+export function useTowerDrag(id: number) {
     let isDragging = writable(false)
     let isValidDropPos = writable(false)
 
@@ -26,7 +26,7 @@ export function useTowerDrag() {
             // Note: Cursor coordinates need to be provided by the JS-side
             //       because Bevy can't read cursor position while an HTML element is mid-drag
             await drawCursor({
-                id_tower: 0,
+                id_tower: id,
                 position: { x, y }
             })
         )
@@ -41,7 +41,7 @@ export function useTowerDrag() {
             // Only spawn tower if the drop target is the canvas and not the GUI
             const target = document.elementFromPoint(x, y)
             if (target?.id === 'game-canvas') {
-                await spawnTower({ x, y })
+                await spawnTower(id, { x, y })
             }
         }
 

@@ -4,6 +4,7 @@
     export let selection: TowerState
 </script>
 
+<!-- @todo: atk spd -->
 <div class="container">
     <p>{selection.id}</p>
     <p>{selection.base_damage}</p>

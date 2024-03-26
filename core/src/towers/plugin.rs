@@ -47,11 +47,12 @@ impl Plugin for TowersPlugin {
         app.add_systems(
             Update,
             (
-                super::basic_tower::render,
                 super::systems::render_attack_start,
                 super::systems::render_attack_end,
                 super::systems::render_event_handlers,
                 super::attacks::render_basic_attack,
+                super::basic_tower::render,
+                super::fast_tower::render,
             )
                 .in_set(TowerRenderSystems),
         )

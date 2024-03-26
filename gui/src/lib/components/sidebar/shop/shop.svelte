@@ -1,46 +1,33 @@
 <script context="module" lang="ts">
     interface Tower {
+        id: number
         name: string
     }
 </script>
 
 <script lang="ts">
     import { startRound } from '$lib/game/command_handlers/start-round'
+    import TowerTile from './tower-tile.svelte'
 
-    import { useTowerDrag } from './use-tower-drag'
-
+    // @todo: rust should submit this
     const towers: Tower[] = [
         {
-            name: '1'
+            id: 0,
+            name: 'Basic Tower'
         },
         {
-            name: '2'
-        },
-        {
-            name: '3'
-        },
-        {
-            name: '4'
+            id: 1,
+            name: 'Fast Tower'
         }
     ]
-
-    const { isDragging, handleDragStart, handleDrag, handleDragEnd } =
-        useTowerDrag()
 </script>
 
 <div class="container">
     <div class="grid">
         {#each towers as tower}
-            <button
-                class="cell"
-                disabled={$isDragging}
-                draggable="true"
-                on:dragstart={handleDragStart}
-                on:drag={handleDrag}
-                on:dragend={handleDragEnd}
-            >
-                {tower.name}
-            </button>
+            <div class="cell">
+                <TowerTile id={tower.id} name={tower.name} />
+            </div>
         {/each}
     </div>
 
@@ -61,12 +48,6 @@
     .grid {
         display: grid;
         grid-template-columns: 50% 50%;
-    }
-
-    .cell {
-        padding: 1rem;
-
-        text-align: center;
     }
 
     // Borders

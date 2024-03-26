@@ -64,7 +64,7 @@ pub fn update_attack_energy(
 ) {
     for (mut energy, speed) in query.iter_mut() {
         energy.acc += speed.0;
-        console::log(format!("acc {}", energy.acc).as_str());
+
         while energy.acc >= 100 {
             energy.acc -= 100;
             energy.charges += 1;
