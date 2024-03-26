@@ -2,9 +2,6 @@ use super::super::components::{TowerModel, TowerPosition};
 use super::spawn_model;
 use bevy::prelude::*;
 
-/**
- * Render models for newly-created towers
- */
 pub fn render(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,

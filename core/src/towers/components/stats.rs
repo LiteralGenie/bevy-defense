@@ -11,3 +11,9 @@ pub struct BaseRangeRadius(pub u8);
 
 #[derive(Component)]
 pub struct EffectiveRangeRadius(pub u8);
+
+#[derive(Component)]
+pub struct BaseAttackSpeed(pub u8);
+
+#[derive(Component)]
+pub struct EffectiveAttackSpeed(pub u8);

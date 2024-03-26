@@ -1,7 +1,8 @@
 use super::{
     components::{
-        BaseDamage, BaseRangeRadius, BasicRangeType, EffectiveDamage,
-        EffectiveRangeRadius, Projectile, TowerMarker, TowerModel,
+        BaseAttackSpeed, BaseDamage, BaseRangeRadius, BasicRangeType,
+        EffectiveAttackSpeed, EffectiveDamage, EffectiveRangeRadius,
+        Projectile, TowerAttackEnergy, TowerMarker, TowerModel,
         TowerPosition,
     },
     config::match_config,
@@ -11,7 +12,6 @@ use crate::{
     animation::components::InterpolateTranslation,
     gui::console,
     scenario::Scenario,
-    timers::tick_timer::TickTimer,
     units::components::{UnitPosition, UnitStatus, UnitStatusTypes},
 };
 use bevy::prelude::*;
@@ -24,6 +24,8 @@ pub struct UnitsByDist(
     pub HashMap<u8, HashMap<u16, HashSet<Entity>>>,
 );
 
+// @todo: It's a little wasteful to run this system if no towers have enough charge to attack this tick
+//        Consider benchmarking the performance impact and if necessary, make this lazy somehow
 pub fn index_units_by_dist(
     mut commands: Commands,
     scenario: Res<Scenario>,
@@ -55,6 +57,19 @@ pub fn index_units_by_dist(
     }
 
     commands.insert_resource(UnitsByDist(by_path));
+}
+
+pub fn update_attack_energy(
+    mut query: Query<(&mut TowerAttackEnergy, &EffectiveAttackSpeed)>,
+) {
+    for (mut energy, speed) in query.iter_mut() {
+        energy.acc += speed.0;
+        console::log(format!("acc {}", energy.acc).as_str());
+        while energy.acc >= 100 {
+            energy.acc -= 100;
+            energy.charges += 1;
+        }
+    }
 }
 
 // @todo: Projectiles have no movement prediction
@@ -166,5 +181,32 @@ pub fn compute_effective_damage(
     for (entity, base_damage) in query.iter() {
         let effective_damage = EffectiveDamage(base_damage.0);
         commands.entity(entity).insert(effective_damage);
+    }
+}
+
+pub fn compute_effective_attack_speed(
+    info_query: Query<&BaseAttackSpeed>,
+    changed: Query<Entity, Or<(Changed<BaseAttackSpeed>,)>>,
+    mut commands: Commands,
+) {
+    let to_check: HashSet<Entity> =
+        HashSet::from_iter(changed.iter());
+
+    for entity in to_check {
+        let base = {
+            match info_query.get(entity) {
+                Ok(res) => res,
+                Err(_) => continue,
+            }
+        };
+
+        let mut update = base.0 as f32;
+
+        // Cap attack speed at once per tick
+        update = update.min(100.0);
+
+        commands
+            .entity(entity)
+            .insert(EffectiveAttackSpeed(update as u8));
     }
 }

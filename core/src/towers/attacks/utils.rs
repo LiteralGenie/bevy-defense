@@ -6,7 +6,7 @@ use crate::{
         components::{TowerPriorityTypes, TowerRange},
         systems::UnitsByDist,
     },
-    units::components::{UnitHealth, UnitPosition},
+    units::components::UnitPosition,
 };
 
 pub fn filter_targets_by_dist(
