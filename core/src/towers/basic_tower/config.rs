@@ -9,4 +9,5 @@ pub const CONFIG: TowerConfig = TowerConfig {
     range_radius: 5,
 
     spawn: super::spawn,
+    spawn_model: super::spawn_model,
 };

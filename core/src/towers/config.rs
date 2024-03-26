@@ -8,6 +8,12 @@ pub struct TowerConfig {
     pub range_radius: u8,
 
     pub spawn: fn(&mut World, (i16, i16)),
+    pub spawn_model: fn(
+        &mut Commands,
+        &mut ResMut<Assets<Mesh>>,
+        &mut ResMut<Assets<StandardMaterial>>,
+        Vec3,
+    ) -> Entity,
 }
 
 // @todo: replace with compile-time hashmap?
