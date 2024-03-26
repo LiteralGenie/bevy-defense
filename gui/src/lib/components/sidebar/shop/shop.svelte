@@ -5,7 +5,8 @@
 
     const TOWER_INFO: Record<number, TowerInfo> = {
         0: { name: 'Basic Tower' },
-        1: { name: 'Fast Tower' }
+        1: { name: 'Fast Tower' },
+        2: { name: 'Slow Tower' }
     }
 </script>
 

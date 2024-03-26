@@ -1,9 +1,3 @@
-<script context="module" lang="ts">
-    interface Tower {
-        name: string
-    }
-</script>
-
 <script lang="ts">
     import { useTowerDrag } from './use-tower-drag'
 
