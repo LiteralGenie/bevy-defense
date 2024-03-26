@@ -47,4 +47,6 @@ export interface TowerState {
     effective_damage: number
     base_range: number
     effective_range: number
+    base_attack_speed: number
+    effective_attack_speed: number
 }
