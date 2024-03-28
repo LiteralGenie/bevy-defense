@@ -1,3 +1,4 @@
+use super::utils::{set_u16, set_u32, set_u64, set_u8};
 use crate::player::{PlayerGold, PlayerHealth};
 use crate::states::GamePhase;
 use crate::timers::round_timer::RoundTimer;
@@ -9,7 +10,6 @@ use crate::towers::components::{
 use crate::towers::config::TOWER_CONFIGS;
 use crate::towers::events::TowerClickEvent;
 use bevy::prelude::*;
-use js_sys::JsString;
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 #[wasm_bindgen(js_namespace = game)]
@@ -73,44 +73,16 @@ fn update_towers(
     for (e, bd, ed, br, er, bs, es) in query.iter() {
         let update = js_sys::Object::new();
 
-        let _ = js_sys::Reflect::set(
-            &update,
-            &JsString::from("id"),
-            &JsValue::from(e.to_bits()),
-        );
+        let _ = set_u64(&update, "id", e.to_bits());
 
-        let _ = js_sys::Reflect::set(
-            &update,
-            &JsString::from("base_damage"),
-            &JsValue::from(bd.0),
-        );
-        let _ = js_sys::Reflect::set(
-            &update,
-            &JsString::from("effective_damage"),
-            &JsValue::from(ed.0),
-        );
+        let _ = set_u32(&update, "base_damage", bd.0);
+        let _ = set_u32(&update, "effective_damage", ed.0);
 
-        let _ = js_sys::Reflect::set(
-            &update,
-            &JsString::from("base_range"),
-            &JsValue::from(br.0),
-        );
-        let _ = js_sys::Reflect::set(
-            &update,
-            &JsString::from("effective_range"),
-            &JsValue::from(er.0),
-        );
+        let _ = set_u8(&update, "base_range", br.0);
+        let _ = set_u8(&update, "effective_range", er.0);
 
-        let _ = js_sys::Reflect::set(
-            &update,
-            &JsString::from("base_attack_speed"),
-            &JsValue::from(bs.0),
-        );
-        let _ = js_sys::Reflect::set(
-            &update,
-            &JsString::from("effective_attack_speed"),
-            &JsValue::from(es.0),
-        );
+        let _ = set_u8(&update, "base_attack_speed", bs.0);
+        let _ = set_u8(&update, "effective_attack_speed", es.0);
 
         updateState("towers".into(), update.into());
     }
@@ -120,29 +92,10 @@ pub fn update_tower_types() {
     for cfg in TOWER_CONFIGS {
         let update = js_sys::Object::new();
 
-        let _ = js_sys::Reflect::set(
-            &update,
-            &JsString::from("id"),
-            &JsValue::from(cfg.id),
-        );
-
-        let _ = js_sys::Reflect::set(
-            &update,
-            &JsString::from("damage"),
-            &JsValue::from(cfg.damage),
-        );
-
-        let _ = js_sys::Reflect::set(
-            &update,
-            &JsString::from("speed"),
-            &JsValue::from(cfg.speed),
-        );
-
-        let _ = js_sys::Reflect::set(
-            &update,
-            &JsString::from("range_radius"),
-            &JsValue::from(cfg.range_radius),
-        );
+        let _ = set_u16(&update, "id", cfg.id);
+        let _ = set_u32(&update, "damage", cfg.damage);
+        let _ = set_u8(&update, "speed", cfg.speed);
+        let _ = set_u8(&update, "range_radius", cfg.range_radius);
 
         updateState("tower_types".into(), update.into());
     }
@@ -165,11 +118,7 @@ fn handle_clicks(
     let detail = js_sys::Object::new();
 
     if let Some(ev) = tower_clicks.read().nth(0) {
-        let _ = js_sys::Reflect::set(
-            &detail,
-            &JsString::from("tower"),
-            &JsValue::from(ev.0.to_bits()),
-        );
+        let _ = set_u64(&detail, "tower", ev.0.to_bits());
     }
 
     dispatchEvent("gameclick".into(), JsValue::from(detail));
