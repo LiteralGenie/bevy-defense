@@ -1,6 +1,8 @@
 use js_sys;
 use wasm_bindgen::JsValue;
 
+// @todo: how to macro this?
+
 pub fn set_u8(
     target: &js_sys::Object,
     key: &str,
