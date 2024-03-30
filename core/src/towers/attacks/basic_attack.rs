@@ -4,8 +4,8 @@ use crate::{
     scenario::Scenario,
     towers::{
         components::{
-            EffectiveDamage, Projectile, TowerPosition,
-            TowerPriority, TowerRange,
+            EffectiveDamage, Projectile, TowerAttackEnergy,
+            TowerPosition, TowerPriority, TowerRange,
         },
         systems::UnitsByDist,
     },
@@ -26,8 +26,14 @@ pub struct BasicAttackEvent {
 }
 
 pub fn apply_basic_attack(
-    query: Query<
-        (Entity, &EffectiveDamage, &TowerRange, &TowerPriority),
+    mut query: Query<
+        (
+            Entity,
+            &mut TowerAttackEnergy,
+            &EffectiveDamage,
+            &TowerRange,
+            &TowerPriority,
+        ),
         With<BasicAttack>,
     >,
     targets_by_dist: Res<UnitsByDist>,
@@ -37,7 +43,15 @@ pub fn apply_basic_attack(
     mut status_query: Query<&mut UnitStatus>,
     mut events: EventWriter<BasicAttackEvent>,
 ) {
-    for (entity, damage, range, priority) in query.iter() {
+    for (entity, mut energy, damage, range, priority) in
+        query.iter_mut()
+    {
+        if energy.charges == 0 {
+            continue;
+        } else {
+            energy.charges = 0;
+        }
+
         // @todo: It's a little wasteful to grab all the candidates if the priority is distance-based
         //        eg if we want the first unit....
         //          we can iterate over the tower range in descending order

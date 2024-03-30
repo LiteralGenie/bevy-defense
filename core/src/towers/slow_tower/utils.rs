@@ -25,7 +25,7 @@ pub fn spawn_model(
     let model = commands
         .spawn(PbrBundle {
             mesh: meshes.add(Cuboid::new(size, 1.0, size)),
-            material: materials.add(Color::rgb(1.0, 0.0, 0.0)),
+            material: materials.add(Color::rgb(0.25, 0.25, 0.25)),
             transform: Transform::from_xyz(offset, 0.5, -offset),
             ..default()
         })

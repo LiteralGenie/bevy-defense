@@ -1,46 +1,28 @@
 <script context="module" lang="ts">
-    interface Tower {
+    interface TowerInfo {
         name: string
+    }
+
+    const TOWER_INFO: Record<number, TowerInfo> = {
+        0: { name: 'Basic Tower' },
+        1: { name: 'Fast Tower' },
+        2: { name: 'Slow Tower' }
     }
 </script>
 
 <script lang="ts">
     import { startRound } from '$lib/game/command_handlers/start-round'
+    import TowerTile from './tower-tile.svelte'
 
-    import { useTowerDrag } from './use-tower-drag'
-
-    const towers: Tower[] = [
-        {
-            name: '1'
-        },
-        {
-            name: '2'
-        },
-        {
-            name: '3'
-        },
-        {
-            name: '4'
-        }
-    ]
-
-    const { isDragging, handleDragStart, handleDrag, handleDragEnd } =
-        useTowerDrag()
+    let tower_types = window.game.state.tower_types
 </script>
 
 <div class="container">
     <div class="grid">
-        {#each towers as tower}
-            <button
-                class="cell"
-                disabled={$isDragging}
-                draggable="true"
-                on:dragstart={handleDragStart}
-                on:drag={handleDrag}
-                on:dragend={handleDragEnd}
-            >
-                {tower.name}
-            </button>
+        {#each $tower_types.values() as tower}
+            <div class="cell">
+                <TowerTile id={tower.id} name={TOWER_INFO[tower.id].name} />
+            </div>
         {/each}
     </div>
 
@@ -61,12 +43,6 @@
     .grid {
         display: grid;
         grid-template-columns: 50% 50%;
-    }
-
-    .cell {
-        padding: 1rem;
-
-        text-align: center;
     }
 
     // Borders

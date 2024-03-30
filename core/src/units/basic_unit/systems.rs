@@ -4,6 +4,10 @@ use crate::components::DoNotRender;
 use crate::gui::console;
 use bevy::prelude::*;
 
+// @todo: consider moving the model generation into a utility function
+//        and refactoring the common component spawning / health bar spawning logic
+//        into a single system instead of having a per-unit render system like this
+//        (like how towers work)
 pub fn render(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
