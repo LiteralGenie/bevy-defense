@@ -3,19 +3,43 @@ use bevy::prelude::*;
 pub struct TowerConfig {
     pub id: u16,
 
-    pub damage: u32,
+    pub range: RangeConfig,
     pub size: u8,
-    // Attack speed bounded by [0, 100]
-    pub speed: u8,
-    pub range_radius: u8,
 
-    pub spawn: fn(&mut World, (i16, i16)),
+    pub offense: Option<OffenseConfig>,
+    pub variant: TowerVariantConfig,
+
     pub spawn_model: fn(
         &mut Commands,
         &mut ResMut<Assets<Mesh>>,
         &mut ResMut<Assets<StandardMaterial>>,
         Vec3,
     ) -> Entity,
+}
+
+pub enum RangeTypeConfig {
+    Basic,
+}
+
+pub struct RangeConfig {
+    pub variant: RangeTypeConfig,
+    pub radius: u8,
+}
+
+pub enum AttackTypeConfig {
+    Basic,
+}
+
+pub struct OffenseConfig {
+    pub attack: AttackTypeConfig,
+    pub damage: u32,
+    // Attack speed bounded by [0, 100], where 100 is 1 attack per tick
+    pub speed: u8,
+}
+
+// Catch-all for any tower-specific properties
+pub enum TowerVariantConfig {
+    Basic,
 }
 
 // @todo: replace with compile-time hashmap?

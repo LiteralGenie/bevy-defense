@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     gui::utils::{snap_coords, window_to_world_coords},
-    towers::config::match_config,
+    towers::{components::spawn_tower_bundle, config::match_config},
 };
 
 pub fn handle_spawn_tower(
@@ -12,5 +12,5 @@ pub fn handle_spawn_tower(
 ) {
     let cfg = match_config(id_tower);
     let pos = snap_coords(window_to_world_coords(world, cursor_pos));
-    (cfg.spawn)(world, pos);
+    spawn_tower_bundle(world, &cfg, pos);
 }

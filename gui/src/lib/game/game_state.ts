@@ -48,20 +48,34 @@ export class GameState {
     }
 }
 
-export interface TowerState {
-    id: bigint
-
-    base_damage: number
-    effective_damage: number
-    base_range: number
-    effective_range: number
-    base_attack_speed: number
-    effective_attack_speed: number
-}
-
-export interface TowerType {
+// Class stats
+export interface BaseTowerType {
     id: number
-    damage: number
-    speed: number
     range_radius: number
 }
+
+export type OffensiveTowerType = BaseTowerType & {
+    damage: number
+    speed: number
+}
+
+export type TowerType = BaseTowerType | OffensiveTowerType
+
+// Instance stats
+export interface TowerStat {
+    base: number
+    effective: number
+}
+
+export interface BaseTowerState {
+    id: bigint
+
+    range: TowerStat
+}
+
+export type OffensiveTowerState = BaseTowerState & {
+    damage: TowerStat
+    attack_speed: TowerStat
+}
+
+export type TowerState = BaseTowerState | OffensiveTowerState

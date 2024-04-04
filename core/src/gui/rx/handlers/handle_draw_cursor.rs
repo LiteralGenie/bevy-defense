@@ -74,7 +74,7 @@ fn init_resource(world: &mut World, id_tower: u16) {
 
     let range_model = commands.spawn(SpatialBundle::default()).id();
     let points = BasicRangeType::compute_points(
-        cfg.range_radius,
+        cfg.range.radius,
         (0, 0),
         cfg.size,
     );

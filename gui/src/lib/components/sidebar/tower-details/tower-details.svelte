@@ -7,17 +7,22 @@
 <div class="container">
     <p>{selection.id}</p>
 
-    <div>
-        damage: {selection.base_damage} -> {selection.effective_damage}
-    </div>
+    {#if selection.damage}
+        <div>
+            damage: {selection.damage.base} -> {selection.damage.effective}
+        </div>
+    {/if}
 
     <div>
-        range: {selection.base_range} -> {selection.effective_range}
+        range: {selection.range.base} -> {selection.range.effective}
     </div>
 
-    <div>
-        speed: {selection.base_attack_speed} -> {selection.effective_attack_speed}
-    </div>
+    {#if selection.attack_speed}
+        <div>
+            speed: {selection.attack_speed.base} -> {selection.attack_speed
+                .effective}
+        </div>
+    {/if}
 </div>
 
 <style lang="scss">

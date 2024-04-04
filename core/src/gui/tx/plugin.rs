@@ -1,4 +1,6 @@
-use super::utils::{set_u16, set_u32, set_u64, set_u8};
+use super::utils::{
+    set_stat_u32, set_stat_u8, set_u16, set_u32, set_u64, set_u8,
+};
 use crate::player::{PlayerGold, PlayerHealth};
 use crate::states::GamePhase;
 use crate::timers::round_timer::RoundTimer;
@@ -53,36 +55,43 @@ fn update_towers(
     query: Query<
         (
             Entity,
-            &BaseDamage,
-            &EffectiveDamage,
             &BaseRangeRadius,
             &EffectiveRangeRadius,
-            &BaseAttackSpeed,
-            &EffectiveAttackSpeed,
+            Option<&BaseDamage>,
+            Option<&EffectiveDamage>,
+            Option<&BaseAttackSpeed>,
+            Option<&EffectiveAttackSpeed>,
         ),
         Or<(
-            Changed<BaseDamage>,
-            Changed<EffectiveDamage>,
             Changed<BaseRangeRadius>,
             Changed<EffectiveRangeRadius>,
+            Changed<BaseDamage>,
+            Changed<EffectiveDamage>,
             Changed<BaseAttackSpeed>,
             Changed<EffectiveAttackSpeed>,
         )>,
     >,
 ) {
-    for (e, bd, ed, br, er, bs, es) in query.iter() {
+    for (e, br, er, bd, ed, bs, es) in query.iter() {
         let update = js_sys::Object::new();
 
         let _ = set_u64(&update, "id", e.to_bits());
 
-        let _ = set_u32(&update, "base_damage", bd.0);
-        let _ = set_u32(&update, "effective_damage", ed.0);
+        set_stat_u8(&update, "range", br.0, er.0);
 
-        let _ = set_u8(&update, "base_range", br.0);
-        let _ = set_u8(&update, "effective_range", er.0);
+        match (bd, ed) {
+            (Some(bd), Some(ed)) => {
+                set_stat_u32(&update, "damage", bd.0, ed.0);
+            }
+            _ => {}
+        }
 
-        let _ = set_u8(&update, "base_attack_speed", bs.0);
-        let _ = set_u8(&update, "effective_attack_speed", es.0);
+        match (bs, es) {
+            (Some(bs), Some(es)) => {
+                set_stat_u8(&update, "attack_speed", bs.0, es.0);
+            }
+            _ => {}
+        }
 
         updateState("towers".into(), update.into());
     }
@@ -93,9 +102,12 @@ pub fn update_tower_types() {
         let update = js_sys::Object::new();
 
         let _ = set_u16(&update, "id", cfg.id);
-        let _ = set_u32(&update, "damage", cfg.damage);
-        let _ = set_u8(&update, "speed", cfg.speed);
-        let _ = set_u8(&update, "range_radius", cfg.range_radius);
+        let _ = set_u8(&update, "range_radius", cfg.range.radius);
+
+        if let Some(cfg) = &cfg.offense {
+            let _ = set_u32(&update, "damage", cfg.damage);
+            let _ = set_u8(&update, "speed", cfg.speed);
+        }
 
         updateState("tower_types".into(), update.into());
     }
