@@ -6,7 +6,8 @@
     const TOWER_INFO: Record<number, TowerInfo> = {
         0: { name: 'Basic Tower' },
         1: { name: 'Fast Tower' },
-        2: { name: 'Slow Tower' }
+        2: { name: 'Slow Tower' },
+        3: { name: 'Speed Buff Tower' }
     }
 </script>
 
@@ -21,7 +22,10 @@
     <div class="grid">
         {#each $tower_types.values() as tower}
             <div class="cell">
-                <TowerTile id={tower.id} name={TOWER_INFO[tower.id].name} />
+                <TowerTile
+                    id={tower.id}
+                    name={TOWER_INFO[tower.id]?.name ?? '@fixme'}
+                />
             </div>
         {/each}
     </div>

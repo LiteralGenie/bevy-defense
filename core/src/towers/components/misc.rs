@@ -48,23 +48,3 @@ pub struct TowerAttackEnergy {
     pub acc: u8,
     pub charges: u8,
 }
-
-#[derive(Bundle)]
-pub struct BaseTowerBundle {
-    marker: TowerMarker,
-
-    energy: TowerAttackEnergy,
-    position: TowerPosition,
-    priority: TowerPriority,
-}
-
-impl BaseTowerBundle {
-    pub fn new(config: &TowerConfig, position: (i16, i16)) -> Self {
-        Self {
-            marker: TowerMarker(config.id),
-            energy: TowerAttackEnergy { acc: 0, charges: 0 },
-            position: TowerPosition::new(position, config.size),
-            priority: TowerPriority(TowerPriorityTypes::FIRST),
-        }
-    }
-}

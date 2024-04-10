@@ -1,5 +1,6 @@
 use super::utils::{
-    set_stat_u32, set_stat_u8, set_u16, set_u32, set_u64, set_u8,
+    set_stat_u32, set_stat_u8, set_string, set_u16, set_u32, set_u64,
+    set_u8,
 };
 use crate::player::{PlayerGold, PlayerHealth};
 use crate::states::GamePhase;
@@ -9,7 +10,7 @@ use crate::towers::components::{
     BaseAttackSpeed, BaseDamage, BaseRangeRadius,
     EffectiveAttackSpeed, EffectiveDamage, EffectiveRangeRadius,
 };
-use crate::towers::config::TOWER_CONFIGS;
+use crate::towers::config::{AttackTypeConfig, TOWER_CONFIGS};
 use crate::towers::events::TowerClickEvent;
 use bevy::prelude::*;
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
@@ -105,6 +106,13 @@ pub fn update_tower_types() {
         let _ = set_u8(&update, "range_radius", cfg.range.radius);
 
         if let Some(cfg) = &cfg.offense {
+            let _ = set_string(
+                &update,
+                "attack",
+                match cfg.attack {
+                    AttackTypeConfig::Basic => "basic",
+                },
+            );
             let _ = set_u32(&update, "damage", cfg.damage);
             let _ = set_u8(&update, "speed", cfg.speed);
         }

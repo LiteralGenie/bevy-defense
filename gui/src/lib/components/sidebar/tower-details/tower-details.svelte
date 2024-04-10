@@ -7,7 +7,7 @@
 <div class="container">
     <p>{selection.id}</p>
 
-    {#if selection.damage}
+    {#if 'damage' in selection}
         <div>
             damage: {selection.damage.base} -> {selection.damage.effective}
         </div>
@@ -17,7 +17,7 @@
         range: {selection.range.base} -> {selection.range.effective}
     </div>
 
-    {#if selection.attack_speed}
+    {#if 'attack_speed' in selection}
         <div>
             speed: {selection.attack_speed.base} -> {selection.attack_speed
                 .effective}

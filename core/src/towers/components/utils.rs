@@ -13,8 +13,13 @@ pub fn spawn_tower_bundle(
     let mut state = SystemState::<Commands>::new(world);
     let mut commands = state.get(world);
 
-    let mut entity =
-        commands.spawn(super::BaseTowerBundle::new(config, position));
+    // Base bundle
+    let mut entity = commands.spawn((
+        super::TowerMarker(config.id),
+        super::TowerAttackEnergy { acc: 0, charges: 0 },
+        super::TowerPosition::new(position, config.size),
+        super::TowerPriority(super::TowerPriorityTypes::FIRST),
+    ));
 
     // Range
     entity.insert(BaseRangeRadius(config.range.radius));
@@ -32,4 +37,6 @@ pub fn spawn_tower_bundle(
             super::BaseAttackSpeed(cfg.speed),
         ));
     }
+
+    state.apply(world)
 }

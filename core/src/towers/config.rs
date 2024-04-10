@@ -48,6 +48,7 @@ pub fn match_config(id: u16) -> TowerConfig {
         0 => super::basic_tower::CONFIG,
         1 => super::fast_tower::CONFIG,
         2 => super::slow_tower::CONFIG,
+        3 => super::speed_buff_tower::CONFIG,
         _ => panic!("Invalid tower id {}", id),
     }
 }
@@ -56,4 +57,5 @@ pub const TOWER_CONFIGS: &[TowerConfig] = &[
     super::basic_tower::CONFIG,
     super::fast_tower::CONFIG,
     super::slow_tower::CONFIG,
+    super::speed_buff_tower::CONFIG,
 ];

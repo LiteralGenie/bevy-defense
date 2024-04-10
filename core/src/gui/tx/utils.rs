@@ -13,6 +13,18 @@ pub fn set_object(
     obj
 }
 
+pub fn set_string(
+    target: &js_sys::Object,
+    key: &str,
+    value: &str,
+) -> Result<bool, JsValue> {
+    js_sys::Reflect::set(
+        &target,
+        &js_sys::JsString::from(key),
+        &js_sys::JsString::from(value),
+    )
+}
+
 // @todo: how to macro these?
 
 pub fn set_stat_u8(
@@ -21,7 +33,7 @@ pub fn set_stat_u8(
     base: u8,
     effective: u8,
 ) {
-    let obj = set_object(&target, "attack_speed");
+    let obj = set_object(&target, key);
     let _ = set_u8(&obj, "base", base);
     let _ = set_u8(&obj, "effective", effective);
 }
@@ -32,7 +44,7 @@ pub fn set_stat_u16(
     base: u16,
     effective: u16,
 ) {
-    let obj = set_object(&target, "attack_speed");
+    let obj = set_object(&target, key);
     let _ = set_u16(&obj, "base", base);
     let _ = set_u16(&obj, "effective", effective);
 }
@@ -43,7 +55,7 @@ pub fn set_stat_u32(
     base: u32,
     effective: u32,
 ) {
-    let obj = set_object(&target, "attack_speed");
+    let obj = set_object(&target, key);
     let _ = set_u32(&obj, "base", base);
     let _ = set_u32(&obj, "effective", effective);
 }
@@ -54,7 +66,7 @@ pub fn set_stat_u64(
     base: u64,
     effective: u64,
 ) {
-    let obj = set_object(&target, "attack_speed");
+    let obj = set_object(&target, key);
     let _ = set_u64(&obj, "base", base);
     let _ = set_u64(&obj, "effective", effective);
 }
