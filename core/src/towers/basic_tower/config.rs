@@ -2,6 +2,10 @@ use crate::towers::config::{
     AttackTypeConfig, OffenseConfig, RangeConfig, RangeTypeConfig,
     TowerConfig, TowerVariantConfig,
 };
+use bevy::prelude::*;
+
+#[derive(Component)]
+pub struct Marker;
 
 pub const CONFIG: TowerConfig = TowerConfig {
     id: 0,

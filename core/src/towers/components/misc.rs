@@ -1,4 +1,3 @@
-use crate::{gui::console, towers::config::TowerConfig};
 use bevy::prelude::*;
 use std::collections::HashSet;
 

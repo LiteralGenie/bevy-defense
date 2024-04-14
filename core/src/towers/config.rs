@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{ecs::component::TableStorage, prelude::*};
 
 pub struct TowerConfig {
     pub id: u16,
@@ -40,6 +40,7 @@ pub struct OffenseConfig {
 // Catch-all for any tower-specific properties
 pub enum TowerVariantConfig {
     Basic,
+    SpeedBuff(f64),
 }
 
 // @todo: replace with compile-time hashmap?

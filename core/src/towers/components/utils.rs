@@ -1,7 +1,10 @@
 use super::{BaseRangeRadius, BasicRangeType};
 use crate::towers::{
     attacks,
-    config::{AttackTypeConfig, RangeTypeConfig, TowerConfig},
+    config::{
+        AttackTypeConfig, RangeTypeConfig, TowerConfig,
+        TowerVariantConfig,
+    },
 };
 use bevy::{ecs::system::SystemState, prelude::*};
 
@@ -36,6 +39,14 @@ pub fn spawn_tower_bundle(
             super::BaseDamage(cfg.damage),
             super::BaseAttackSpeed(cfg.speed),
         ));
+    }
+
+    // Special cases
+    match config.variant {
+        TowerVariantConfig::Basic => {}
+        TowerVariantConfig::SpeedBuff(val) => {
+            entity.insert(attacks::SpeedBuffSource(val));
+        }
     }
 
     state.apply(world)
