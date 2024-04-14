@@ -18,9 +18,9 @@ impl Plugin for TowersPlugin {
             super::systems::compute_effective_damage,
             super::systems::compute_effective_range,
             super::systems::compute_basic_range,
-            super::attacks::init_towers_in_range,
-            super::attacks::compute_towers_in_range_on_range_update,
-            super::attacks::compute_towers_in_range_on_position_update,
+            super::systems::init_towers_in_range,
+            super::systems::compute_towers_in_range_on_range_update,
+            super::systems::compute_towers_in_range_on_position_update,
         );
 
         app.add_systems(
