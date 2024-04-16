@@ -14,13 +14,16 @@ pub struct TowersPlugin;
 impl Plugin for TowersPlugin {
     fn build(&self, app: &mut App) {
         let stat_systems = (
+            super::systems::init_towers_in_range,
+            super::systems::compute_towers_in_range_on_range_update,
+            super::systems::compute_towers_in_range_on_position_update,
+            super::attacks::init_speed_buff_target,
+            super::attacks::apply_speed_buff,
+
             super::systems::compute_effective_attack_speed,
             super::systems::compute_effective_damage,
             super::systems::compute_effective_range,
             super::systems::compute_basic_range,
-            super::systems::init_towers_in_range,
-            super::systems::compute_towers_in_range_on_range_update,
-            super::systems::compute_towers_in_range_on_position_update,
         );
 
         app.add_systems(
@@ -29,7 +32,7 @@ impl Plugin for TowersPlugin {
                 // Pre-sort units by each targeting criteria (dist, health, etc)
                 super::systems::index_units_by_dist,
                 // Update tower stats
-                stat_systems,
+                stat_systems.chain(),
                 super::systems::update_attack_energy,
             )
                 .in_set(TowerUpdateSystems)
@@ -37,10 +40,7 @@ impl Plugin for TowersPlugin {
         )
         .add_systems(
             FixedUpdate,
-            (
-                // Apply damage to units
-                super::attacks::apply_basic_attack,
-            )
+            (super::attacks::apply_basic_attack,)
                 .in_set(TowerAttackSystems)
                 .chain(),
         )
@@ -61,7 +61,7 @@ impl Plugin for TowersPlugin {
         .add_systems(
             Update,
             // GUI can trigger tower creation at any time so this needs to run every frame
-            stat_systems.in_set(TowerRenderSystems),
+            stat_systems.chain().in_set(TowerRenderSystems),
         );
     }
 }

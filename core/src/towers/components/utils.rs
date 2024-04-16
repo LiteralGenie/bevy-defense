@@ -45,7 +45,7 @@ pub fn spawn_tower_bundle(
     match config.variant {
         TowerVariantConfig::Basic => {}
         TowerVariantConfig::SpeedBuff(val) => {
-            entity.insert(attacks::SpeedBuffSource(val));
+            entity.insert(attacks::SpeedBuffSource::new(val));
         }
     }
 

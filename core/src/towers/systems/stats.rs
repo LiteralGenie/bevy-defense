@@ -1,6 +1,7 @@
 use crate::{
     scenario::Scenario,
     towers::{
+        attacks::{SpeedBuffSource, SpeedBuffTarget},
         components::{
             BaseAttackSpeed, BaseDamage, BaseRangeRadius,
             BasicRangeType, EffectiveAttackSpeed, EffectiveDamage,
@@ -55,22 +56,35 @@ pub fn compute_effective_damage(
 }
 
 pub fn compute_effective_attack_speed(
-    info_query: Query<&BaseAttackSpeed>,
-    changed: Query<Entity, Or<(Changed<BaseAttackSpeed>,)>>,
+    info_query: Query<(&BaseAttackSpeed, &SpeedBuffTarget)>,
+    speed_buff_sources: Query<&SpeedBuffSource>,
+    changed: Query<
+        Entity,
+        Or<(Changed<BaseAttackSpeed>, Changed<SpeedBuffTarget>)>,
+    >,
     mut commands: Commands,
 ) {
     let to_check: HashSet<Entity> =
         HashSet::from_iter(changed.iter());
 
     for entity in to_check {
-        let base = {
+        let (base, speed_buff_target) = {
             match info_query.get(entity) {
                 Ok(res) => res,
                 Err(_) => continue,
             }
         };
 
-        let mut update = base.0 as f32;
+        let mut update = base.0 as f64;
+
+        // Calculate speed buff
+        let buff = speed_buff_target
+            .0
+            .iter()
+            .map(|entity| speed_buff_sources.get(*entity).unwrap())
+            .map(|buff| buff.multiplier)
+            .max_by(|left, right| left.total_cmp(right));
+        update *= buff.unwrap_or(1.0);
 
         // Cap attack speed at once per tick
         update = update.min(100.0);

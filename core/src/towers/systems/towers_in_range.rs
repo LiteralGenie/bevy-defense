@@ -1,12 +1,17 @@
-use crate::towers::components::{TowerPosition, TowerRange};
+use crate::towers::components::{
+    TowerMarker, TowerPosition, TowerRange,
+};
 use bevy::prelude::*;
 use std::collections::HashSet;
 
 #[derive(Component)]
-pub struct TowersInRange(HashSet<Entity>);
+pub struct TowersInRange(pub HashSet<Entity>);
 
 pub fn init_towers_in_range(
-    towers: Query<Entity, Without<TowersInRange>>,
+    towers: Query<
+        Entity,
+        (With<TowerMarker>, Without<TowersInRange>),
+    >,
     mut commands: Commands,
 ) {
     for entity in towers.iter() {
