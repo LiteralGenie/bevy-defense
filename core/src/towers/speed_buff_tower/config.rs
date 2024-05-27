@@ -12,7 +12,7 @@ pub const CONFIG: TowerConfig = TowerConfig {
     },
 
     offense: None,
-    variant: TowerVariantConfig::Basic,
+    variant: TowerVariantConfig::SpeedBuff(1.35),
 
     spawn_model: super::spawn_model,
 };

@@ -1,4 +1,4 @@
-use bevy::{ecs::component::TableStorage, prelude::*};
+use bevy::prelude::*;
 
 pub struct TowerConfig {
     pub id: u16,
