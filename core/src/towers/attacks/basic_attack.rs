@@ -1,5 +1,4 @@
-use bevy::prelude::*;
-
+use super::utils::{filter_targets_by_dist, find_target};
 use crate::{
     scenario::Scenario,
     towers::{
@@ -13,8 +12,7 @@ use crate::{
         UnitHealth, UnitPosition, UnitStatus, UnitStatusTypes,
     },
 };
-
-use super::utils::{filter_targets_by_dist, find_target};
+use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct BasicAttack;

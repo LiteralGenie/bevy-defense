@@ -1,13 +1,23 @@
-use crate::towers::config::TowerConfig;
+use crate::towers::config::{
+    AttackTypeConfig, OffenseConfig, RangeConfig, RangeTypeConfig,
+    TowerConfig, TowerVariantConfig,
+};
 
 pub const CONFIG: TowerConfig = TowerConfig {
     id: 0,
 
-    damage: 30,
     size: 2,
-    speed: 15,
-    range_radius: 5,
+    range: RangeConfig {
+        radius: 5,
+        variant: RangeTypeConfig::Basic,
+    },
 
-    spawn: super::spawn,
+    offense: Some(OffenseConfig {
+        attack: AttackTypeConfig::Basic,
+        damage: 30,
+        speed: 15,
+    }),
+    variant: TowerVariantConfig::Basic,
+
     spawn_model: super::spawn_model,
 };

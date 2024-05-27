@@ -1,7 +1,3 @@
-use crate::towers::{
-    attacks,
-    components::{BaseTowerBundle, BasicRangeType},
-};
 use bevy::prelude::*;
 
 pub fn spawn_model(
@@ -34,13 +30,4 @@ pub fn spawn_model(
     commands.entity(container).push_children(&[model]);
 
     container
-}
-
-pub fn spawn(world: &mut World, pos: (i16, i16)) {
-    world.spawn((
-        BaseTowerBundle::new(super::CONFIG.id, pos),
-        super::Marker,
-        BasicRangeType,
-        attacks::BasicAttack,
-    ));
 }
