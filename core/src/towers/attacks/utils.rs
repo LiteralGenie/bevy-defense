@@ -31,7 +31,7 @@ pub fn filter_targets_by_dist(
 
 pub fn find_target(
     priority: &TowerPriorityTypes,
-    candidates: HashSet<Entity>,
+    candidates: &HashSet<Entity>,
     query: &Query<&UnitPosition>,
     scenario: &Res<Scenario>,
 ) -> Option<Entity> {
@@ -45,6 +45,7 @@ pub fn find_target(
                 rem_dist
             })
             .copied(),
+        // @todo target priorities
         _ => None,
     }
 }

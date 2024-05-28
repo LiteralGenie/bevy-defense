@@ -28,6 +28,7 @@ pub struct RangeConfig {
 
 pub enum AttackTypeConfig {
     Basic,
+    Aoe(u16),
 }
 
 pub struct OffenseConfig {

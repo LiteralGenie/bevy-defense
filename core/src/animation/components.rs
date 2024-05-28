@@ -31,3 +31,31 @@ impl InterpolateTranslation {
         }
     }
 }
+
+#[derive(Component)]
+pub struct InterpolateScale {
+    pub model: Entity,
+    pub scale_start: f32,
+    pub scale_end: f32,
+    pub scale_diff: f32,
+    pub duration: u32,
+    pub elapsed: u32,
+}
+
+impl InterpolateScale {
+    pub fn new(
+        model: Entity,
+        duration: u32,
+        scale_start: f32,
+        scale_end: f32,
+    ) -> Self {
+        Self {
+            model,
+            duration,
+            elapsed: 0,
+            scale_start,
+            scale_end,
+            scale_diff: scale_end - scale_start,
+        }
+    }
+}

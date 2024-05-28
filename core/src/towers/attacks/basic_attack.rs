@@ -60,7 +60,7 @@ pub fn apply_basic_attack(
 
         let target = match find_target(
             &priority.0,
-            candidates,
+            &candidates,
             &pos_query,
             &scenario,
         ) {
