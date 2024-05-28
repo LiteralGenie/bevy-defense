@@ -33,12 +33,18 @@ pub fn spawn_tower_bundle(
     // Offense
     if let Some(cfg) = &config.offense {
         entity.insert((
-            match cfg.attack {
-                AttackTypeConfig::Basic => attacks::BasicAttack,
-            },
             super::BaseDamage(cfg.damage),
             super::BaseAttackSpeed(cfg.speed),
         ));
+
+        match cfg.attack {
+            AttackTypeConfig::Basic => {
+                entity.insert(attacks::BasicAttack)
+            }
+            AttackTypeConfig::Aoe(radius) => {
+                entity.insert(attacks::AoeAttack(radius))
+            }
+        };
     }
 
     // Special cases

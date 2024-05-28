@@ -1,5 +1,5 @@
-use super::components::InterpolateTranslation;
-use crate::gui::console;
+use super::components::{InterpolateScale, InterpolateTranslation};
+use crate::gui::console::{self, log};
 use bevy::prelude::*;
 
 pub fn interpolate_translation(
@@ -38,6 +38,42 @@ pub fn interpolate_translation(
         // Handle deleted-model case (eg unit died)
         if let Ok(mut transform) = transform.get_mut(info.model) {
             transform.translation = update;
+        }
+    }
+}
+
+pub fn interpolate_scale(
+    mut query: Query<(Entity, &mut InterpolateScale)>,
+    mut transform: Query<&mut Transform>,
+    time: Res<Time<Fixed>>,
+    mut commands: Commands,
+) {
+    for (entity, mut info) in query.iter_mut() {
+        // Check if animation complete
+        if time.is_changed() {
+            if info.elapsed >= info.duration {
+                commands.entity(entity).remove::<InterpolateScale>();
+                continue;
+            } else {
+                info.elapsed += 1;
+            }
+        }
+
+        // Update position
+        let elapsed_frac = {
+            let ticks =
+                info.elapsed as f32 + time.overstep_fraction();
+
+            let frac = ticks / info.duration as f32;
+
+            frac.min(1.0)
+        };
+        let update =
+            info.scale_start + info.scale_diff * elapsed_frac;
+
+        // Handle deleted-model case (eg unit died)
+        if let Ok(mut transform) = transform.get_mut(info.model) {
+            transform.scale = Vec3::splat(update);
         }
     }
 }

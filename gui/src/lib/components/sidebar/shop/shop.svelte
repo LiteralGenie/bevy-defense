@@ -7,7 +7,8 @@
         0: { name: 'Basic Tower' },
         1: { name: 'Fast Tower' },
         2: { name: 'Slow Tower' },
-        3: { name: 'Speed Buff Tower' }
+        3: { name: 'Speed Buff Tower' },
+        4: { name: 'AoE Tower' }
     }
 </script>
 

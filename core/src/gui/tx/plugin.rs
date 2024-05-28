@@ -111,6 +111,7 @@ pub fn update_tower_types() {
                 "attack",
                 match cfg.attack {
                     AttackTypeConfig::Basic => "basic",
+                    AttackTypeConfig::Aoe(_) => "aoe",
                 },
             );
             let _ = set_u32(&update, "damage", cfg.damage);

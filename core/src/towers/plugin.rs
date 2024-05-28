@@ -40,21 +40,27 @@ impl Plugin for TowersPlugin {
         )
         .add_systems(
             FixedUpdate,
-            (super::attacks::apply_basic_attack,)
+            (
+                super::attacks::apply_basic_attack,
+                super::attacks::apply_aoe_attack,
+            )
                 .in_set(TowerAttackSystems)
                 .chain(),
         )
+        .add_event::<super::events::TowerClickEvent>()
         .add_event::<super::attacks::BasicAttackEvent>()
-        .add_event::<super::events::TowerClickEvent>();
+        .add_event::<super::attacks::AoeAttackEvent>();
 
         app.add_systems(
             Update,
             (
                 super::systems::render_model,
-                super::systems::render_attack_start,
-                super::systems::render_attack_end,
+                super::systems::render_projectile_start,
+                super::systems::render_projectile_end,
                 super::systems::render_event_handlers,
                 super::attacks::render_basic_attack,
+                super::attacks::render_aoe_attack_start,
+                super::attacks::render_aoe_attack_end,
             )
                 .in_set(TowerRenderSystems),
         )
