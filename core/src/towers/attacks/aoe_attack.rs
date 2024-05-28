@@ -120,20 +120,22 @@ pub fn render_aoe_attack_start(
 
         let mut model = commands.spawn((
             PbrBundle {
-                mesh: meshes.add(Capsule3d::new(
-                    ev.radius as f32 * 0.9,
-                    0.01,
-                )),
+                mesh: meshes
+                    .add(Capsule3d::new(ev.radius as f32, 0.01)),
                 material: materials.add(StandardMaterial {
-                    base_color: Color::rgba(0.5, 0.0, 0.0, 0.15),
+                    base_color: Color::rgba(0.5, 0.0, 0.0, 0.25),
                     alpha_mode: AlphaMode::Blend,
                     ..default()
                 }),
-                transform: Transform::from_xyz(
-                    center.pos.0 as f32,
-                    0.75,
-                    center.pos.1 as f32,
-                ),
+                transform: Transform {
+                    translation: Vec3::new(
+                        center.pos.0 as f32,
+                        0.75,
+                        center.pos.1 as f32,
+                    ),
+                    scale: Vec3::splat(0.05),
+                    ..default()
+                },
                 ..default()
             },
             AoeModelMarker,
@@ -141,9 +143,9 @@ pub fn render_aoe_attack_start(
 
         model.insert(InterpolateScale::new(
             model.id(),
-            (1.0 * TICK_FREQUENCY_HZ) as u32,
-            0.25,
-            1.25,
+            (0.75 * TICK_FREQUENCY_HZ) as u32,
+            0.05,
+            1.0,
         ));
     }
 }

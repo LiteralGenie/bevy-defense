@@ -1,5 +1,5 @@
 use super::components::{InterpolateScale, InterpolateTranslation};
-use crate::gui::console;
+use crate::gui::console::{self, log};
 use bevy::prelude::*;
 
 pub fn interpolate_translation(

@@ -5,6 +5,7 @@ pub mod events;
 pub mod plugin;
 pub mod systems;
 
+pub mod aoe_tower;
 pub mod basic_tower;
 pub mod fast_tower;
 pub mod slow_tower;
