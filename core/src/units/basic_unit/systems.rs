@@ -1,9 +1,22 @@
 use super::super::components::UnitModel;
 use super::super::health_bar::build_health_bar;
 use crate::components::DoNotRender;
-use crate::gui::console;
+use crate::gui::console::{self, log};
 use bevy::gltf::Gltf;
 use bevy::prelude::*;
+
+// Based on https://bevy-cheatbook.github.io/3d/gltf.html
+#[derive(Resource)]
+
+pub struct UnitAssetHandles {
+    model_gltf: Handle<Gltf>,
+}
+
+pub fn init_assets(mut commands: Commands, ass: Res<AssetServer>) {
+    let model = ass.load::<Gltf>("enemy_pack_gltf/Wasp.glb");
+
+    commands.insert_resource(UnitAssetHandles { model_gltf: model });
+}
 
 // @todo: consider moving the model generation into a utility function
 //        and refactoring the common component spawning / health bar spawning logic
@@ -13,7 +26,7 @@ pub fn render(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    handles: Res<UnitAssets>,
+    handles: Res<UnitAssetHandles>,
     assets: Res<Assets<Gltf>>,
     units: Query<
         Entity,
@@ -55,15 +68,37 @@ pub fn render(
     }
 }
 
-// Based on https://bevy-cheatbook.github.io/3d/gltf.html
-#[derive(Resource)]
+pub fn render_movement_animation(
+    units: Query<&UnitModel, With<super::Marker>>,
+    mut player_query: Query<&mut AnimationPlayer>,
+    children_query: Query<&Children>,
+    handles: Res<UnitAssetHandles>,
+    assets: Res<Assets<Gltf>>,
+    mut commands: Commands,
+) {
+    let model_gltf = match assets.get(&handles.model_gltf) {
+        Some(x) => x,
+        None => return,
+    };
 
-pub struct UnitAssets {
-    model_gltf: Handle<Gltf>,
-}
+    for model_id in units.iter() {
+        let model = commands.entity(model_id.0);
 
-pub fn init_assets(mut commands: Commands, ass: Res<AssetServer>) {
-    let model = ass.load::<Gltf>("enemy_pack_gltf/Wasp.glb");
+        for child in children_query.iter_descendants(model.id()) {
+            let Ok(mut animation_player) =
+                player_query.get_mut(child)
+            else {
+                continue;
+            };
 
-    commands.insert_resource(UnitAssets { model_gltf: model });
+            let clip = model_gltf.animations[0].clone_weak();
+
+            if animation_player.is_playing_clip(&clip) {
+                continue;
+            }
+
+            animation_player.play(clip).repeat();
+            break;
+        }
+    }
 }

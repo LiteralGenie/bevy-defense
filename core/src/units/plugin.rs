@@ -43,6 +43,7 @@ impl Plugin for UnitsPlugin {
                 super::systems::render_status_change,
                 super::health_bar::render_health_bar,
                 super::basic_unit::render,
+                super::basic_unit::render_movement_animation,
                 super::tank_unit::render,
                 super::speed_trail_unit::render,
             )
