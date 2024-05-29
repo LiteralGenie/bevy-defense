@@ -18,25 +18,35 @@ pub fn render(
     >,
 ) {
     for entity in units.iter() {
-        let health_bar_model_id = commands
+        let health_bar = commands
             .spawn(build_health_bar(&mut meshes, &mut materials))
             .id();
 
-        let mut model = commands.spawn(PbrBundle {
-            mesh: meshes.add(Sphere::new(0.35)),
-            material: materials.add(StandardMaterial {
-                base_color: Color::rgb(0.0, 0.5, 0.75),
-                alpha_mode: AlphaMode::Blend,
+        let base = commands
+            .spawn(PbrBundle {
+                mesh: meshes.add(Sphere::new(0.35)),
+                material: materials.add(StandardMaterial {
+                    base_color: Color::rgb(0.0, 0.5, 0.75),
+                    alpha_mode: AlphaMode::Blend,
+                    ..default()
+                }),
+                transform: Transform::from_xyz(0.0, 0.5, 0.0),
                 ..default()
-            }),
-            transform: Transform::from_xyz(0.0, 0.5, 0.0),
-            ..default()
+            })
+            .id();
+
+        let root = commands
+            .spawn(SpatialBundle {
+                ..Default::default()
+            })
+            .add_child(base)
+            .add_child(health_bar)
+            .id();
+
+        commands.entity(entity).insert(UnitModel {
+            root,
+            base,
+            health_bar,
         });
-
-        model.add_child(health_bar_model_id);
-
-        let model_id = model.id();
-
-        commands.entity(entity).insert(UnitModel(model_id));
     }
 }

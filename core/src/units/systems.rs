@@ -72,7 +72,7 @@ pub fn spawn_pending_units(
         let path = &scenario.paths[&pos.id_path];
         let point = path.points.get(pos.dist as usize).unwrap();
 
-        let mut transform = models.get_mut(model.0).unwrap();
+        let mut transform = models.get_mut(model.root).unwrap();
         let translation = &mut transform.translation;
         translation.x = point.pos.0 as f32;
         translation.z = point.pos.1 as f32;
@@ -91,18 +91,18 @@ pub fn render_status_change(
         match status.0 {
             UnitStatusTypes::PRESPAWN => {
                 let mut visibility =
-                    visibility_query.get_mut(model.0).unwrap();
+                    visibility_query.get_mut(model.root).unwrap();
 
                 *visibility = Visibility::Hidden;
             }
             UnitStatusTypes::ALIVE => {
                 let mut visibility =
-                    visibility_query.get_mut(model.0).unwrap();
+                    visibility_query.get_mut(model.root).unwrap();
 
                 *visibility = Visibility::Inherited;
             }
             UnitStatusTypes::DEAD => {
-                commands.entity(model.0).despawn_recursive();
+                commands.entity(model.root).despawn_recursive();
                 commands.entity(entity).remove::<UnitModel>();
                 commands.entity(entity).insert(DoNotRender);
             }
@@ -120,7 +120,7 @@ pub fn render_movement_start(
     mut commands: Commands,
 ) {
     for (entity, pos, model) in units.iter() {
-        let translation = models.get(model.0).unwrap().translation;
+        let translation = models.get(model.root).unwrap().translation;
 
         // Point defined by pos.dist
         let path = &scenario.paths[&pos.id_path];
@@ -150,7 +150,7 @@ pub fn render_movement_start(
             Vec3::new(target_point.0, translation.y, target_point.1);
 
         commands.entity(entity).insert(InterpolateTranslation::new(
-            model.0,
+            model.root,
             1,
             translation,
             end,

@@ -2,13 +2,10 @@ use super::components::{UnitHealth, UnitHealthMax, UnitModel};
 use crate::gui::console;
 use bevy::prelude::*;
 
-#[derive(Component)]
-pub struct HealthBarMarker;
-
 pub fn build_health_bar(
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,
-) -> (PbrBundle, HealthBarMarker) {
+) -> PbrBundle {
     let model = PbrBundle {
         mesh: meshes.add(Rectangle::new(0.75, 0.2)),
         material: materials.add(StandardMaterial {
@@ -20,7 +17,7 @@ pub fn build_health_bar(
         ..default()
     };
 
-    return (model, HealthBarMarker);
+    return model;
 }
 
 // Scale health bar model by unit health
@@ -29,28 +26,20 @@ pub fn render_health_bar(
         (&UnitHealth, &UnitHealthMax, &UnitModel),
         Changed<UnitHealth>,
     >,
-    children_query: Query<&Children>,
-    mut model_query: Query<(&HealthBarMarker, &mut Transform)>,
+    mut transform_query: Query<&mut Transform>,
 ) {
     for (health, health_max, model) in unit_query.iter() {
-        let children = children_query.get(model.0).unwrap();
+        let mut transform =
+            transform_query.get_mut(model.health_bar).unwrap();
 
-        for child in children.iter() {
-            if let Ok(res) = model_query.get_mut(*child) {
-                let (_, mut transform) = res;
+        let health_percent = health.0 as f32 / health_max.0 as f32;
 
-                let health_percent =
-                    health.0 as f32 / health_max.0 as f32;
+        transform.scale = Vec3::new(health_percent, 1.0, 1.0);
 
-                transform.scale = Vec3::new(health_percent, 1.0, 1.0);
+        // The scale shrinks left / right sides of health bar by X
+        // so to keep it left aligned, translate it to the left by X / 2
+        transform.translation.x = -(1.0 - health_percent) / 2.0;
 
-                // The scale shrinks left / right sides of health bar by X
-                // so to keep it left aligned, translate it to the left by X / 2
-                transform.translation.x =
-                    -(1.0 - health_percent) / 2.0;
-
-                break;
-            }
-        }
+        break;
     }
 }

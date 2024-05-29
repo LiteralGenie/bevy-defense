@@ -43,11 +43,11 @@ pub fn render(
     };
 
     for entity in units.iter() {
-        let health_bar_model = commands
+        let health_bar = commands
             .spawn(build_health_bar(&mut meshes, &mut materials))
             .id();
 
-        let model = commands
+        let base = commands
             .spawn(SceneBundle {
                 scene: model_gltf.scenes[0].clone_weak(),
                 transform: Transform::from_xyz(0.0, 0.25, 0.0)
@@ -56,35 +56,40 @@ pub fn render(
             })
             .id();
 
-        let container = commands
+        let root = commands
             .spawn(SpatialBundle {
                 ..Default::default()
             })
-            .add_child(model)
-            .add_child(health_bar_model)
+            .add_child(base)
+            .add_child(health_bar)
             .id();
 
-        commands.entity(entity).insert(UnitModel(container));
+        commands.entity(entity).insert(UnitModel {
+            root,
+            base,
+            health_bar,
+        });
     }
 }
 
+// @todo: All models currently reference the same entity / animation player component
+//        This probably means we can't play different animations for different units (eg on damage)
+//        without spawning a new GLTF handle for each unit which will probably have a hefty perf cost
+//        Revisit this in when bevy 0.14 lands, which reworks the animation api anyways
 pub fn render_movement_animation(
     units: Query<&UnitModel, With<super::Marker>>,
     mut player_query: Query<&mut AnimationPlayer>,
     children_query: Query<&Children>,
     handles: Res<UnitAssetHandles>,
     assets: Res<Assets<Gltf>>,
-    mut commands: Commands,
 ) {
     let model_gltf = match assets.get(&handles.model_gltf) {
         Some(x) => x,
         None => return,
     };
 
-    for model_id in units.iter() {
-        let model = commands.entity(model_id.0);
-
-        for child in children_query.iter_descendants(model.id()) {
+    for model in units.iter() {
+        for child in children_query.iter_descendants(model.base) {
             let Ok(mut animation_player) =
                 player_query.get_mut(child)
             else {
