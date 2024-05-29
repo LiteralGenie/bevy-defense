@@ -12,6 +12,7 @@ pub fn render(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    assets: Res<UnitAssets>,
     units: Query<
         Entity,
         (
@@ -22,25 +23,43 @@ pub fn render(
     >,
 ) {
     for entity in units.iter() {
-        let health_bar_model_id = commands
+        let health_bar_model = commands
             .spawn(build_health_bar(&mut meshes, &mut materials))
             .id();
 
-        let mut model = commands.spawn(PbrBundle {
-            mesh: meshes.add(Sphere::default()),
-            material: materials.add(StandardMaterial {
-                base_color: Color::rgb(0.0, 0.0, 0.5),
-                alpha_mode: AlphaMode::Blend,
+        let model = commands
+            .spawn(SceneBundle {
+                scene: assets.model.clone_weak(),
+                transform: Transform::from_xyz(0.0, 0.25, 0.0)
+                    .with_scale(Vec3::splat(0.5)),
                 ..default()
-            }),
-            transform: Transform::from_xyz(0.0, 0.5, 0.0),
-            ..default()
-        });
+            })
+            .id();
 
-        model.add_child(health_bar_model_id);
+        let container = commands
+            .spawn(SpatialBundle {
+                ..Default::default()
+            })
+            .add_child(model)
+            .add_child(health_bar_model)
+            .id();
 
-        let model_id = model.id();
-
-        commands.entity(entity).insert(UnitModel(model_id));
+        commands.entity(entity).insert(UnitModel(container));
     }
+}
+
+// Based on https://github.com/bevyengine/bevy/blob/release-0.13.2/examples/animation/animated_fox.rs
+#[derive(Resource)]
+
+pub struct UnitAssets {
+    model: Handle<Scene>,
+    animations: Vec<Handle<AnimationClip>>,
+}
+
+pub fn init_assets(mut commands: Commands, ass: Res<AssetServer>) {
+    let model = ass.load::<Scene>("enemy_pack_gltf/Wasp.glb#Scene0");
+    let animations: Vec<Handle<AnimationClip>> =
+        vec![ass.load("enemy_pack_gltf/Wasp.glb#Animation0")];
+
+    commands.insert_resource(UnitAssets { model, animations });
 }

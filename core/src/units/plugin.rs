@@ -13,7 +13,10 @@ impl Plugin for UnitsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Startup,
-            super::speed_trail_unit::init_buff_map
+            (
+                super::speed_trail_unit::init_buff_map,
+                super::basic_unit::init_assets,
+            )
                 .after(spawn_scenario),
         )
         .add_systems(
