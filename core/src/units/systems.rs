@@ -10,7 +10,7 @@ use super::{
 use crate::{
     animation::components::InterpolateTranslation,
     components::DoNotRender,
-    gui::console,
+    gui::console::{self, log},
     scenario::Scenario,
     timers::{round_timer::RoundTimer, tick_timer::TickTimer},
 };
@@ -115,13 +115,11 @@ pub fn render_movement_start(
         (Entity, &UnitPosition, &UnitModel),
         Changed<UnitPosition>,
     >,
-    models: Query<&Transform>,
+    mut transform_query: Query<&mut Transform>,
     scenario: Res<Scenario>,
     mut commands: Commands,
 ) {
     for (entity, pos, model) in units.iter() {
-        let translation = models.get(model.root).unwrap().translation;
-
         // Point defined by pos.dist
         let path = &scenario.paths[&pos.id_path];
         let point = path.points.get(pos.dist as usize).unwrap();
@@ -131,28 +129,54 @@ pub fn render_movement_start(
             path.points.get((pos.dist + 1) as usize).unwrap_or(point);
 
         // Interpolate between the two based on accumulator value
-        let target_point = {
+        let (target_point, rotation) = {
             let start = point.pos;
             let end = next_point.pos;
-            let diff = (end.0 - start.0, end.1 - start.1);
+
+            let diff_x = end.0 - start.0;
+            let diff_y = end.1 - start.1;
+            let diff = (diff_x, diff_y);
 
             let frac = pos.acc as f32 / 100.0;
             let scaled_diff =
                 (diff.0 as f32 * frac, diff.1 as f32 * frac);
 
-            (
+            let target_point = (
                 start.0 as f32 + scaled_diff.0,
                 start.1 as f32 + scaled_diff.1,
-            )
+            );
+
+            let rotation = {
+                if diff_x > 0 {
+                    0
+                } else if diff_x < 0 {
+                    180
+                } else if diff_y > 0 {
+                    -90
+                } else {
+                    90
+                }
+            };
+
+            (target_point, rotation)
         };
 
-        let end =
-            Vec3::new(target_point.0, translation.y, target_point.1);
+        let mut transform =
+            transform_query.get_mut(model.root).unwrap();
+
+        transform.rotation =
+            Quat::from_rotation_y((rotation as f32).to_radians());
+
+        let end = Vec3::new(
+            target_point.0,
+            transform.translation.y,
+            target_point.1,
+        );
 
         commands.entity(entity).insert(InterpolateTranslation::new(
             model.root,
             1,
-            translation,
+            transform.translation,
             end,
         ));
     }

@@ -96,7 +96,8 @@ pub fn render_movement_animation(
                 continue;
             };
 
-            let clip = model_gltf.animations[0].clone_weak();
+            let clip = model_gltf.named_animations["Wasp_Flying"]
+                .clone_weak();
 
             if animation_player.is_playing_clip(&clip) {
                 continue;
