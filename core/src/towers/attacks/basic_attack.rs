@@ -21,6 +21,7 @@ pub struct BasicAttack;
 pub struct BasicAttackEvent {
     pub tower: Entity,
     pub unit: Entity,
+    pub damage: u32,
 }
 
 pub fn apply_basic_attack(
@@ -79,6 +80,7 @@ pub fn apply_basic_attack(
         events.send(BasicAttackEvent {
             tower: entity,
             unit: target,
+            damage: damage.0,
         });
     }
 }
@@ -113,6 +115,7 @@ pub fn render_basic_attack(
         commands.spawn(Projectile {
             unit: ev.unit,
             model,
+            damage: ev.damage,
         });
     }
 }

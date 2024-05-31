@@ -3,5 +3,5 @@ is storing entity ids in a component safe / best practice?
 
 PR
     - Replace placeholder model for basic unit with animated one
-        - @todo Animation is rotated to match movement direction
-    - @todo UnitModel component now has base and health_bar fields
+        - Animation is rotated to match movement direction
+    - UnitModel component now has base and health_bar fields

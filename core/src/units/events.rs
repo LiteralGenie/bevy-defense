@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 
-#[derive(Component)]
-pub struct Projectile {
+#[derive(Event)]
+pub struct UnitDamageEvent {
     pub unit: Entity,
-    pub model: Entity,
     pub damage: u32,
 }

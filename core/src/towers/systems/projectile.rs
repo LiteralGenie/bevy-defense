@@ -2,8 +2,9 @@ use bevy::prelude::*;
 
 use crate::{
     animation::components::InterpolateTranslation,
-    scenario::Scenario, towers::components::Projectile,
-    units::components::UnitPosition,
+    scenario::Scenario,
+    towers::components::Projectile,
+    units::{components::UnitPosition, events::UnitDamageEvent},
 };
 
 // @todo: Projectiles have no movement prediction
@@ -48,6 +49,7 @@ pub fn render_projectile_end(
     query: Query<(Entity, &Projectile)>,
     mut done: RemovedComponents<InterpolateTranslation>,
     mut commands: Commands,
+    mut writer: EventWriter<UnitDamageEvent>,
 ) {
     for entity in done.read() {
         if let Ok((entity, p)) = query.get(entity) {
@@ -56,6 +58,11 @@ pub fn render_projectile_end(
 
             // Despawn projectile
             commands.entity(entity).despawn();
+
+            writer.send(UnitDamageEvent {
+                unit: p.unit,
+                damage: p.damage,
+            });
         }
     }
 }
