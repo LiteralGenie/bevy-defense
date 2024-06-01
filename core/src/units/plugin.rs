@@ -35,12 +35,15 @@ impl Plugin for UnitsPlugin {
             )
                 .in_set(UnitUpdateSystems)
                 .chain(),
-        );
+        )
+        .add_event::<super::events::UnitDamageEvent>();
 
         app.add_systems(
             Update,
             (
+                super::systems::render_initial_material,
                 super::systems::render_status_change,
+                super::systems::render_unit_damage,
                 super::health_bar::render_health_bar,
                 super::basic_unit::render,
                 super::basic_unit::render_movement_animation,

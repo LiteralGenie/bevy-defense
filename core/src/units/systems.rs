@@ -2,9 +2,10 @@ use std::collections::HashSet;
 
 use super::{
     components::{
-        BaseSpeed, EffectiveSpeed, UnitModel, UnitPosition,
-        UnitSpawnTick, UnitStatus, UnitStatusTypes,
+        BaseSpeed, EffectiveSpeed, UnitModel, UnitModelMaterials,
+        UnitPosition, UnitSpawnTick, UnitStatus, UnitStatusTypes,
     },
+    events::UnitDamageEvent,
     speed_trail_unit::SpeedBuff,
 };
 use crate::{
@@ -240,5 +241,105 @@ pub fn compute_effective_speed(
         let update = update.min(100.0) as u16;
 
         commands.entity(entity).insert(EffectiveSpeed(update));
+    }
+}
+
+// @jank: Can we merge this initial material component with the UnitModel component
+//        without requiring systems to query with a <T: Asset> generic?
+pub fn render_initial_material(
+    units: Query<
+        (Entity, &UnitModel),
+        Without<UnitModelMaterials<StandardMaterial>>,
+    >,
+    mat_query: Query<&Handle<StandardMaterial>>,
+    mesh_query: Query<&Handle<Mesh>>,
+    children_query: Query<&Children>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut commands: Commands,
+    wasp_query: Query<&super::basic_unit::Marker>,
+) {
+    for (entity, model) in units.iter() {
+        let Some((e, _)) = find_topmost_mesh(
+            &model.base,
+            &mesh_query,
+            &children_query,
+            &wasp_query,
+        ) else {
+            continue;
+        };
+
+        let material_handle =
+            mat_query.get(e).ok().map(|handle| handle.clone());
+        let material = material_handle
+            .clone()
+            .map_or(StandardMaterial::default(), |handle| {
+                materials.get(handle).unwrap().clone()
+            });
+
+        // Based on https://github.com/aevyrie/bevy_mod_picking/blob/d8464161c5a499358d2816861d961078cbe01d1f/examples/gltf.rs#L55
+        let damage_tint = StandardMaterial {
+            base_color: material.base_color
+                + Color::rgba(0.2, -0.2, -0.2, 0.0),
+            ..material.to_owned()
+        };
+
+        let damage_tint_handle = materials.add(damage_tint);
+
+        commands.entity(entity).insert(UnitModelMaterials {
+            entity: e,
+            initial: material_handle,
+            damage: damage_tint_handle,
+        });
+    }
+}
+
+/** Breadth-first search for a material handle */
+fn find_topmost_mesh(
+    entity: &Entity,
+    mesh_query: &Query<&Handle<Mesh>>,
+    children_query: &Query<&Children>,
+    wasp_query: &Query<&super::basic_unit::Marker>,
+) -> Option<(Entity, Handle<Mesh>)> {
+    let mut to_check = vec![entity];
+
+    match wasp_query.get(*entity) {
+        Ok(_) => log("searching wasp"),
+        Err(_) => log("searching other"),
+    };
+
+    while to_check.len() > 0 {
+        let e = to_check.pop().unwrap();
+        if let Ok(handle) = mesh_query.get(*e) {
+            log("found mesh");
+            return Some((*e, handle.clone()));
+        }
+
+        if let Ok(children) = children_query.get(*e) {
+            log(format!("adding {} children", children.len())
+                .as_str());
+            to_check.extend(children);
+        }
+    }
+
+    log("no mesh found");
+    return None;
+}
+
+// @todo: Move health bar update render here (ie wait until projectiles land)
+pub fn render_unit_damage(
+    mut reader: EventReader<UnitDamageEvent>,
+    mut handle_query: Query<&mut Handle<StandardMaterial>>,
+    unit_query: Query<&UnitModelMaterials<StandardMaterial>>,
+) {
+    for ev in reader.read() {
+        let Ok(mats) = unit_query.get(ev.unit) else {
+            continue;
+        };
+
+        let Ok(mut handle) = handle_query.get_mut(mats.entity) else {
+            continue;
+        };
+
+        *handle = mats.damage.clone();
     }
 }
