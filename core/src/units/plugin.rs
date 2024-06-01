@@ -41,8 +41,8 @@ impl Plugin for UnitsPlugin {
         app.add_systems(
             Update,
             (
-                super::systems::render_initial_material,
                 super::systems::render_status_change,
+                super::systems::render_unit_materials,
                 super::systems::render_unit_damage,
                 super::health_bar::render_health_bar,
                 super::basic_unit::render,

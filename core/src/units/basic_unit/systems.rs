@@ -1,7 +1,6 @@
 use super::super::components::UnitModel;
 use super::super::health_bar::build_health_bar;
 use crate::components::DoNotRender;
-use crate::gui::console::{self, log};
 use bevy::gltf::Gltf;
 use bevy::prelude::*;
 
@@ -36,6 +35,8 @@ pub fn render(
             Without<DoNotRender>,
         ),
     >,
+    mesh_query: Query<&Handle<Mesh>>,
+    children_query: Query<&Children>,
 ) {
     let model_gltf = match assets.get(&handles.model_gltf) {
         Some(x) => x,
@@ -49,7 +50,7 @@ pub fn render(
 
         let base = commands
             .spawn(SceneBundle {
-                scene: model_gltf.scenes[0].clone_weak(),
+                scene: model_gltf.scenes[0].clone(),
                 transform: Transform::from_xyz(0.0, 0.25, 0.0)
                     .with_scale(Vec3::splat(0.5)),
                 ..default()
@@ -71,7 +72,6 @@ pub fn render(
         });
     }
 }
-
 // @todo: All models currently reference the same entity / animation player component
 //        This probably means we can't play different animations for different units (eg on damage)
 //        without spawning a new GLTF handle for each unit which will probably have a hefty perf cost

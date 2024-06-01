@@ -52,7 +52,7 @@ pub fn spawn_scenario(mut commands: Commands) {
         }]),
     };
 
-    for i in 1..2 {
+    for i in 1..99 {
         scenario.waves[0].enemies.push(WaveEnemy {
             id_unit: 0,
             id_path: 1,
@@ -60,21 +60,21 @@ pub fn spawn_scenario(mut commands: Commands) {
         });
     }
 
-    // for i in 1..10 {
-    //     scenario.waves[0].enemies.push(WaveEnemy {
-    //         id_unit: 1,
-    //         id_path: 1,
-    //         delay: i * 80,
-    //     });
-    // }
+    for i in 1..10 {
+        scenario.waves[0].enemies.push(WaveEnemy {
+            id_unit: 1,
+            id_path: 1,
+            delay: i * 80,
+        });
+    }
 
-    // for i in 1..10 {
-    //     scenario.waves[0].enemies.push(WaveEnemy {
-    //         id_unit: 2,
-    //         id_path: 1,
-    //         delay: i * 200,
-    //     });
-    // }
+    for i in 1..10 {
+        scenario.waves[0].enemies.push(WaveEnemy {
+            id_unit: 2,
+            id_path: 1,
+            delay: i * 200,
+        });
+    }
 
     commands.insert_resource(scenario);
 }
