@@ -4,11 +4,20 @@ use crate::components::DoNotRender;
 use bevy::gltf::Gltf;
 use bevy::prelude::*;
 
-// Based on https://bevy-cheatbook.github.io/3d/gltf.html
 #[derive(Resource)]
 
 pub struct UnitAssetHandles {
     model_gltf: Handle<Gltf>,
+}
+
+#[derive(Component)]
+
+struct NeedsAnimation;
+
+#[derive(Component)]
+
+pub struct AnimationIndices {
+    walk: AnimationNodeIndex,
 }
 
 pub fn init_assets(mut commands: Commands, ass: Res<AssetServer>) {
@@ -27,7 +36,7 @@ pub fn render(
     mut materials: ResMut<Assets<StandardMaterial>>,
     handles: Res<UnitAssetHandles>,
     assets: Res<Assets<Gltf>>,
-    units: Query<
+    mut units: Query<
         Entity,
         (
             With<super::Marker>,
@@ -35,15 +44,13 @@ pub fn render(
             Without<DoNotRender>,
         ),
     >,
-    mesh_query: Query<&Handle<Mesh>>,
-    children_query: Query<&Children>,
 ) {
     let model_gltf = match assets.get(&handles.model_gltf) {
         Some(x) => x,
         None => return,
     };
 
-    for entity in units.iter() {
+    for entity in units.iter_mut() {
         let health_bar = commands
             .spawn(build_health_bar(&mut meshes, &mut materials))
             .id();
@@ -65,46 +72,70 @@ pub fn render(
             .add_child(health_bar)
             .id();
 
-        commands.entity(entity).insert(UnitModel {
-            root,
-            base,
-            health_bar,
-        });
+        commands.entity(entity).insert((
+            UnitModel {
+                root,
+                base,
+                health_bar,
+            },
+            NeedsAnimation,
+        ));
     }
 }
-// @todo: All models currently reference the same entity / animation player component
-//        This probably means we can't play different animations for different units (eg on damage)
-//        without spawning a new GLTF handle for each unit which will probably have a hefty perf cost
-//        Revisit this in when bevy 0.14 lands, which reworks the animation api anyways
+
 pub fn render_movement_animation(
-    units: Query<&UnitModel, With<super::Marker>>,
-    mut player_query: Query<&mut AnimationPlayer>,
+    units: Query<(Entity, &UnitModel), With<NeedsAnimation>>,
+    mut player_query: Query<
+        &mut AnimationPlayer,
+        Without<Handle<AnimationGraph>>,
+    >,
     children_query: Query<&Children>,
     handles: Res<UnitAssetHandles>,
     assets: Res<Assets<Gltf>>,
+    mut graphs: ResMut<Assets<AnimationGraph>>,
+    mut commands: Commands,
 ) {
     let model_gltf = match assets.get(&handles.model_gltf) {
         Some(x) => x,
         None => return,
     };
 
-    for model in units.iter() {
+    for (entity, model) in units.iter() {
         for child in children_query.iter_descendants(model.base) {
-            let Ok(mut animation_player) =
-                player_query.get_mut(child)
-            else {
+            let Ok(mut player) = player_query.get_mut(child) else {
                 continue;
             };
 
-            let clip = model_gltf.named_animations["Wasp_Flying"]
-                .clone_weak();
+            let mut graph = AnimationGraph::new();
 
-            if animation_player.is_playing_clip(&clip) {
-                continue;
-            }
+            let idx_walk = graph.add_clip(
+                model_gltf.named_animations["Wasp_Flying"]
+                    .clone_weak(),
+                0.15,
+                graph.root,
+            );
 
-            animation_player.play(clip).repeat();
-            break;
+            player.play(idx_walk).repeat();
+
+            player
+                .play(
+                    graph.add_clip(
+                        model_gltf.named_animations["OnDamage"]
+                            .clone_weak(),
+                        1.0,
+                        graph.root,
+                    ),
+                )
+                .repeat();
+
+            let graph_handle = graphs.add(graph);
+            commands.entity(child).insert(graph_handle);
+
+            commands
+                .entity(child)
+                .insert(AnimationIndices { walk: idx_walk });
+
+            commands.entity(entity).remove::<NeedsAnimation>();
         }
     }
 }

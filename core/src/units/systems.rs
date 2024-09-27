@@ -12,7 +12,7 @@ use super::{
 use crate::{
     animation::components::InterpolateTranslation,
     components::DoNotRender,
-    gui::console::{self, log},
+    gui::console::{self},
     scenario::Scenario,
     timers::{round_timer::RoundTimer, tick_timer::TickTimer},
 };
@@ -268,6 +268,9 @@ pub fn render_unit_damage(
     }
 }
 
+/// Initialize UnitModelMaterials, which tracks...
+///   - the original material
+///   - the material for indicating damage (red tint of original)
 pub fn render_unit_materials(
     units: Query<(Entity, &UnitModel), Without<UnitModelMaterials>>,
     mat_query: Query<&Handle<StandardMaterial>>,
@@ -286,12 +289,19 @@ pub fn render_unit_materials(
 
         let materials =
             Vec::from_iter(mats.into_iter().map(|(e, handle)| {
-                let mat = materials.get(handle).unwrap();
+                let mat = materials.get(&handle).unwrap();
+
+                let base_color = add_srgba(
+                    mat.base_color.to_srgba(),
+                    0.2,
+                    -0.2,
+                    -0.2,
+                    Some(0.5),
+                );
 
                 // Based on https://github.com/aevyrie/bevy_mod_picking/blob/d8464161c5a499358d2816861d961078cbe01d1f/examples/gltf.rs#L55
                 let damage_tint = StandardMaterial {
-                    base_color: mat.base_color
-                        + Color::rgba(0.2, -0.2, -0.2, 0.5),
+                    base_color,
                     ..mat.to_owned()
                 };
 
@@ -299,7 +309,7 @@ pub fn render_unit_materials(
 
                 UnitMaterial {
                     entity: e,
-                    initial: None,
+                    initial: handle,
                     damage: damage_tint_handle.clone(),
                 }
             }));
@@ -330,4 +340,19 @@ fn find_materials(
     }
 
     return results;
+}
+
+fn add_srgba(
+    base: Srgba,
+    r: f32,
+    g: f32,
+    b: f32,
+    a_override: Option<f32>,
+) -> Color {
+    Color::srgba(
+        (base.red + r).clamp(0., 1.),
+        (base.green + g).clamp(0., 1.),
+        (base.blue + b).clamp(0., 1.),
+        a_override.unwrap_or(base.alpha),
+    )
 }

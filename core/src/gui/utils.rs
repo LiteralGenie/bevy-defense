@@ -35,7 +35,7 @@ pub fn window_to_world_coords(
     let distance = ray
         .intersect_plane(
             Vec3::new(0., 0., 0.),
-            Plane3d::new(Vec3::new(0., 1., 0.)),
+            InfinitePlane3d::new(Vec3::new(0., 1., 0.)),
         )
         .unwrap();
 

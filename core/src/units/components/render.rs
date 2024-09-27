@@ -8,7 +8,7 @@ pub struct UnitModelMaterials {
 
 pub struct UnitMaterial {
     pub entity: Entity,
-    pub initial: Option<Handle<StandardMaterial>>,
+    pub initial: Handle<StandardMaterial>,
     pub damage: Handle<StandardMaterial>,
 }
 
@@ -18,9 +18,3 @@ pub struct UnitModel {
     pub base: Entity,
     pub health_bar: Entity,
 }
-
-#[derive(Component)]
-pub struct UnitHealthBarModel(pub Entity);
-
-#[derive(Component)]
-pub struct UnitDamageTint;

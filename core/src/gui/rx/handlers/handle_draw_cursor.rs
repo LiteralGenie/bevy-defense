@@ -128,7 +128,7 @@ fn update_cursor_color(world: &mut World, opacity: f32) {
     let handle = color_query.get_mut(*model).unwrap();
     let mat = materials.get_mut(handle).unwrap();
     mat.alpha_mode = AlphaMode::Blend;
-    mat.base_color.set_a(opacity);
+    mat.base_color.set_alpha(opacity);
 
     state.apply(world);
 }
