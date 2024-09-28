@@ -8,6 +8,7 @@ pub struct InterpolateTranslation {
     pub pos_diff: Vec3,
     pub duration: u32,
     pub elapsed: u32,
+    pub rem_delay: u16,
 }
 
 impl InterpolateTranslation {
@@ -21,6 +22,7 @@ impl InterpolateTranslation {
             model,
             duration,
             elapsed: 0,
+            rem_delay: 0,
             pos_start,
             pos_end,
             pos_diff: Vec3::new(
@@ -29,6 +31,10 @@ impl InterpolateTranslation {
                 pos_end.z - pos_start.z,
             ),
         }
+    }
+
+    pub fn delay(&mut self, t: u16) {
+        self.rem_delay = t
     }
 }
 
@@ -40,6 +46,7 @@ pub struct InterpolateScale {
     pub scale_diff: f32,
     pub duration: u32,
     pub elapsed: u32,
+    pub rem_delay: u16,
 }
 
 impl InterpolateScale {
@@ -53,10 +60,15 @@ impl InterpolateScale {
             model,
             duration,
             elapsed: 0,
+            rem_delay: 0,
             scale_start,
             scale_end,
             scale_diff: scale_end - scale_start,
         }
+    }
+
+    pub fn delay(&mut self, t: u16) {
+        self.rem_delay = t
     }
 }
 
@@ -68,6 +80,7 @@ pub struct InterpolateMaterialColor {
     pub diff: Srgba,
     pub duration: u32,
     pub elapsed: u32,
+    pub rem_delay: u16,
 }
 
 impl InterpolateMaterialColor {
@@ -87,10 +100,15 @@ impl InterpolateMaterialColor {
             model,
             duration,
             elapsed: 0,
+            rem_delay: 0,
             start,
             end,
             diff: srgba_diff,
         }
+    }
+
+    pub fn delay(&mut self, t: u16) {
+        self.rem_delay = t
     }
 }
 
@@ -102,6 +120,7 @@ pub struct InterpolateAlpha {
     pub alpha_diff: f32,
     pub duration: u32,
     pub elapsed: u32,
+    pub rem_delay: u16,
 }
 
 impl InterpolateAlpha {
@@ -115,9 +134,29 @@ impl InterpolateAlpha {
             model,
             duration,
             elapsed: 0,
+            rem_delay: 0,
             alpha_start,
             alpha_end,
             alpha_diff: alpha_end - alpha_start,
+        }
+    }
+
+    pub fn delay(&mut self, t: u16) {
+        self.rem_delay = t
+    }
+}
+
+#[derive(Component)]
+pub struct DespawnTimer {
+    pub entity: Entity,
+    pub rem_delay: u16,
+}
+
+impl DespawnTimer {
+    pub fn new(entity: Entity, delay: u16) -> Self {
+        Self {
+            entity,
+            rem_delay: delay,
         }
     }
 }

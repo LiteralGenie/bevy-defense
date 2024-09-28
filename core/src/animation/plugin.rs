@@ -7,6 +7,7 @@ impl Plugin for AnimationPlugin {
         app.add_systems(
             Update,
             (
+                super::systems::tick_despawn_timer,
                 super::systems::interpolate_translation,
                 super::systems::interpolate_scale,
                 super::systems::interpolate_material_color,

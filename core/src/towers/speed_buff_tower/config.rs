@@ -14,5 +14,5 @@ pub const CONFIG: TowerConfig = TowerConfig {
     offense: None,
     variant: TowerVariantConfig::SpeedBuff(1.35),
 
-    render_model: super::spawn_model,
+    render_model: super::render_model,
 };

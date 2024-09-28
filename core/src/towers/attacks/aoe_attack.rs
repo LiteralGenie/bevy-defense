@@ -1,6 +1,8 @@
 use super::utils::{filter_targets_by_dist, find_target};
 use crate::{
-    animation::components::{InterpolateAlpha, InterpolateScale},
+    animation::components::{
+        DespawnTimer, InterpolateAlpha, InterpolateScale,
+    },
     scenario::Scenario,
     timers::tick_timer::TICK_FREQUENCY_HZ,
     towers::{
@@ -112,7 +114,7 @@ pub fn apply_aoe_attack(
     }
 }
 
-pub fn render_aoe_attack_scale_start(
+pub fn render_aoe_attack_start(
     mut reader: EventReader<AoeAttackEvent>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -124,6 +126,7 @@ pub fn render_aoe_attack_scale_start(
         let path = scenario.paths.get(&ev.id_path).unwrap();
         let center = path.points.get(ev.dist as usize).unwrap();
 
+        // Spawn projectile model
         let mut model = commands.spawn((
             PbrBundle {
                 mesh: meshes
@@ -147,44 +150,32 @@ pub fn render_aoe_attack_scale_start(
             AoeModelMarker { ev: (*ev).clone() },
         ));
 
-        model.insert(InterpolateScale::new(
+        // Define animations
+        let start = 0 as u16;
+        let dur = (0.75 * TICK_FREQUENCY_HZ) as u32;
+        model.insert(
+            InterpolateScale::new(model.id(), dur as u32, 0.05, 0.8)
+                .delay(start),
+        );
+
+        let start = start + (dur as u16);
+        let dur = (0.5 * TICK_FREQUENCY_HZ) as u32;
+        model.insert(
+            InterpolateAlpha::new(model.id(), dur, 0.25, 0.0)
+                .delay(start),
+        );
+
+        model.insert(DespawnTimer::new(
             model.id(),
-            (0.75 * TICK_FREQUENCY_HZ) as u32,
-            0.05,
-            0.8,
+            start + (dur as u16),
         ));
 
+        // Notify on-damage systems
         for unit in ev.units.iter() {
             writer.send(UnitDamageEvent {
                 unit: unit.clone(),
                 damage: ev.damage,
             });
-        }
-    }
-}
-
-pub fn render_aoe_attack_scale_end(
-    query: Query<Entity, With<AoeModelMarker>>,
-    mut done: RemovedComponents<InterpolateScale>,
-    mut commands: Commands,
-) {
-    for entity in done.read() {
-        if let Ok(entity) = query.get(entity) {
-            commands
-                .entity(entity)
-                .insert(InterpolateAlpha::new(entity, 12, 0.25, 0.0));
-        }
-    }
-}
-
-pub fn render_aoe_attack_alpha_end(
-    query: Query<Entity, With<AoeModelMarker>>,
-    mut done: RemovedComponents<InterpolateAlpha>,
-    mut commands: Commands,
-) {
-    for entity in done.read() {
-        if let Ok(entity) = query.get(entity) {
-            commands.entity(entity).despawn();
         }
     }
 }

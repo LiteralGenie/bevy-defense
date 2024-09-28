@@ -1,9 +1,27 @@
 use super::components::{
-    InterpolateAlpha, InterpolateMaterialColor, InterpolateScale,
-    InterpolateTranslation,
+    DespawnTimer, InterpolateAlpha, InterpolateMaterialColor,
+    InterpolateScale, InterpolateTranslation,
 };
 use crate::gui::console::{self};
 use bevy::prelude::*;
+
+pub fn tick_despawn_timer(
+    mut query: Query<(Entity, &mut DespawnTimer)>,
+    time: Res<Time<Fixed>>,
+    mut commands: Commands,
+) {
+    for (entity, mut info) in query.iter_mut() {
+        // Check if animation complete
+        if time.is_changed() {
+            if info.rem_delay > 0 {
+                info.rem_delay -= 1;
+                continue;
+            } else {
+                commands.entity(entity).despawn();
+            }
+        }
+    }
+}
 
 pub fn interpolate_translation(
     mut query: Query<(Entity, &mut InterpolateTranslation)>,
@@ -19,8 +37,13 @@ pub fn interpolate_translation(
                     .entity(entity)
                     .remove::<InterpolateTranslation>();
                 continue;
-            } else {
-                info.elapsed += 1;
+            }
+
+            info.elapsed += 1;
+
+            if info.rem_delay > 0 {
+                info.rem_delay -= 1;
+                continue;
             }
         }
 
@@ -57,8 +80,13 @@ pub fn interpolate_scale(
             if info.elapsed >= info.duration {
                 commands.entity(entity).remove::<InterpolateScale>();
                 continue;
-            } else {
-                info.elapsed += 1;
+            }
+
+            info.elapsed += 1;
+
+            if info.rem_delay > 0 {
+                info.rem_delay -= 1;
+                continue;
             }
         }
 
@@ -144,8 +172,13 @@ pub fn interpolate_alpha(
             if info.elapsed >= info.duration {
                 commands.entity(entity).remove::<InterpolateAlpha>();
                 continue;
-            } else {
-                info.elapsed += 1;
+            }
+
+            info.elapsed += 1;
+
+            if info.rem_delay > 0 {
+                info.rem_delay -= 1;
+                continue;
             }
         }
 
