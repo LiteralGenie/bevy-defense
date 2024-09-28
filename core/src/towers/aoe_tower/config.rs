@@ -8,12 +8,12 @@ pub const CONFIG: TowerConfig = TowerConfig {
 
     size: 2,
     range: RangeConfig {
-        radius: 4,
+        radius: 7,
         variant: RangeTypeConfig::Basic,
     },
 
     offense: Some(OffenseConfig {
-        attack: AttackTypeConfig::Aoe(3),
+        attack: AttackTypeConfig::Aoe(4),
         damage: 25,
         speed: 5,
     }),

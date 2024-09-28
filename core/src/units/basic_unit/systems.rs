@@ -12,7 +12,7 @@ pub struct UnitAssetHandles {
 
 #[derive(Component)]
 
-struct NeedsAnimation;
+pub struct NeedsAnimation;
 
 #[derive(Component)]
 

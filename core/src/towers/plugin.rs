@@ -59,8 +59,9 @@ impl Plugin for TowersPlugin {
                 super::systems::render_projectile_end,
                 super::systems::render_event_handlers,
                 super::attacks::render_basic_attack,
-                super::attacks::render_aoe_attack_start,
-                super::attacks::render_aoe_attack_end,
+                super::attacks::render_aoe_attack_scale_start,
+                super::attacks::render_aoe_attack_scale_end,
+                super::attacks::render_aoe_attack_alpha_end,
             )
                 .in_set(TowerRenderSystems),
         )

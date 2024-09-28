@@ -1,19 +1,20 @@
 use super::utils::{filter_targets_by_dist, find_target};
 use crate::{
-    animation::components::{
-        InterpolateScale, InterpolateTranslation,
-    },
+    animation::components::{InterpolateAlpha, InterpolateScale},
     scenario::Scenario,
     timers::tick_timer::TICK_FREQUENCY_HZ,
     towers::{
         components::{
-            EffectiveDamage, Projectile, TowerAttackEnergy,
-            TowerPosition, TowerPriority, TowerRange,
+            EffectiveDamage, TowerAttackEnergy, TowerPriority,
+            TowerRange,
         },
         systems::UnitsByDist,
     },
-    units::components::{
-        UnitHealth, UnitPosition, UnitStatus, UnitStatusTypes,
+    units::{
+        components::{
+            UnitHealth, UnitPosition, UnitStatus, UnitStatusTypes,
+        },
+        events::UnitDamageEvent,
     },
 };
 use bevy::prelude::*;
@@ -22,12 +23,15 @@ use bevy::prelude::*;
 pub struct AoeAttack(pub u16);
 
 #[derive(Component)]
-pub struct AoeModelMarker;
+pub struct AoeModelMarker {
+    pub ev: AoeAttackEvent,
+}
 
-#[derive(Event)]
+#[derive(Event, Clone)]
 pub struct AoeAttackEvent {
     pub tower: Entity,
     pub units: Vec<Entity>,
+    pub damage: u32,
     pub radius: u16,
     pub id_path: u8,
     pub dist: u16,
@@ -100,6 +104,7 @@ pub fn apply_aoe_attack(
         events.send(AoeAttackEvent {
             tower: entity,
             units: targets,
+            damage: damage.0,
             radius: attack.0,
             id_path: primary_pos.id_path,
             dist: primary_pos.dist,
@@ -107,12 +112,13 @@ pub fn apply_aoe_attack(
     }
 }
 
-pub fn render_aoe_attack_start(
+pub fn render_aoe_attack_scale_start(
     mut reader: EventReader<AoeAttackEvent>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     scenario: Res<Scenario>,
+    mut writer: EventWriter<UnitDamageEvent>,
 ) {
     for ev in reader.read() {
         let path = scenario.paths.get(&ev.id_path).unwrap();
@@ -123,7 +129,7 @@ pub fn render_aoe_attack_start(
                 mesh: meshes
                     .add(Capsule3d::new(ev.radius as f32, 0.01)),
                 material: materials.add(StandardMaterial {
-                    base_color: Color::rgba(0.5, 0.0, 0.0, 0.25),
+                    base_color: Color::srgba(0.5, 0.0, 0.0, 0.25),
                     alpha_mode: AlphaMode::Blend,
                     ..default()
                 }),
@@ -138,21 +144,42 @@ pub fn render_aoe_attack_start(
                 },
                 ..default()
             },
-            AoeModelMarker,
+            AoeModelMarker { ev: (*ev).clone() },
         ));
 
         model.insert(InterpolateScale::new(
             model.id(),
             (0.75 * TICK_FREQUENCY_HZ) as u32,
             0.05,
-            1.0,
+            0.8,
         ));
+
+        for unit in ev.units.iter() {
+            writer.send(UnitDamageEvent {
+                unit: unit.clone(),
+                damage: ev.damage,
+            });
+        }
     }
 }
 
-pub fn render_aoe_attack_end(
+pub fn render_aoe_attack_scale_end(
     query: Query<Entity, With<AoeModelMarker>>,
     mut done: RemovedComponents<InterpolateScale>,
+    mut commands: Commands,
+) {
+    for entity in done.read() {
+        if let Ok(entity) = query.get(entity) {
+            commands
+                .entity(entity)
+                .insert(InterpolateAlpha::new(entity, 12, 0.25, 0.0));
+        }
+    }
+}
+
+pub fn render_aoe_attack_alpha_end(
+    query: Query<Entity, With<AoeModelMarker>>,
+    mut done: RemovedComponents<InterpolateAlpha>,
     mut commands: Commands,
 ) {
     for entity in done.read() {

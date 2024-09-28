@@ -59,3 +59,65 @@ impl InterpolateScale {
         }
     }
 }
+
+#[derive(Component)]
+pub struct InterpolateMaterialColor {
+    pub model: Handle<StandardMaterial>,
+    pub start: Srgba,
+    pub end: Srgba,
+    pub diff: Srgba,
+    pub duration: u32,
+    pub elapsed: u32,
+}
+
+impl InterpolateMaterialColor {
+    pub fn new(
+        model: Handle<StandardMaterial>,
+        duration: u32,
+        start: Srgba,
+        end: Srgba,
+    ) -> Self {
+        let r = end.red - start.red;
+        let g = end.green - start.green;
+        let b = end.blue - start.blue;
+        let a = end.alpha - start.alpha;
+        let srgba_diff = Srgba::new(r, g, b, a);
+
+        Self {
+            model,
+            duration,
+            elapsed: 0,
+            start,
+            end,
+            diff: srgba_diff,
+        }
+    }
+}
+
+#[derive(Component)]
+pub struct InterpolateAlpha {
+    pub model: Entity,
+    pub alpha_start: f32,
+    pub alpha_end: f32,
+    pub alpha_diff: f32,
+    pub duration: u32,
+    pub elapsed: u32,
+}
+
+impl InterpolateAlpha {
+    pub fn new(
+        model: Entity,
+        duration: u32,
+        alpha_start: f32,
+        alpha_end: f32,
+    ) -> Self {
+        Self {
+            model,
+            duration,
+            elapsed: 0,
+            alpha_start,
+            alpha_end,
+            alpha_diff: alpha_end - alpha_start,
+        }
+    }
+}

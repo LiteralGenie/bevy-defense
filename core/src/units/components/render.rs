@@ -8,8 +8,9 @@ pub struct UnitModelMaterials {
 
 pub struct UnitMaterial {
     pub entity: Entity,
-    pub initial: Handle<StandardMaterial>,
-    pub damage: Handle<StandardMaterial>,
+    pub handle: Handle<StandardMaterial>,
+    pub initial_color: Color,
+    pub damage_color: Color,
 }
 
 #[derive(Component)]

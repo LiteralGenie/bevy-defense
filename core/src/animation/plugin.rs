@@ -9,6 +9,8 @@ impl Plugin for AnimationPlugin {
             (
                 super::systems::interpolate_translation,
                 super::systems::interpolate_scale,
+                super::systems::interpolate_material_color,
+                super::systems::interpolate_alpha,
             ),
         );
     }

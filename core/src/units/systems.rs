@@ -10,9 +10,11 @@ use super::{
     speed_trail_unit::SpeedBuff,
 };
 use crate::{
-    animation::components::InterpolateTranslation,
+    animation::components::{
+        InterpolateMaterialColor, InterpolateTranslation,
+    },
     components::DoNotRender,
-    gui::console::{self},
+    gui::console,
     scenario::Scenario,
     timers::{round_timer::RoundTimer, tick_timer::TickTimer},
 };
@@ -258,12 +260,18 @@ pub fn render_unit_damage(
         let mats = unit_query.get(ev.unit).unwrap();
 
         for unit_mat in mats.materials.iter() {
-            let Some(mut unit) = commands.get_entity(unit_mat.entity)
+            let Some(mut entity) =
+                commands.get_entity(unit_mat.entity)
             else {
                 continue;
             };
 
-            unit.insert(unit_mat.damage.clone());
+            entity.insert(InterpolateMaterialColor::new(
+                unit_mat.handle.clone(),
+                20,
+                unit_mat.damage_color.to_srgba(),
+                unit_mat.initial_color.to_srgba(),
+            ));
         }
     }
 }
@@ -289,28 +297,26 @@ pub fn render_unit_materials(
 
         let materials =
             Vec::from_iter(mats.into_iter().map(|(e, handle)| {
-                let mat = materials.get(&handle).unwrap();
+                let mat = materials.get(&handle).unwrap().clone();
 
-                let base_color = add_srgba(
-                    mat.base_color.to_srgba(),
-                    0.2,
-                    -0.2,
-                    -0.2,
+                let initial_color = mat.base_color.clone();
+
+                let damage_color = add_srgba(
+                    initial_color.to_srgba(),
+                    0.5,
+                    -0.5,
+                    -0.5,
                     Some(0.5),
                 );
 
-                // Based on https://github.com/aevyrie/bevy_mod_picking/blob/d8464161c5a499358d2816861d961078cbe01d1f/examples/gltf.rs#L55
-                let damage_tint = StandardMaterial {
-                    base_color,
-                    ..mat.to_owned()
-                };
-
-                let damage_tint_handle = materials.add(damage_tint);
+                let new_mat_handle = materials.add(mat);
+                commands.entity(e).insert(new_mat_handle.clone());
 
                 UnitMaterial {
                     entity: e,
-                    initial: handle,
-                    damage: damage_tint_handle.clone(),
+                    handle: new_mat_handle,
+                    initial_color,
+                    damage_color,
                 }
             }));
 
