@@ -14,7 +14,6 @@ use crate::{
         InterpolateMaterialColor, InterpolateTranslation,
     },
     components::DoNotRender,
-    gui::console,
     scenario::Scenario,
     timers::{round_timer::RoundTimer, tick_timer::TickTimer},
 };
@@ -58,12 +57,10 @@ pub fn spawn_pending_units(
     for (entity, _, spawn_tick, pos, model) in to_spawn {
         let is_late = spawn_tick.0 < tick_timer.0;
         if is_late {
-            console::warn(
-                format!(
-                    "Unit spawned late. Expected {} but got {}",
-                    spawn_tick.0, tick_timer.0
-                )
-                .as_str(),
+            log::warn!(
+                "Unit spawned late. Expected {} but got {}",
+                spawn_tick.0,
+                tick_timer.0
             )
         }
 

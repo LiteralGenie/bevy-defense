@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{gui::console, states::GamePhase};
+use crate::states::GamePhase;
 
 pub fn handle_start_round(world: &mut World) {
     let phase =
@@ -13,7 +13,7 @@ pub fn handle_start_round(world: &mut World) {
                 .unwrap();
             next_phase.set(GamePhase::COMBAT)
         }
-        _ => console::error(
+        _ => log::error!(
             "start_round request sent outside of build phase",
         ),
     }

@@ -1,5 +1,4 @@
 use super::components::{UnitHealth, UnitHealthMax, UnitModel};
-use crate::gui::console;
 use bevy::prelude::*;
 
 pub fn build_health_bar(

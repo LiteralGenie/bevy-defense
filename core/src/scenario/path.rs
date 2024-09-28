@@ -1,4 +1,3 @@
-use crate::gui::console;
 use bevy::{prelude::*, utils::HashSet};
 
 pub enum Direction {

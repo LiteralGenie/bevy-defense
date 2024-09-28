@@ -1,4 +1,3 @@
-use super::console;
 use crate::{
     scenario::Scenario,
     towers::{

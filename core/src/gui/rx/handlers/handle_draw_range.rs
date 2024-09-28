@@ -1,6 +1,6 @@
 use bevy::{ecs::system::SystemState, prelude::*};
 
-use crate::{gui::console, towers::components::TowerRange};
+use crate::towers::components::TowerRange;
 
 #[derive(Resource)]
 struct RangeHighlight {

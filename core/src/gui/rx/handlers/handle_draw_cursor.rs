@@ -1,11 +1,8 @@
 use bevy::{ecs::system::SystemState, prelude::*};
 
 use crate::{
-    gui::{
-        console,
-        utils::{
-            can_place_tower, snap_coords, window_to_world_coords,
-        },
+    gui::utils::{
+        can_place_tower, snap_coords, window_to_world_coords,
     },
     misc_utils::find_materials,
     towers::{components::BasicRangeType, config::match_config},

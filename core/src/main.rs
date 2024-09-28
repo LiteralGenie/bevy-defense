@@ -15,6 +15,8 @@ mod units;
 use bevy_mod_picking::prelude::*;
 
 fn main() {
+    wasm_logger::init(wasm_logger::Config::default());
+
     let mut app = App::new();
 
     app

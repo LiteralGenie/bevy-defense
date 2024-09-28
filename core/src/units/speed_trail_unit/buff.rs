@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use std::collections::{HashMap, HashSet};
 
 use crate::{
-    gui::console,
     scenario::Scenario,
     units::components::{UnitPosition, UnitStatus, UnitStatusTypes},
 };

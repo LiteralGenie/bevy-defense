@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{gui::console, states::GamePhase};
+use crate::states::GamePhase;
 
 pub fn handle_start_game(world: &mut World) {
     let phase =
@@ -13,7 +13,7 @@ pub fn handle_start_game(world: &mut World) {
                 .unwrap();
             next_phase.set(GamePhase::BUILD)
         }
-        _ => console::error(
+        _ => log::error!(
             "start_game request sent outside of init phase",
         ),
     }

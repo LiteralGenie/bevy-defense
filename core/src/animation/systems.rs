@@ -2,7 +2,6 @@ use super::components::{
     DespawnTimer, InterpolateAlpha, InterpolateMaterialColor,
     InterpolateScale, InterpolateTranslation,
 };
-use crate::gui::console::{self};
 use bevy::prelude::*;
 
 pub fn tick_despawn_timer(

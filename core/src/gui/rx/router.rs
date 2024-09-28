@@ -1,4 +1,3 @@
-use super::super::console;
 use super::super::utils::get_prop;
 use bevy::ecs::world::World;
 use js_sys::Function;
@@ -108,9 +107,9 @@ pub fn handle_gui_requests(world: &mut World) {
                 );
             }
             _ => {
-                console::error2(
-                    "Unknown event type",
-                    event_type.as_str(),
+                log::error!(
+                    "Unknown event type {}",
+                    event_type.as_str()
                 );
                 let _ = reject.call0(&JsValue::null());
             }
@@ -120,11 +119,10 @@ pub fn handle_gui_requests(world: &mut World) {
             None => {}
             Some(r) => {
                 if r.is_err() {
-                    let msg = format!(
+                    log::warn!(
                         "Failed to process event type {}",
                         event_type.as_str()
                     );
-                    console::warn(&msg);
                 }
             }
         }

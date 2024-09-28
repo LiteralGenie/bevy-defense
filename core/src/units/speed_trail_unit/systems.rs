@@ -1,7 +1,6 @@
 use super::super::components::UnitModel;
 use super::super::health_bar::build_health_bar;
 use crate::components::DoNotRender;
-use crate::gui::console;
 use bevy::prelude::*;
 
 pub fn render(
