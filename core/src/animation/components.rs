@@ -33,8 +33,9 @@ impl InterpolateTranslation {
         }
     }
 
-    pub fn delay(&mut self, t: u16) {
-        self.rem_delay = t
+    pub fn delay(mut self, t: u16) -> Self {
+        self.rem_delay = t;
+        return self;
     }
 }
 
@@ -67,8 +68,9 @@ impl InterpolateScale {
         }
     }
 
-    pub fn delay(&mut self, t: u16) {
-        self.rem_delay = t
+    pub fn delay(mut self, t: u16) -> Self {
+        self.rem_delay = t;
+        return self;
     }
 }
 
@@ -107,8 +109,9 @@ impl InterpolateMaterialColor {
         }
     }
 
-    pub fn delay(&mut self, t: u16) {
-        self.rem_delay = t
+    pub fn delay(mut self, t: u16) -> Self {
+        self.rem_delay = t;
+        return self;
     }
 }
 
@@ -141,8 +144,9 @@ impl InterpolateAlpha {
         }
     }
 
-    pub fn delay(&mut self, t: u16) {
-        self.rem_delay = t
+    pub fn delay(mut self, t: u16) -> Self {
+        self.rem_delay = t;
+        return self;
     }
 }
 

@@ -38,12 +38,12 @@ pub fn interpolate_translation(
                 continue;
             }
 
-            info.elapsed += 1;
-
             if info.rem_delay > 0 {
                 info.rem_delay -= 1;
                 continue;
             }
+
+            info.elapsed += 1;
         }
 
         // Update position
@@ -81,12 +81,12 @@ pub fn interpolate_scale(
                 continue;
             }
 
-            info.elapsed += 1;
-
             if info.rem_delay > 0 {
                 info.rem_delay -= 1;
                 continue;
             }
+
+            info.elapsed += 1;
         }
 
         // Update position
@@ -134,9 +134,14 @@ pub fn interpolate_material_color(
                     .remove::<InterpolateMaterialColor>();
 
                 continue;
-            } else {
-                info.elapsed += 1;
             }
+
+            if info.rem_delay > 0 {
+                info.rem_delay -= 1;
+                continue;
+            }
+
+            info.elapsed += 1;
         }
 
         // Update
@@ -173,12 +178,12 @@ pub fn interpolate_alpha(
                 continue;
             }
 
-            info.elapsed += 1;
-
             if info.rem_delay > 0 {
                 info.rem_delay -= 1;
                 continue;
             }
+
+            info.elapsed += 1;
         }
 
         // Update alpha

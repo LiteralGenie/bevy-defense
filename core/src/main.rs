@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{log::LogPlugin, prelude::*};
 use states::GamePhase;
 mod animation;
 mod camera;
@@ -15,20 +15,18 @@ mod units;
 use bevy_mod_picking::prelude::*;
 
 fn main() {
-    wasm_logger::init(wasm_logger::Config::default());
-
     let mut app = App::new();
 
     app
         // Load game into canvas#game-canvas
-        .add_plugins((DefaultPlugins.set(WindowPlugin {
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 canvas: Some("#game-canvas".into()),
                 prevent_default_event_handling: false,
                 ..default()
             }),
             ..default()
-        }),))
+        }))
         // Init game state
         .init_state::<GamePhase>()
         .add_systems(
