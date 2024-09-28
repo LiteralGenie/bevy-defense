@@ -67,7 +67,7 @@ fn init_resource(world: &mut World, id_tower: u16) {
     let (mut commands, mut meshes, mut materials, mut asset_server) =
         state.get_mut(world);
 
-    let model = (cfg.spawn_model)(
+    let model = (cfg.render_model)(
         &mut commands,
         &mut meshes,
         &mut materials,

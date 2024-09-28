@@ -19,5 +19,5 @@ pub const CONFIG: TowerConfig = TowerConfig {
     }),
     variant: TowerVariantConfig::Basic,
 
-    spawn_model: super::spawn_model,
+    render_model: super::render_model,
 };

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-pub fn spawn_model(
+pub fn render_model(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,

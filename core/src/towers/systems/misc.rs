@@ -31,7 +31,7 @@ pub fn render_model(
     for (entity, id, pos) in towers.iter() {
         let cfg = match_config(id.0);
 
-        let model = (cfg.spawn_model)(
+        let model = (cfg.render_model)(
             &mut commands,
             &mut meshes,
             &mut materials,

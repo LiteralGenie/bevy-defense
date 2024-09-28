@@ -9,7 +9,7 @@ pub struct TowerConfig {
     pub offense: Option<OffenseConfig>,
     pub variant: TowerVariantConfig,
 
-    pub spawn_model: fn(
+    pub render_model: fn(
         &mut Commands,
         &mut ResMut<Assets<Mesh>>,
         &mut ResMut<Assets<StandardMaterial>>,
