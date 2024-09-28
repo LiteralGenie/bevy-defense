@@ -5,6 +5,7 @@ mod camera;
 mod components;
 mod gui;
 mod map;
+mod misc_utils;
 mod player;
 mod scenario;
 mod states;

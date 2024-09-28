@@ -5,3 +5,7 @@ PR
     - Replace placeholder model for basic unit with animated one
         - Animation is rotated to match movement direction
     - UnitModel component now has base and health_bar fields
+    - Update to bevy 0.14
+        - Mostly animation-related updates
+    - On damage, temporarily tint the unit's StandardMaterial(s)
+        - Requires render systems clone the material on init

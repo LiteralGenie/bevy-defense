@@ -4,6 +4,7 @@ pub fn spawn_model(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,
+    asset_server: &mut Res<AssetServer>,
     top_left: Vec3,
 ) -> Entity {
     let size = super::CONFIG.size as f32;
@@ -19,10 +20,15 @@ pub fn spawn_model(
         .id();
 
     let model = commands
-        .spawn(PbrBundle {
-            mesh: meshes.add(Cuboid::new(size, 1.0, size)),
-            material: materials.add(Color::rgb(0.5, 0.5, 0.0)),
-            transform: Transform::from_xyz(offset, 0.5, -offset),
+        .spawn(SceneBundle {
+            scene: asset_server.load(
+                GltfAssetLabel::Scene(0)
+                    .from_asset("railgun_turret/custom_railgun.glb"),
+            ),
+            transform: Transform::from_translation(Vec3::new(
+                0.45, 0.0, -0.5,
+            ))
+            .with_scale(Vec3::splat(1.3)),
             ..default()
         })
         .id();

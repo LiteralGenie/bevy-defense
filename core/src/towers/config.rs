@@ -13,6 +13,7 @@ pub struct TowerConfig {
         &mut Commands,
         &mut ResMut<Assets<Mesh>>,
         &mut ResMut<Assets<StandardMaterial>>,
+        &mut Res<AssetServer>,
         Vec3,
     ) -> Entity,
 }

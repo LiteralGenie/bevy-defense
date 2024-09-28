@@ -7,6 +7,7 @@ use crate::{
             can_place_tower, snap_coords, window_to_world_coords,
         },
     },
+    misc_utils::find_materials,
     towers::{components::BasicRangeType, config::match_config},
 };
 
@@ -60,15 +61,17 @@ fn init_resource(world: &mut World, id_tower: u16) {
         Commands,
         ResMut<Assets<Mesh>>,
         ResMut<Assets<StandardMaterial>>,
+        Res<AssetServer>,
     )> = SystemState::new(world);
 
-    let (mut commands, mut meshes, mut materials) =
+    let (mut commands, mut meshes, mut materials, mut asset_server) =
         state.get_mut(world);
 
     let model = (cfg.spawn_model)(
         &mut commands,
         &mut meshes,
         &mut materials,
+        &mut asset_server,
         Vec3::new(0.0, 0.0, 0.0),
     );
 
@@ -120,15 +123,16 @@ fn update_cursor_color(world: &mut World, opacity: f32) {
         Query<&Children>,
     )> = SystemState::new(world);
 
-    let (cursor, mut materials, mut color_query, children_query) =
+    let (cursor, mut materials, mut mat_query, children_query) =
         state.get_mut(world);
 
-    let model =
-        children_query.get(cursor.model).unwrap().first().unwrap();
-    let handle = color_query.get_mut(*model).unwrap();
-    let mat = materials.get_mut(handle).unwrap();
-    mat.alpha_mode = AlphaMode::Blend;
-    mat.base_color.set_alpha(opacity);
+    for (_, mat_handle) in
+        find_materials(&cursor.model, &mat_query, &children_query)
+    {
+        let mat = materials.get_mut(&mat_handle).unwrap();
+        mat.alpha_mode = AlphaMode::Blend;
+        mat.base_color.set_alpha(opacity);
+    }
 
     state.apply(world);
 }

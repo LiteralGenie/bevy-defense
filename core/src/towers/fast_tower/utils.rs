@@ -4,6 +4,7 @@ pub fn spawn_model(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,
+    asset_server: &mut Res<AssetServer>,
     top_left: Vec3,
 ) -> Entity {
     let size = super::CONFIG.size as f32;

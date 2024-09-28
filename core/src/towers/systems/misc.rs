@@ -22,6 +22,7 @@ pub fn render_model(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut asset_server: Res<AssetServer>,
     towers: Query<
         (Entity, &TowerMarker, &TowerPosition),
         Without<TowerModel>,
@@ -34,6 +35,7 @@ pub fn render_model(
             &mut commands,
             &mut meshes,
             &mut materials,
+            &mut asset_server,
             Vec3::new(
                 pos.top_left.0 as f32,
                 0.0,
