@@ -3,6 +3,7 @@ use crate::{
     animation::components::{
         DespawnTimer, InterpolateAlpha, InterpolateScale,
     },
+    components::LastTarget,
     scenario::Scenario,
     timers::tick_timer::TICK_FREQUENCY_HZ,
     towers::{
@@ -54,6 +55,7 @@ pub fn apply_aoe_attack(
     scenario: Res<Scenario>,
     mut status_query: Query<&mut UnitStatus>,
     mut events: EventWriter<AoeAttackEvent>,
+    mut commands: Commands,
 ) {
     for (entity, attack, mut energy, damage, range, priority) in
         query.iter_mut()
@@ -102,6 +104,10 @@ pub fn apply_aoe_attack(
                 status.0 = UnitStatusTypes::DEAD;
             }
         }
+
+        commands.entity(entity).insert(LastTarget {
+            entity: primary_target,
+        });
 
         events.send(AoeAttackEvent {
             tower: entity,

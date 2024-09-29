@@ -1,5 +1,14 @@
 use bevy::prelude::*;
 
+#[derive(Component)]
+pub struct AoeTowerMarker;
+
+#[derive(Component)]
+pub struct AoeTowerModel {
+    pub root: Entity,
+    pub base: Entity,
+}
+
 pub fn render_model(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,

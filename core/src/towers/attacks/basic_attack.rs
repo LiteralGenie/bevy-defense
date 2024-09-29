@@ -1,5 +1,6 @@
 use super::utils::{filter_targets_by_dist, find_target};
 use crate::{
+    components::LastTarget,
     scenario::Scenario,
     towers::{
         components::{
@@ -41,6 +42,7 @@ pub fn apply_basic_attack(
     scenario: Res<Scenario>,
     mut status_query: Query<&mut UnitStatus>,
     mut events: EventWriter<BasicAttackEvent>,
+    mut commands: Commands,
 ) {
     for (entity, mut energy, damage, range, priority) in
         query.iter_mut()
@@ -76,6 +78,10 @@ pub fn apply_basic_attack(
             let mut status = status_query.get_mut(target).unwrap();
             status.0 = UnitStatusTypes::DEAD;
         }
+
+        commands
+            .entity(entity)
+            .insert(LastTarget { entity: target });
 
         events.send(BasicAttackEvent {
             tower: entity,
